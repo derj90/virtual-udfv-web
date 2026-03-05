@@ -48,6 +48,12 @@
       border-radius: 8px;
     }
     .platform-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; color: white; }
+    .hist-chip { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .hist-chip.active { background: #0033A1; color: white; }
+    .hist-chip:not(.active) { background: #f3f4f6; color: #6b7280; }
+    .hist-chip:not(.active):hover { background: #e5e7eb; }
+    .hist-row { transition: background 0.15s; }
+    .hist-row:hover { background: #f9fafb; }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col">
@@ -182,6 +188,50 @@
         <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Sin cursos activos en 2026</h3>
         <p class="text-gray-500 text-sm max-w-sm mx-auto">No tienes cursos activos este a&ntilde;o en ninguna de las 5 plataformas. Si crees que esto es un error, contacta a <a href="mailto:udfv@umce.cl" class="text-umce-azul hover:underline">udfv@umce.cl</a>.</p>
       </div>
+
+      <!-- HISTORIAL SECTION — lazy load on click -->
+      <div id="historial-section" class="hidden mt-12 border-t border-gray-200 pt-8">
+        <button id="historial-toggle" onclick="toggleHistorial()" class="w-full flex items-center justify-between group">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-left">
+              <h3 class="font-heading font-bold text-sm text-gray-700 group-hover:text-gray-900 transition-colors">Cursos anteriores</h3>
+              <p class="text-gray-400 text-xs">Historial completo de cursos en los que has participado</p>
+            </div>
+          </div>
+          <svg id="historial-chevron" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+
+        <div id="historial-content" class="hidden mt-6">
+          <!-- Loading -->
+          <div id="historial-loading" class="text-center py-6 hidden">
+            <svg class="w-6 h-6 animate-spin text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-gray-400 text-xs">Cargando historial...</p>
+          </div>
+
+          <!-- Filters row -->
+          <div id="historial-filters" class="hidden flex flex-wrap items-center gap-2 mb-4">
+            <span class="text-xs text-gray-400 mr-1">Filtrar:</span>
+            <div id="historial-year-tabs" class="flex flex-wrap gap-1.5"></div>
+            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+            <div id="historial-platform-tabs" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <!-- Count -->
+          <div id="historial-count" class="hidden text-xs text-gray-400 mb-4"></div>
+
+          <!-- Courses list (compact) -->
+          <div id="historial-courses" class="space-y-2"></div>
+
+          <!-- Empty -->
+          <div id="historial-empty" class="hidden text-center py-8">
+            <p class="text-gray-400 text-sm">No se encontraron cursos anteriores.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -338,7 +388,10 @@
         p.courses.forEach(c => allCourses.push(c));
       });
 
-      document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''}`;
+      document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''} activo${data.totalCourses !== 1 ? 's' : ''}`;
+
+      // Always show historial toggle after login
+      document.getElementById('historial-section').classList.remove('hidden');
 
       if (data.totalCourses === 0) {
         noCourses.classList.remove('hidden');
@@ -421,12 +474,141 @@
       localStorage.removeItem('umce_token');
       localStorage.removeItem('umce_user');
       allCourses = [];
+      historialCourses = [];
+      historialLoaded = false;
+      historialOpen = false;
       loginSection.classList.remove('hidden');
       resultsSection.classList.add('hidden');
       usernameInput.value = '';
       passwordInput.value = '';
       loginError.classList.add('hidden');
       setLoading(false);
+    }
+
+    // ===== HISTORIAL (lazy) =====
+    let historialCourses = [];
+    let historialLoaded = false;
+    let historialOpen = false;
+    let histFilterYear = 'all';
+    let histFilterPlatform = 'all';
+
+    function toggleHistorial() {
+      historialOpen = !historialOpen;
+      const content = document.getElementById('historial-content');
+      const chevron = document.getElementById('historial-chevron');
+
+      if (historialOpen) {
+        content.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+        if (!historialLoaded) loadHistorial();
+      } else {
+        content.classList.add('hidden');
+        chevron.style.transform = '';
+      }
+    }
+
+    async function loadHistorial() {
+      const token = localStorage.getItem('umce_token');
+      if (!token) return;
+
+      const loading = document.getElementById('historial-loading');
+      loading.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/historial', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) return logout();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        historialLoaded = true;
+        loading.classList.add('hidden');
+
+        // Flatten
+        historialCourses = [];
+        const platformSet = {};
+        data.platforms.forEach(p => {
+          p.courses.forEach(c => {
+            historialCourses.push(c);
+            if (!platformSet[p.platform]) platformSet[p.platform] = { name: p.platformName, color: p.platformColor };
+          });
+        });
+
+        if (historialCourses.length === 0) {
+          document.getElementById('historial-empty').classList.remove('hidden');
+          return;
+        }
+
+        // Build year tabs
+        const years = data.years || [];
+        const yearTabsEl = document.getElementById('historial-year-tabs');
+        yearTabsEl.innerHTML = `<button onclick="setHistYear('all')" class="hist-chip active" data-year="all">Todos</button>` +
+          years.map(y => `<button onclick="setHistYear('${y}')" class="hist-chip" data-year="${y}">${y}</button>`).join('');
+
+        // Build platform tabs
+        const platTabsEl = document.getElementById('historial-platform-tabs');
+        platTabsEl.innerHTML = Object.entries(platformSet).map(([id, info]) =>
+          `<button onclick="setHistPlatform('${id}')" class="hist-chip" data-hplat="${id}" style="--chip-color:${info.color}">${info.name}</button>`
+        ).join('');
+
+        document.getElementById('historial-filters').classList.remove('hidden');
+        renderHistorial();
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        document.getElementById('historial-courses').innerHTML = `<p class="text-red-500 text-xs text-center py-4">${err.message}</p>`;
+      }
+    }
+
+    function setHistYear(year) {
+      histFilterYear = year;
+      document.querySelectorAll('#historial-year-tabs .hist-chip').forEach(el => {
+        el.classList.toggle('active', el.dataset.year === year);
+      });
+      renderHistorial();
+    }
+
+    function setHistPlatform(plat) {
+      histFilterPlatform = histFilterPlatform === plat ? 'all' : plat;
+      document.querySelectorAll('#historial-platform-tabs .hist-chip').forEach(el => {
+        el.classList.toggle('active', el.dataset.hplat === histFilterPlatform);
+      });
+      renderHistorial();
+    }
+
+    function renderHistorial() {
+      let filtered = historialCourses;
+      if (histFilterYear !== 'all') filtered = filtered.filter(c => String(c.year) === histFilterYear);
+      if (histFilterPlatform !== 'all') filtered = filtered.filter(c => c.platform.id === histFilterPlatform);
+
+      // Sort by date desc
+      filtered.sort((a, b) => (b.startdate || '').localeCompare(a.startdate || ''));
+
+      const countEl = document.getElementById('historial-count');
+      countEl.textContent = `${filtered.length} curso${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`;
+      countEl.classList.remove('hidden');
+
+      const container = document.getElementById('historial-courses');
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-xs text-center py-4">Ning&uacute;n curso coincide con los filtros.</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => `
+        <a href="${c.courseUrl}" target="_blank" rel="noopener" class="hist-row flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-100 bg-white group">
+          <span class="platform-chip shrink-0" style="background:${c.platform.color}">${c.platform.name}</span>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-heading font-semibold text-sm text-gray-800 group-hover:text-umce-azul transition-colors truncate">${c.fullname}</h4>
+            ${c.summary ? `<p class="text-gray-400 text-xs truncate">${c.summary}</p>` : ''}
+          </div>
+          <div class="shrink-0 text-right hidden sm:block">
+            <span class="text-gray-400 text-xs">${c.startdate ? formatDate(c.startdate) : ''}</span>
+            ${c.progress != null ? `<div class="flex items-center gap-1.5 mt-0.5"><div class="w-16 h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${c.progress}%;background:${c.platform.color}"></div></div><span class="text-[10px] text-gray-400">${c.progress}%</span></div>` : ''}
+          </div>
+          <svg class="w-4 h-4 text-gray-300 group-hover:text-umce-azul shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      `).join('');
     }
   </script>
 </body>

@@ -145,34 +145,35 @@ async function getUserCourses(platform, userId) {
 const YEAR_2026_START = new Date('2026-01-01T00:00:00Z').getTime() / 1000;
 const YEAR_2027_START = new Date('2027-01-01T00:00:00Z').getTime() / 1000;
 
+function enrichCourse(c, platform) {
+  return {
+    id: c.id,
+    fullname: c.fullname,
+    shortname: c.shortname,
+    summary: (c.summary || '').replace(/<[^>]*>/g, '').substring(0, 200),
+    startdate: c.startdate ? new Date(c.startdate * 1000).toISOString().split('T')[0] : null,
+    enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
+    year: c.startdate ? new Date(c.startdate * 1000).getFullYear() : null,
+    progress: c.progress != null ? Math.round(c.progress) : null,
+    courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
+    platform: { id: platform.id, name: platform.name, color: platform.color, url: platform.url }
+  };
+}
+
+function isActive2026(c) {
+  const start = c.startdate || 0;
+  const end = c.enddate || 0;
+  if (start >= YEAR_2027_START) return false;
+  if (end > 0 && end < YEAR_2026_START) return false;
+  return true;
+}
+
 function filterAndEnrich(courses, platform) {
-  return courses
-    .filter(c => {
-      if (!c.visible) return false;
-      // Include if: course started in 2026, OR course is ongoing (no enddate or enddate in 2026+)
-      const start = c.startdate || 0;
-      const end = c.enddate || 0;
-      // Course active in 2026: started before 2027 AND (no end OR ends after 2026 start)
-      if (start >= YEAR_2027_START) return false; // starts in 2027+
-      if (end > 0 && end < YEAR_2026_START) return false; // ended before 2026
-      return true;
-    })
-    .map(c => ({
-      id: c.id,
-      fullname: c.fullname,
-      shortname: c.shortname,
-      summary: (c.summary || '').replace(/<[^>]*>/g, '').substring(0, 200),
-      startdate: c.startdate ? new Date(c.startdate * 1000).toISOString().split('T')[0] : null,
-      enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
-      progress: c.progress != null ? Math.round(c.progress) : null,
-      courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
-      platform: {
-        id: platform.id,
-        name: platform.name,
-        color: platform.color,
-        url: platform.url
-      }
-    }));
+  return courses.filter(c => c.visible && isActive2026(c)).map(c => enrichCourse(c, platform));
+}
+
+function filterHistorical(courses, platform) {
+  return courses.filter(c => c.visible && !isActive2026(c)).map(c => enrichCourse(c, platform));
 }
 
 // --- Static files ---
@@ -289,6 +290,52 @@ app.get('/api/mis-cursos', async (req, res) => {
   const userName = platformResults.find(r => r.userName)?.userName || username;
 
   res.json({ userName, username, totalCourses, platforms: platformResults });
+});
+
+// --- API: Historical courses (lazy, on demand) ---
+app.get('/api/historial', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Sesión no válida.' });
+  }
+
+  const session = verifyToken(authHeader.slice(7));
+  if (!session) {
+    return res.status(401).json({ error: 'Sesión expirada.' });
+  }
+
+  const { username } = session;
+
+  const platformResults = await Promise.all(
+    PLATFORMS.map(async (platform) => {
+      try {
+        const user = await findUserByUsername(platform, username);
+        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
+
+        const courses = await getUserCourses(platform, user.id);
+        const historical = filterHistorical(courses, platform);
+
+        return {
+          platform: platform.id,
+          platformName: platform.name,
+          platformColor: platform.color,
+          courses: historical,
+          found: true
+        };
+      } catch (err) {
+        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
+      }
+    })
+  );
+
+  const allHistorical = platformResults.flatMap(p => p.courses);
+  const years = [...new Set(allHistorical.map(c => c.year).filter(Boolean))].sort((a, b) => b - a);
+
+  res.json({
+    totalCourses: allHistorical.length,
+    years,
+    platforms: platformResults
+  });
 });
 
 // --- API: Health check ---
