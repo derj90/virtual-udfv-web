@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UMCE Virtual — Unidad de Desarrollo y Formaci&oacute;n Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'umce-azul': '#0033A1',
+            'umce-azul-light': '#1A4DB5',
+            'umce-azul-dark': '#002280',
+            'umce-amarillo': '#FF9E18',
+            'umce-amarillo-dark': '#E08800',
+            'umce-azul-oscuro': '#003F6E',
+            'umce-verde': '#127C29',
+            'umce-naranja': '#E9511D',
+            'umce-rojo': '#90120D',
+          },
+          fontFamily: {
+            'heading': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            'body': ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+
+    /* Scroll animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger children */
+    .stagger > .fade-up:nth-child(1) { transition-delay: 0s; }
+    .stagger > .fade-up:nth-child(2) { transition-delay: 0.1s; }
+    .stagger > .fade-up:nth-child(3) { transition-delay: 0.2s; }
+    .stagger > .fade-up:nth-child(4) { transition-delay: 0.3s; }
+    .stagger > .fade-up:nth-child(5) { transition-delay: 0.4s; }
+    .stagger > .fade-up:nth-child(6) { transition-delay: 0.5s; }
+
+    /* Hero gradient matching virtual.umce.cl */
+    .hero-gradient {
+      background: linear-gradient(to bottom, rgba(0,51,161,0.92) 0%, rgba(0,34,128,0.96) 60%, #002280 100%);
+    }
+
+    /* Card hover */
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -8px rgba(0,51,161,0.15);
+    }
+
+    /* Level badges */
+    .level-line {
+      position: relative;
+    }
+    .level-line::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #0033A1, #FF9E18);
+    }
+
+    /* Nav shrink on scroll */
+    .nav-scrolled {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    /* Platform card icon circle */
+    .platform-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    /* Competency domain cards */
+    .domain-card {
+      border-left: 4px solid;
+      transition: background-color 0.2s ease;
+    }
+    .domain-card:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* Stats counter animation */
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .stat-number.visible {
+      animation: countUp 0.6s ease-out forwards;
+    }
+
+    /* Active nav link */
+    .nav-link {
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #FF9E18;
+      transition: width 0.2s;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    /* Course card thumbnails */
+    .course-thumb {
+      height: 140px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .course-thumb svg { width: 48px; height: 48px; opacity: 0.3; }
+    .course-thumb .status-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    /* Filter tabs */
+    .filter-tab {
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #e5e7eb;
+      background: white;
+      color: #6b7280;
+    }
+    .filter-tab:hover { border-color: #0033A1; color: #0033A1; }
+    .filter-tab.active { background: #0033A1; color: white; border-color: #0033A1; }
+    .course-card[data-status="closed"] { display: none; }
+    .show-all .course-card[data-status="closed"] { display: block; }
+    .show-closed .course-card[data-status="active"] { display: none; }
+    .show-closed .course-card[data-status="closed"] { display: block; }
+
+    /* Prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up { opacity: 1; transform: none; transition: none; }
+      .card-hover:hover { transform: none; }
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ============================================ -->
+  <!-- NAV -->
+  <!-- ============================================ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-umce-azul text-white transition-all duration-300 py-4">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="font-heading font-extrabold text-lg">U</span>
+        </div>
+        <div class="hidden sm:block">
+          <div class="font-heading font-bold text-base leading-tight">UMCE Virtual</div>
+          <div class="text-white/70 text-xs leading-tight">Unidad de Desarrollo y Formaci&oacute;n Virtual</div>
+        </div>
+      </a>
+
+      <!-- Links desktop -->
+      <div class="hidden lg:flex items-center gap-8 text-sm font-medium">
+        <a href="#plataformas" class="nav-link text-white/90 hover:text-white">Plataformas</a>
+        <a href="#competencias" class="nav-link text-white/90 hover:text-white">Competencias</a>
+        <a href="#formacion" class="nav-link text-white/90 hover:text-white">Formaci&oacute;n</a>
+        <a href="#servicios" class="nav-link text-white/90 hover:text-white">Servicios</a>
+        <a href="#recursos" class="nav-link text-white/90 hover:text-white">Recursos</a>
+        <a href="#contacto" class="nav-link text-white/90 hover:text-white">Contacto</a>
+      </div>
+
+      <!-- CTA -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="/mis-cursos.html" class="inline-flex items-center gap-2 border border-white/30 text-white font-heading font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/10 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+          Mis Cursos
+        </a>
+        <a href="https://virtual.umce.cl/login/index.php" class="inline-flex items-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors">
+          Acceder
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button id="mobile-menu-btn" class="lg:hidden p-2 hover:bg-white/10 rounded-lg" aria-label="Men&uacute;">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden lg:hidden px-6 pb-4 pt-2">
+      <div class="flex flex-col gap-2 text-sm font-medium">
+        <a href="#plataformas" class="py-2 text-white/90 hover:text-white">Plataformas</a>
+        <a href="#competencias" class="py-2 text-white/90 hover:text-white">Competencias Digitales</a>
+        <a href="#formacion" class="py-2 text-white/90 hover:text-white">Formaci&oacute;n</a>
+        <a href="#servicios" class="py-2 text-white/90 hover:text-white">Servicios</a>
+        <a href="#recursos" class="py-2 text-white/90 hover:text-white">Recursos</a>
+        <a href="#contacto" class="py-2 text-white/90 hover:text-white">Contacto</a>
+        <a href="https://virtual.umce.cl/login/index.php" class="mt-2 inline-flex items-center justify-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold text-sm px-5 py-2.5 rounded-lg">Acceder</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================ -->
+  <!-- HERO -->
+  <!-- ============================================ -->
+  <section class="hero-gradient min-h-[90vh] flex items-center relative overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+
+    <div class="max-w-7xl mx-auto px-6 pt-28 pb-20 relative z-10">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <!-- Left: Text -->
+        <div>
+          <div class="fade-up inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-4 py-2 rounded-full mb-8 border border-white/10">
+            <span class="w-2 h-2 bg-umce-amarillo rounded-full animate-pulse"></span>
+            Universidad Metropolitana de Ciencias de la Educaci&oacute;n
+          </div>
+
+          <h1 class="fade-up font-heading text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-white leading-tight mb-6">
+            Formaci&oacute;n virtual<br>
+            <span class="text-umce-amarillo">para la docencia</span><br>
+            del futuro
+          </h1>
+
+          <p class="fade-up text-white/80 text-lg md:text-xl leading-relaxed mb-10 max-w-lg">
+            Plataformas educativas, certificaci&oacute;n de competencias digitales y herramientas de innovaci&oacute;n pedag&oacute;gica para la comunidad acad&eacute;mica UMCE.
+          </p>
+
+          <div class="fade-up flex flex-wrap gap-4">
+            <a href="#plataformas" class="inline-flex items-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold px-7 py-3.5 rounded-xl hover:bg-yellow-400 transition-colors text-base">
+              Explorar plataformas
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+            </a>
+            <a href="#competencias" class="inline-flex items-center gap-2 border-2 border-white/30 text-white font-heading font-semibold px-7 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-base">
+              Competencias Digitales
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Stats cards -->
+        <div class="hidden lg:grid grid-cols-2 gap-5">
+          <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div class="stat-number text-4xl font-heading font-extrabold text-umce-amarillo mb-2">5</div>
+            <div class="text-white/90 font-medium text-sm">Plataformas Moodle</div>
+            <div class="text-white/60 text-xs mt-1">eVirtual, Pr&aacute;ctica, Virtual, Pregrado, Postgrado</div>
+          </div>
+          <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div class="stat-number text-4xl font-heading font-extrabold text-umce-amarillo mb-2">1.876</div>
+            <div class="text-white/90 font-medium text-sm">Cursos activos</div>
+            <div class="text-white/60 text-xs mt-1">Monitoreados en tiempo real</div>
+          </div>
+          <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div class="stat-number text-4xl font-heading font-extrabold text-umce-amarillo mb-2">3</div>
+            <div class="text-white/90 font-medium text-sm">Niveles de certificaci&oacute;n</div>
+            <div class="text-white/60 text-xs mt-1">Competencias digitales docentes</div>
+          </div>
+          <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div class="stat-number text-4xl font-heading font-extrabold text-umce-amarillo mb-2">24/7</div>
+            <div class="text-white/90 font-medium text-sm">Asistente IA</div>
+            <div class="text-white/60 text-xs mt-1">Soporte inteligente para docentes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave separator -->
+    <div class="absolute bottom-0 left-0 right-0">
+      <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="white"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- PLATAFORMAS -->
+  <!-- ============================================ -->
+  <section id="plataformas" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+          <span class="w-8 h-px bg-umce-azul"></span>
+          Plataformas
+          <span class="w-8 h-px bg-umce-azul"></span>
+        </div>
+        <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+          Ecosistema de aprendizaje virtual
+        </h2>
+        <p class="fade-up text-gray-500 text-lg max-w-2xl mx-auto">
+          Cinco plataformas Moodle especializadas por modalidad y nivel acad&eacute;mico, cada una dise&ntilde;ada para las necesidades espec&iacute;ficas de su comunidad.
+        </p>
+      </div>
+
+      <div class="stagger grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- eVirtual -->
+        <a href="https://evirtual.umce.cl" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-azul">eV</div>
+            <div>
+              <h3 class="font-heading font-bold text-lg text-gray-900 group-hover:text-umce-azul transition-colors">eVirtual</h3>
+              <div class="text-gray-400 text-sm">evirtual.umce.cl</div>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm leading-relaxed">Plataforma principal para formaci&oacute;n continua, diplomados y programas de desarrollo acad&eacute;mico institucional.</p>
+          <div class="mt-4 flex items-center gap-1 text-umce-azul text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Acceder <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </div>
+        </a>
+
+        <!-- Pr&aacute;ctica -->
+        <a href="https://evirtual-practica.umce.cl" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-naranja">Pr</div>
+            <div>
+              <h3 class="font-heading font-bold text-lg text-gray-900 group-hover:text-umce-naranja transition-colors">Pr&aacute;ctica</h3>
+              <div class="text-gray-400 text-sm">evirtual-practica.umce.cl</div>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm leading-relaxed">Espacio de experimentaci&oacute;n y pruebas pedag&oacute;gicas para docentes. Sandbox para innovar sin riesgo.</p>
+          <div class="mt-4 flex items-center gap-1 text-umce-naranja text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Acceder <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </div>
+        </a>
+
+        <!-- Virtual -->
+        <a href="https://virtual.umce.cl" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-azul-oscuro">Vi</div>
+            <div>
+              <h3 class="font-heading font-bold text-lg text-gray-900 group-hover:text-umce-azul-oscuro transition-colors">Virtual</h3>
+              <div class="text-gray-400 text-sm">virtual.umce.cl</div>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm leading-relaxed">Plataforma de apoyo a la docencia presencial con recursos virtuales complementarios para todas las facultades.</p>
+          <div class="mt-4 flex items-center gap-1 text-umce-azul-oscuro text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Acceder <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </div>
+        </a>
+
+        <!-- Pregrado -->
+        <a href="https://evirtual-pregrado.umce.cl" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-verde">Pg</div>
+            <div>
+              <h3 class="font-heading font-bold text-lg text-gray-900 group-hover:text-umce-verde transition-colors">Pregrado</h3>
+              <div class="text-gray-400 text-sm">evirtual-pregrado.umce.cl</div>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm leading-relaxed">Cursos de pregrado en modalidad virtual y h&iacute;brida. Carreras de pedagog&iacute;a con componentes online.</p>
+          <div class="mt-4 flex items-center gap-1 text-umce-verde text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Acceder <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </div>
+        </a>
+
+        <!-- Postgrado -->
+        <a href="https://evirtual-postgrado.umce.cl" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-rojo">Po</div>
+            <div>
+              <h3 class="font-heading font-bold text-lg text-gray-900 group-hover:text-umce-rojo transition-colors">Postgrado</h3>
+              <div class="text-gray-400 text-sm">evirtual-postgrado.umce.cl</div>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm leading-relaxed">Programas de mag&iacute;ster, diplomados y cursos de especializaci&oacute;n de postgrado.</p>
+          <div class="mt-4 flex items-center gap-1 text-umce-rojo text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            Acceder <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </div>
+        </a>
+
+        <!-- Dashboard card -->
+        <div class="fade-up card-hover bg-gradient-to-br from-umce-azul to-umce-azul-dark rounded-2xl p-6 text-white group">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="platform-icon bg-umce-amarillo text-umce-azul-dark">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-heading font-bold text-lg">Dashboard Docente</h3>
+              <div class="text-white/60 text-sm">dashboard.udfv.cloud</div>
+            </div>
+          </div>
+          <p class="text-white/80 text-sm leading-relaxed">Analytics integrados v&iacute;a LTI directamente en tus cursos Moodle. Visualiza el avance de tus estudiantes en tiempo real.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- COMPETENCIAS DIGITALES -->
+  <!-- ============================================ -->
+  <section id="competencias" class="py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16 items-start">
+        <!-- Left: Info -->
+        <div>
+          <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+            <span class="w-8 h-px bg-umce-azul"></span>
+            Certificaci&oacute;n oficial
+            <span class="w-8 h-px bg-umce-azul"></span>
+          </div>
+          <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+            Competencias Digitales<br>
+            <span class="text-umce-azul">para Docentes y Profesionales</span>
+          </h2>
+          <p class="fade-up text-gray-500 text-lg leading-relaxed mb-8">
+            Programa de certificaci&oacute;n institucional aprobado por <strong class="text-gray-700">Resoluci&oacute;n Exenta N&deg;2025-00-1545</strong>, desarrollado conjuntamente por la UDA y la UDFV, alineado al <strong class="text-gray-700">Marco DIGCOMP / Mineduc-UNESCO</strong>.
+          </p>
+
+          <!-- 3 Levels -->
+          <div class="fade-up space-y-6 level-line pl-12 relative">
+            <div class="relative">
+              <div class="absolute -left-12 top-0 w-12 h-12 bg-umce-azul rounded-full flex items-center justify-center text-white font-heading font-bold text-lg z-10">1</div>
+              <div class="bg-white rounded-xl p-5 border border-gray-200">
+                <div class="flex items-center gap-3 mb-2">
+                  <h4 class="font-heading font-bold text-base text-gray-900">Nivel B&aacute;sico</h4>
+                  <span class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aprobado</span>
+                </div>
+                <p class="text-gray-500 text-sm">Fundamentos de competencias digitales. Certificaci&oacute;n base requerida para avanzar en el sistema.</p>
+              </div>
+            </div>
+            <div class="relative">
+              <div class="absolute -left-12 top-0 w-12 h-12 bg-umce-azul-light rounded-full flex items-center justify-center text-white font-heading font-bold text-lg z-10">2</div>
+              <div class="bg-white rounded-xl p-5 border border-gray-200">
+                <div class="flex items-center gap-3 mb-2">
+                  <h4 class="font-heading font-bold text-base text-gray-900">Nivel Intermedio</h4>
+                  <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">2026</span>
+                </div>
+                <p class="text-gray-500 text-sm">Integraci&oacute;n pedag&oacute;gica avanzada de tecnolog&iacute;as digitales en la docencia universitaria.</p>
+              </div>
+            </div>
+            <div class="relative">
+              <div class="absolute -left-12 top-0 w-12 h-12 bg-umce-amarillo rounded-full flex items-center justify-center text-umce-azul-dark font-heading font-bold text-lg z-10">3</div>
+              <div class="bg-white rounded-xl p-5 border border-gray-200 border-dashed">
+                <div class="flex items-center gap-3 mb-2">
+                  <h4 class="font-heading font-bold text-base text-gray-900">Nivel Avanzado &mdash; Diplomado</h4>
+                  <span class="text-xs font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Proyectado</span>
+                </div>
+                <p class="text-gray-500 text-sm">Diplomado en Docencia Digital Universitaria. Meta institucional respaldada por la Direcci&oacute;n de Docencia.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: DIGCOMP Domains -->
+        <div>
+          <h3 class="fade-up font-heading font-bold text-lg text-gray-900 mb-6">Dominios DIGCOMP</h3>
+          <div class="stagger space-y-4">
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #0033A1;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-azul/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Creaci&oacute;n e innovaci&oacute;n digital</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Dise&ntilde;o de recursos educativos digitales, aprendizaje activo con tecnolog&iacute;a, evaluaci&oacute;n diagn&oacute;stica online.</p>
+            </div>
+
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #127C29;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-verde/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-verde" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Aprendizaje y desarrollo digital</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Dise&ntilde;o de cursos online, aula invertida, planificaci&oacute;n de experiencias h&iacute;bridas y blended learning.</p>
+            </div>
+
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #E9511D;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-naranja/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-naranja" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Identidad y bienestar digital</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Entornos inclusivos, &eacute;tica digital, gesti&oacute;n de la identidad online y ciudadan&iacute;a digital responsable.</p>
+            </div>
+
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #FF9E18;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-amarillo/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-amarillo-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Alfabetizaci&oacute;n informacional y datos</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Integridad acad&eacute;mica, gesti&oacute;n de datos educativos, uso cr&iacute;tico de informaci&oacute;n y medios digitales.</p>
+            </div>
+
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #003F6E;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-azul-oscuro/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-azul-oscuro" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Comunicaci&oacute;n y colaboraci&oacute;n digital</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Trabajo colaborativo online, comunidades de aprendizaje virtuales, comunicaci&oacute;n efectiva con herramientas digitales.</p>
+            </div>
+
+            <div class="fade-up domain-card rounded-xl p-5 bg-white" style="border-color: #90120D;">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-umce-rojo/10 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-umce-rojo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h4 class="font-heading font-semibold text-sm text-gray-900">Competencia digital y productividad</h4>
+              </div>
+              <p class="text-gray-500 text-xs pl-11">Gesti&oacute;n acad&eacute;mica con plataformas digitales, automatizaci&oacute;n de procesos y productividad docente.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FORMACI&Oacute;N -->
+  <!-- ============================================ -->
+  <section id="formacion" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+          <span class="w-8 h-px bg-umce-azul"></span>
+          Formaci&oacute;n
+          <span class="w-8 h-px bg-umce-azul"></span>
+        </div>
+        <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+          Desarrollo profesional docente
+        </h2>
+        <p class="fade-up text-gray-500 text-lg max-w-2xl mx-auto">
+          Programas formativos dise&ntilde;ados en coordinaci&oacute;n con la Unidad de Desarrollo Acad&eacute;mico (UDA) e integrados al Sistema de Desarrollo Profesional Acad&eacute;mico (SDPA).
+        </p>
+      </div>
+
+      <!-- Ruta Formativa IA highlight -->
+      <div class="fade-up bg-gradient-to-r from-umce-azul to-umce-azul-dark rounded-2xl p-8 md:p-10 text-white mb-12">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <div class="text-umce-amarillo text-xs font-bold uppercase tracking-widest mb-3">Programa destacado</div>
+            <h3 class="font-heading font-extrabold text-2xl mb-3">Ruta Formativa: Competencias Docentes en IA</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-4">Programa de 12 cursos estructurado en 3 niveles progresivos, alineado al Marco MINEDUC de Competencias Digitales Docentes 2023.</p>
+            <div class="flex flex-wrap gap-4 text-sm">
+              <div><span class="font-bold text-umce-amarillo">3</span> <span class="text-white/70">Niveles</span></div>
+              <div><span class="font-bold text-umce-amarillo">12</span> <span class="text-white/70">Cursos</span></div>
+              <div><span class="font-bold text-umce-amarillo">132</span> <span class="text-white/70">Horas</span></div>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="bg-white/10 rounded-xl p-4 border border-white/10">
+              <div class="text-umce-amarillo text-xs font-bold mb-1">Nivel 1 &mdash; Iniciaci&oacute;n</div>
+              <p class="text-white/80 text-xs">Fundamentos de IA, herramientas b&aacute;sicas, &eacute;tica e impacto en educaci&oacute;n</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 border border-white/10">
+              <div class="text-umce-amarillo text-xs font-bold mb-1">Nivel 2 &mdash; Aplicaci&oacute;n</div>
+              <p class="text-white/80 text-xs">IA para dise&ntilde;o instruccional, evaluaci&oacute;n, retroalimentaci&oacute;n y recursos</p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 border border-white/10">
+              <div class="text-umce-amarillo text-xs font-bold mb-1">Nivel 3 &mdash; Integraci&oacute;n</div>
+              <p class="text-white/80 text-xs">Investigaci&oacute;n con IA, innovaci&oacute;n pedag&oacute;gica, liderazgo digital</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cat&aacute;logo de cursos -->
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+        <h3 class="fade-up font-heading font-bold text-xl text-gray-900">Cat&aacute;logo de cursos</h3>
+        <div class="fade-up flex gap-2" id="course-filters">
+          <button class="filter-tab active" data-filter="active">Activos <span class="text-xs opacity-70">(6)</span></button>
+          <button class="filter-tab" data-filter="closed">Realizados <span class="text-xs opacity-70">(7)</span></button>
+          <button class="filter-tab" data-filter="all">Todos</button>
+        </div>
+      </div>
+      <div id="course-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+
+        <!-- ACTIVOS -->
+        <a href="https://evirtual.umce.cl/course/view.php?id=347" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #7C3AED, #4F46E5);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Inteligencia Artificial</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">IA Aplicada a la Docencia</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Aplicaciones pr&aacute;cticas de inteligencia artificial en la gesti&oacute;n pedag&oacute;gica para acad&eacute;micos y titulados recientes.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>48 inscritos</span>
+                <span>&bull;</span>
+                <span>Autoformativo</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=298" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #7C3AED, #1E40AF);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Diplomado</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Diplomado en IA y Tecnolog&iacute;as Digitales para la Transformaci&oacute;n Educativa</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Programa de 5 m&oacute;dulos sobre inteligencia artificial, dise&ntilde;o instruccional digital y transformaci&oacute;n de la pr&aacute;ctica docente universitaria.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>17 inscritos</span>
+                <span>&bull;</span>
+                <span>5 m&oacute;dulos</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=340" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #8B5CF6, #6366F1);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Inteligencia Artificial</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Introducci&oacute;n a la IA y sus Aplicaciones Educativas</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Fundamentos de inteligencia artificial, herramientas pr&aacute;cticas y reflexi&oacute;n cr&iacute;tica sobre su uso en contextos educativos universitarios.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>23 inscritos</span>
+                <span>&bull;</span>
+                <span>Autoformativo</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=296" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #D97706, #B45309);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Ciudadan&iacute;a Digital</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Educaci&oacute;n y Ciudadan&iacute;a Digital: Estrategias para Formadores</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Identidad digital, &eacute;tica online, seguridad en la red y estrategias para formar ciudadanos digitales responsables.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>19 inscritos</span>
+                <span>&bull;</span>
+                <span>Autoformativo</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=295" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #9333EA, #7C3AED);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Inteligencia Artificial</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Introducci&oacute;n a la IA y sus Aplicaciones Educativas (v1)</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Primera versi&oacute;n del curso introductorio de IA con enfoque en herramientas b&aacute;sicas y reflexi&oacute;n pedag&oacute;gica.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>17 inscritos</span>
+                <span>&bull;</span>
+                <span>Autoformativo</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=213" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="active">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #E11D48, #BE185D);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+            <div class="status-badge bg-green-500 text-white">Activo</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">Dise&ntilde;o Instruccional</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Elaboraci&oacute;n de Material Educativo Digital</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Principios de dise&ntilde;o instruccional para crear recursos educativos digitales efectivos: infograf&iacute;as, videos y m&oacute;dulos interactivos.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>26 inscritos</span>
+                <span>&bull;</span>
+                <span>Autoformativo</span>
+              </div>
+              <span class="text-umce-azul font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ver &rarr;</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- REALIZADOS -->
+        <a href="https://evirtual.umce.cl/course/view.php?id=120" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #0D9488, #0F766E);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">Tutor&iacute;a Virtual</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Formaci&oacute;n para la Tutor&iacute;a Virtual</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Competencias para el acompa&ntilde;amiento tutorial en entornos virtuales: comunicaci&oacute;n, retroalimentaci&oacute;n, seguimiento y motivaci&oacute;n.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>55 inscritos</span>
+                <span>&bull;</span>
+                <span>Ago 2024 &ndash; Mar 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=294" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #059669, #047857);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Moodle</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Evaluaci&oacute;n en Ambientes Virtuales con Moodle</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Cuestionarios, tareas, r&uacute;bricas y libro de calificaciones en Moodle. Estrategias de evaluaci&oacute;n formativa y sumativa online.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>10 inscritos</span>
+                <span>&bull;</span>
+                <span>May &ndash; Ago 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=301" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #2563EB, #0284C7);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Herramientas</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Dise&ntilde;o y Creaci&oacute;n de Recursos Educativos con CANVA</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Crear presentaciones, infograf&iacute;as y material visual atractivo para la docencia usando Canva como herramienta principal.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>1 inscrito</span>
+                <span>&bull;</span>
+                <span>Mayo 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=292" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25z"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Herramientas</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">S&aacute;cale Provecho a Zoom</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Salas de grupos, pizarra, encuestas, grabaci&oacute;n y gesti&oacute;n de participantes para clases sincr&oacute;nicas efectivas.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>14 inscritos</span>
+                <span>&bull;</span>
+                <span>Abr &ndash; May 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=291" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #0EA5E9, #0284C7);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Herramientas</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Creaci&oacute;n de Portafolios Digitales con Google Sites</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Dise&ntilde;ar portafolios profesionales y pedag&oacute;gicos usando Google Sites como plataforma gratuita de publicaci&oacute;n web.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>6 inscritos</span>
+                <span>&bull;</span>
+                <span>Abr &ndash; May 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=241" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #4B5563, #374151);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">Normativa</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Introducci&oacute;n a la Ley Karin</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Ley 21.643 sobre acoso laboral, sexual y violencia en el trabajo. Marco legal, prevenci&oacute;n y protocolos de denuncia.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>21 inscritos</span>
+                <span>&bull;</span>
+                <span>Nov 2024 &ndash; Nov 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://evirtual.umce.cl/course/view.php?id=250" target="_blank" class="course-card card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 group" data-status="closed">
+          <div class="course-thumb" style="background: linear-gradient(135deg, #4338CA, #3730A3);">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>
+            <div class="status-badge bg-gray-500 text-white">Realizado 2025</div>
+          </div>
+          <div class="p-5">
+            <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">TIC</span>
+            <h4 class="font-heading font-bold text-base text-gray-900 mt-2 mb-2 group-hover:text-umce-azul transition-colors leading-snug">Introducci&oacute;n a las TIC y Ambientes Virtuales de Aprendizaje</h4>
+            <p class="text-gray-500 text-xs leading-relaxed mb-3">Conceptos fundamentales de tecnolog&iacute;as educativas, ambientes virtuales y herramientas digitales b&aacute;sicas para la docencia.</p>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <div class="flex items-center gap-3">
+                <span>9 inscritos</span>
+                <span>&bull;</span>
+                <span>Dic 2024 &ndash; Dic 2025</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- SDPA callout -->
+      <div class="fade-up mt-12 bg-umce-azul/5 border border-umce-azul/10 rounded-2xl p-8 flex flex-col md:flex-row items-start gap-6">
+        <div class="w-12 h-12 bg-umce-azul/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div>
+          <h4 class="font-heading font-bold text-base text-gray-900 mb-1">Secci&oacute;n 3.6 del SDPA</h4>
+          <p class="text-gray-600 text-sm leading-relaxed">&ldquo;Desarrollo Acad&eacute;mico asociado a la Integraci&oacute;n Pedag&oacute;gica de Tecnolog&iacute;as Digitales&rdquo; &mdash; formalizado en el Sistema de Desarrollo Profesional Acad&eacute;mico como l&iacute;nea de trabajo permanente entre UDA y UDFV. Incluye formaci&oacute;n, desarrollo de competencias digitales e innovaci&oacute;n y experimentaci&oacute;n did&aacute;ctica.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- SERVICIOS -->
+  <!-- ============================================ -->
+  <section id="servicios" class="py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+          <span class="w-8 h-px bg-umce-azul"></span>
+          Servicios
+          <span class="w-8 h-px bg-umce-azul"></span>
+        </div>
+        <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+          Apoyo integral a la docencia
+        </h2>
+        <p class="fade-up text-gray-500 text-lg max-w-2xl mx-auto">
+          Herramientas, asesor&iacute;as y tecnolog&iacute;a al servicio de la comunidad acad&eacute;mica.
+        </p>
+      </div>
+
+      <div class="stagger grid md:grid-cols-2 gap-6">
+        <!-- Asesor&iacute;as -->
+        <div class="fade-up card-hover bg-white rounded-2xl p-8 border border-gray-100 flex gap-6">
+          <div class="w-14 h-14 bg-umce-azul/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-7 h-7 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Asesor&iacute;as personalizadas</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Acompa&ntilde;amiento directo para integrar tecnolog&iacute;a en tus cursos. Dise&ntilde;o instruccional, configuraci&oacute;n de Moodle y estrategias de evaluaci&oacute;n online.</p>
+          </div>
+        </div>
+
+        <!-- Asistente IA -->
+        <div class="fade-up card-hover bg-white rounded-2xl p-8 border border-gray-100 flex gap-6">
+          <div class="w-14 h-14 bg-umce-amarillo/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-7 h-7 text-umce-amarillo-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Asistente UDFV <span class="text-xs font-medium bg-umce-azul/10 text-umce-azul px-2 py-0.5 rounded-full ml-1">IA</span></h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Bot inteligente con acceso real a las plataformas Moodle. Consultas sobre cursos, estudiantes y calificaciones disponible 24/7 por Telegram.</p>
+          </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="fade-up card-hover bg-white rounded-2xl p-8 border border-gray-100 flex gap-6">
+          <div class="w-14 h-14 bg-umce-verde/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-7 h-7 text-umce-verde" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Dashboard Docente</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Visualiza el avance de tus estudiantes directamente en Moodle. Analytics integrados v&iacute;a LTI con gr&aacute;ficos de participaci&oacute;n, entregas y calificaciones.</p>
+          </div>
+        </div>
+
+        <!-- Soporte T&eacute;cnico -->
+        <div class="fade-up card-hover bg-white rounded-2xl p-8 border border-gray-100 flex gap-6">
+          <div class="w-14 h-14 bg-umce-naranja/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-7 h-7 text-umce-naranja" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.42 15.17l-5.1-5.1m0 0L11.42 4.97m-5.1 5.1H21M3 3v18"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Soporte t&eacute;cnico</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Resoluci&oacute;n de problemas, creaci&oacute;n de cursos, gesti&oacute;n de usuarios, respaldos y configuraciones avanzadas en todas las plataformas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- RESULTADOS / IMPACTO -->
+  <!-- ============================================ -->
+  <section class="py-16 bg-umce-azul">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-10">
+        <h2 class="fade-up font-heading text-2xl md:text-3xl font-extrabold text-white mb-2">Resultados 2023&ndash;2025</h2>
+        <p class="fade-up text-white/60 text-sm">Datos de la Ficha de Buena Pr&aacute;ctica enviada al MINEDUC por Rector&iacute;a UMCE</p>
+      </div>
+      <div class="stagger grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 text-center">
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">443</div>
+          <div class="text-white/80 text-xs mt-1">Participantes en formaci&oacute;n TIC</div>
+        </div>
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">38</div>
+          <div class="text-white/80 text-xs mt-1">Actividades formativas</div>
+        </div>
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">93%</div>
+          <div class="text-white/80 text-xs mt-1">Satisfacci&oacute;n general</div>
+        </div>
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">94</div>
+          <div class="text-white/80 text-xs mt-1">Acad&eacute;micos 2025</div>
+        </div>
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">14+</div>
+          <div class="text-white/80 text-xs mt-1">Carreras cubiertas</div>
+        </div>
+        <div class="fade-up">
+          <div class="stat-number font-heading font-extrabold text-3xl md:text-4xl text-umce-amarillo">96%</div>
+          <div class="text-white/80 text-xs mt-1">Valor&oacute; pertinencia contenidos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- RECURSOS -->
+  <!-- ============================================ -->
+  <section id="recursos" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+          <span class="w-8 h-px bg-umce-azul"></span>
+          Recursos
+          <span class="w-8 h-px bg-umce-azul"></span>
+        </div>
+        <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+          Material de apoyo docente
+        </h2>
+        <p class="fade-up text-gray-500 text-lg max-w-2xl mx-auto">
+          Gu&iacute;as, tutoriales y herramientas para potenciar tu pr&aacute;ctica pedag&oacute;gica digital.
+        </p>
+      </div>
+
+      <!-- Gu&iacute;as y documentos reales -->
+      <div class="stagger grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <a href="https://docs.google.com/document/d/1XUhz6P3aso9n7ovg_XrQUWemso0hQHzMYK6odc5lKJk" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="w-12 h-12 bg-umce-azul/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+          </div>
+          <h4 class="font-heading font-bold text-sm text-gray-900 mb-1 group-hover:text-umce-azul transition-colors">Gu&iacute;a Moodle UMCE &mdash; Docentes</h4>
+          <p class="text-gray-400 text-xs mb-3">Gu&iacute;a completa de 10 secciones: estructura de cursos, matriculaci&oacute;n, calificaciones, foros, tareas y m&aacute;s. Actualizada enero 2026.</p>
+          <span class="text-umce-azul text-xs font-medium">Ver gu&iacute;a &rarr;</span>
+        </a>
+
+        <a href="https://docs.google.com/document/d/1QKASW3jmdZzI6F8jlKQm_UnTJhxsUaRBQlfQ1A7dCw4" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="w-12 h-12 bg-umce-amarillo/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-umce-amarillo-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          </div>
+          <h4 class="font-heading font-bold text-sm text-gray-900 mb-1 group-hover:text-umce-azul transition-colors">Ruta Formativa: Competencias Docentes en IA</h4>
+          <p class="text-gray-400 text-xs mb-3">Programa de 12 cursos en 3 niveles (132 horas). Alineado al Marco MINEDUC de Competencias Digitales Docentes 2023.</p>
+          <span class="text-umce-azul text-xs font-medium">Ver programa &rarr;</span>
+        </a>
+
+        <a href="https://docs.google.com/document/d/15c9ah-wY9nXpUGIbBieos2d0QP75rCtZjvNsuAsanq0" target="_blank" class="fade-up card-hover bg-white rounded-2xl p-6 border border-gray-100 group">
+          <div class="w-12 h-12 bg-umce-verde/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-umce-verde" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+          </div>
+          <h4 class="font-heading font-bold text-sm text-gray-900 mb-1 group-hover:text-umce-azul transition-colors">Informe Recomendaciones Formativas IA</h4>
+          <p class="text-gray-400 text-xs mb-3">Recomendaciones para formaci&oacute;n en IA y tecnolog&iacute;as educativas en la UMCE, basadas en diagn&oacute;stico y evidencia institucional 2025.</p>
+          <span class="text-umce-azul text-xs font-medium">Ver informe &rarr;</span>
+        </a>
+      </div>
+
+      <!-- Diagn&oacute;stico TIC Power BI -->
+      <div class="fade-up bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-umce-azul/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+            </div>
+            <div>
+              <h4 class="font-heading font-bold text-base text-gray-900">Diagn&oacute;stico de Competencias TIC &mdash; Pregrado 2025</h4>
+              <p class="text-gray-400 text-xs">Informe interactivo Power BI &mdash; Presentado en Sesi&oacute;n Mirada UMCE N&deg;5, agosto 2025</p>
+            </div>
+          </div>
+        </div>
+        <div class="aspect-[16/9] bg-gray-50">
+          <iframe title="Diagn&oacute;stico TIC Pregrado UMCE 2025" width="100%" height="100%" src="https://app.powerbi.com/view?r=eyJrIjoiZTYwODFjYzUtYWIwOS00YWE2LWJkNmEtYmNlODliYjQ1YWU3IiwidCI6IjNhYTg3OGUxLTczMjctNGM5Ny05YzMwLTZlOGY4Nzc0ZTQ1MiJ9" frameborder="0" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- EXPERIENCIAS -->
+  <!-- ============================================ -->
+  <section class="py-24 bg-umce-azul text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-16">
+        <div class="fade-up inline-flex items-center gap-2 text-umce-amarillo text-xs font-bold uppercase tracking-widest mb-4">
+          <span class="w-8 h-px bg-umce-amarillo"></span>
+          Experiencias
+          <span class="w-8 h-px bg-umce-amarillo"></span>
+        </div>
+        <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold mb-4">
+          Innovaci&oacute;n docente en acci&oacute;n
+        </h2>
+        <p class="fade-up text-white/70 text-lg max-w-2xl mx-auto">
+          Docentes UMCE compartiendo sus experiencias de innovaci&oacute;n digital y tecnolog&iacute;as para el aprendizaje.
+        </p>
+      </div>
+
+      <div class="stagger grid md:grid-cols-3 gap-8">
+        <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+          <div class="text-umce-amarillo text-sm font-medium mb-4">Diciembre 2025</div>
+          <h3 class="font-heading font-bold text-xl mb-3">I Jornada de Experiencias Docentes en Innovaci&oacute;n Digital</h3>
+          <p class="text-white/70 text-sm leading-relaxed mb-4">10 ponencias de docentes UMCE sobre innovaci&oacute;n digital, tecnolog&iacute;as y educaci&oacute;n online. Sal&oacute;n 3 del Doctorado + transmisi&oacute;n Zoom.</p>
+          <div class="text-white/50 text-xs space-y-1">
+            <div>Edith Ubilla, Felipe Aguilar, Marcial Beltrami, Claudio Almonacid, Nelson Sep&uacute;lveda, Rodrigo Castro, Rub&eacute;n Quispe, Andrea Franjul, Rodrigo Mar&iacute;n, Fabi&aacute;n Inostroza</div>
+            <div class="mt-2">Direcci&oacute;n de Docencia &mdash; UDA &mdash; UDFV</div>
+          </div>
+        </div>
+
+        <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+          <div class="text-umce-amarillo text-sm font-medium mb-4">Buena Pr&aacute;ctica MINEDUC</div>
+          <h3 class="font-heading font-bold text-xl mb-3">Fortalecimiento de Competencias Digitales Docentes</h3>
+          <p class="text-white/70 text-sm leading-relaxed mb-4">Ficha de buena pr&aacute;ctica enviada por Rector&iacute;a UMCE al Ministerio de Educaci&oacute;n. Programa de formaci&oacute;n TIC reconocido a nivel nacional.</p>
+          <div class="flex flex-wrap gap-3 text-xs">
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">443</strong> participantes</span>
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">93%</strong> satisfacci&oacute;n</span>
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">14+</strong> carreras</span>
+          </div>
+        </div>
+
+        <div class="fade-up bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+          <div class="text-umce-amarillo text-sm font-medium mb-4">Impulsemos 2025</div>
+          <h3 class="font-heading font-bold text-xl mb-3">Expertos UMCE Impulsan Integraci&oacute;n Cr&iacute;tica de IA en FID</h3>
+          <p class="text-white/70 text-sm leading-relaxed mb-4">Programa presidencial con 600 estudiantes de pedagog&iacute;a en pr&aacute;ctica de 4 universidades. Lanzamiento oficial marzo 2025. Efecto multiplicador estimado: 18.000 estudiantes.</p>
+          <div class="flex flex-wrap gap-3 text-xs">
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">600</strong> estudiantes</span>
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">4</strong> universidades</span>
+            <span class="bg-white/10 px-2.5 py-1 rounded-full"><strong class="text-umce-amarillo">2.000+</strong> docentes en talleres IA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- EQUIPO / QUIENES SOMOS -->
+  <!-- ============================================ -->
+  <section class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+            <span class="w-8 h-px bg-umce-azul"></span>
+            Qui&eacute;nes somos
+            <span class="w-8 h-px bg-umce-azul"></span>
+          </div>
+          <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-6">
+            Unidad de Desarrollo<br>y Formaci&oacute;n Virtual
+          </h2>
+          <p class="fade-up text-gray-500 text-lg leading-relaxed mb-6">
+            Dependiente de la <strong class="text-gray-700">Direcci&oacute;n de Docencia (DIDOC)</strong>, la UDFV es responsable de la administraci&oacute;n, desarrollo y formaci&oacute;n en tecnolog&iacute;as educativas de la Universidad Metropolitana de Ciencias de la Educaci&oacute;n.
+          </p>
+          <div class="fade-up space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-umce-azul/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 h-3 text-umce-azul" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <p class="text-gray-600 text-sm">Administraci&oacute;n de 5 plataformas Moodle institucionales</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-umce-azul/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 h-3 text-umce-azul" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <p class="text-gray-600 text-sm">Formaci&oacute;n en competencias digitales docentes (certificaci&oacute;n con UDA)</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-umce-azul/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 h-3 text-umce-azul" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <p class="text-gray-600 text-sm">Dise&ntilde;o instruccional y producci&oacute;n de recursos educativos digitales</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-umce-azul/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-3 h-3 text-umce-azul" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <p class="text-gray-600 text-sm">Innovaci&oacute;n tecnol&oacute;gica: IA, learning analytics, automatizaci&oacute;n</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- L&iacute;neas de trabajo cards -->
+        <div class="fade-up grid grid-cols-2 gap-4">
+          <div class="bg-umce-azul/5 rounded-2xl p-5">
+            <div class="font-heading font-extrabold text-2xl text-umce-azul mb-1">Subunidad</div>
+            <div class="font-heading font-semibold text-sm text-gray-900 mb-2">Administraci&oacute;n de Plataformas</div>
+            <p class="text-gray-500 text-xs">Gesti&oacute;n t&eacute;cnica, soporte, seguridad y monitoreo de las plataformas Moodle.</p>
+          </div>
+          <div class="bg-umce-amarillo/5 rounded-2xl p-5">
+            <div class="font-heading font-extrabold text-2xl text-umce-amarillo-dark mb-1">Subunidad</div>
+            <div class="font-heading font-semibold text-sm text-gray-900 mb-2">Formaci&oacute;n Virtual</div>
+            <p class="text-gray-500 text-xs">Capacitaci&oacute;n docente, talleres TIC, certificaci&oacute;n de competencias digitales.</p>
+          </div>
+          <div class="bg-umce-verde/5 rounded-2xl p-5">
+            <div class="font-heading font-extrabold text-2xl text-umce-verde mb-1">Subunidad</div>
+            <div class="font-heading font-semibold text-sm text-gray-900 mb-2">Dise&ntilde;o Instruccional</div>
+            <p class="text-gray-500 text-xs">Producci&oacute;n de m&oacute;dulos SCORM, videos educativos, recursos interactivos.</p>
+          </div>
+          <div class="bg-umce-naranja/5 rounded-2xl p-5">
+            <div class="font-heading font-extrabold text-2xl text-umce-naranja mb-1">Subunidad</div>
+            <div class="font-heading font-semibold text-sm text-gray-900 mb-2">Innovaci&oacute;n y Desarrollo</div>
+            <p class="text-gray-500 text-xs">IA educativa, learning analytics, dashboard docente, automatizaci&oacute;n.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- CONTACTO -->
+  <!-- ============================================ -->
+  <section id="contacto" class="py-24 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16">
+        <div>
+          <div class="fade-up inline-flex items-center gap-2 text-umce-azul text-xs font-bold uppercase tracking-widest mb-4">
+            <span class="w-8 h-px bg-umce-azul"></span>
+            Contacto
+            <span class="w-8 h-px bg-umce-azul"></span>
+          </div>
+          <h2 class="fade-up font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+            &iquest;Necesitas ayuda?
+          </h2>
+          <p class="fade-up text-gray-500 text-lg leading-relaxed mb-8">
+            Estamos aqu&iacute; para apoyar tu trabajo docente. Cont&aacute;ctanos por cualquier consulta sobre plataformas, formaci&oacute;n o soporte t&eacute;cnico.
+          </p>
+
+          <div class="fade-up space-y-6">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-umce-azul/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <div class="font-heading font-semibold text-sm text-gray-900">Correo electr&oacute;nico</div>
+                <a href="mailto:udfv@umce.cl" class="text-umce-azul text-sm hover:underline">udfv@umce.cl</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-umce-azul/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <div class="font-heading font-semibold text-sm text-gray-900">Asistente Telegram</div>
+                <a href="https://t.me/asistente_udfv_bot" class="text-umce-azul text-sm hover:underline">@asistente_udfv_bot</a>
+                <div class="text-gray-400 text-xs mt-0.5">Disponible 24/7</div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-umce-azul/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <div>
+                <div class="font-heading font-semibold text-sm text-gray-900">Ubicaci&oacute;n</div>
+                <div class="text-gray-500 text-sm">Direcci&oacute;n de Docencia, UMCE</div>
+                <div class="text-gray-400 text-xs mt-0.5">Av. Jos&eacute; Pedro Alessandri 774, &Ntilde;u&ntilde;oa, Santiago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick access -->
+        <div class="fade-up">
+          <div class="bg-white rounded-2xl p-8 border border-gray-100">
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-6">Acceso r&aacute;pido</h3>
+            <div class="space-y-3">
+              <a href="https://evirtual.umce.cl" target="_blank" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-umce-azul/5 transition-colors group">
+                <span class="font-medium text-sm text-gray-700 group-hover:text-umce-azul">eVirtual UMCE</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a href="https://evirtual-practica.umce.cl" target="_blank" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-umce-azul/5 transition-colors group">
+                <span class="font-medium text-sm text-gray-700 group-hover:text-umce-azul">Pr&aacute;ctica UMCE</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a href="https://virtual.umce.cl" target="_blank" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-umce-azul/5 transition-colors group">
+                <span class="font-medium text-sm text-gray-700 group-hover:text-umce-azul">Virtual UMCE</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a href="https://evirtual-pregrado.umce.cl" target="_blank" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-umce-azul/5 transition-colors group">
+                <span class="font-medium text-sm text-gray-700 group-hover:text-umce-azul">Pregrado UMCE</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a href="https://evirtual-postgrado.umce.cl" target="_blank" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-umce-azul/5 transition-colors group">
+                <span class="font-medium text-sm text-gray-700 group-hover:text-umce-azul">Postgrado UMCE</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a href="https://dashboard.udfv.cloud" target="_blank" class="flex items-center justify-between p-4 bg-umce-azul/5 rounded-xl hover:bg-umce-azul/10 transition-colors group">
+                <span class="font-medium text-sm text-umce-azul">Dashboard Docente</span>
+                <svg class="w-4 h-4 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- FOOTER -->
+  <!-- ============================================ -->
+  <footer class="bg-gray-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-12">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-umce-azul rounded-lg flex items-center justify-center">
+              <span class="font-heading font-extrabold text-lg">U</span>
+            </div>
+            <div>
+              <div class="font-heading font-bold text-base">UMCE Virtual</div>
+              <div class="text-gray-400 text-xs">Unidad de Desarrollo y Formaci&oacute;n Virtual</div>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
+            Plataformas educativas, certificaci&oacute;n de competencias digitales y herramientas de innovaci&oacute;n pedag&oacute;gica para la comunidad acad&eacute;mica UMCE.
+          </p>
+        </div>
+
+        <div>
+          <div class="font-heading font-semibold text-sm mb-4">Institucional</div>
+          <div class="space-y-2.5">
+            <a href="https://www.umce.cl" target="_blank" class="block text-gray-400 text-sm hover:text-white transition-colors">UMCE</a>
+            <a href="#" class="block text-gray-400 text-sm hover:text-white transition-colors">Direcci&oacute;n de Docencia</a>
+            <a href="#" class="block text-gray-400 text-sm hover:text-white transition-colors">Unidad de Desarrollo Acad&eacute;mico</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="font-heading font-semibold text-sm mb-4">Tecnolog&iacute;a</div>
+          <div class="space-y-2.5">
+            <span class="block text-gray-400 text-sm">Moodle 4.5</span>
+            <span class="block text-gray-400 text-sm">SCORM 1.2</span>
+            <span class="block text-gray-400 text-sm">xAPI / LRS</span>
+            <span class="block text-gray-400 text-sm">LTI 1.3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-gray-500 text-xs">&copy; 2026 Universidad Metropolitana de Ciencias de la Educaci&oacute;n. Todos los derechos reservados.</div>
+        <div class="text-gray-600 text-xs">Hecho con dedicaci&oacute;n por la UDFV</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================ -->
+  <!-- SCRIPTS -->
+  <!-- ============================================ -->
+  <script>
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Navbar shrink on scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 80) {
+        navbar.classList.add('nav-scrolled');
+      } else {
+        navbar.classList.remove('nav-scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Close mobile menu on link click
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.scrollY >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+
+    // Course filter tabs
+    const filterBtns = document.querySelectorAll('#course-filters .filter-tab');
+    const courseGrid = document.getElementById('course-grid');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        courseGrid.className = courseGrid.className.replace(/show-\w+/g, '').trim();
+        if (filter === 'all') courseGrid.classList.add('show-all');
+        else if (filter === 'closed') courseGrid.classList.add('show-closed');
+        // 'active' is default (no class needed, CSS hides closed by default)
+      });
+    });
+  </script>
+</body>
+</html>

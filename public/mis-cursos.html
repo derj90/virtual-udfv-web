@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Cursos — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'umce-azul': '#0033A1',
+            'umce-azul-light': '#1A4DB5',
+            'umce-azul-dark': '#002280',
+            'umce-amarillo': '#FF9E18',
+            'umce-amarillo-dark': '#E08800',
+            'umce-azul-oscuro': '#003F6E',
+            'umce-verde': '#127C29',
+            'umce-naranja': '#E9511D',
+            'umce-rojo': '#90120D',
+          },
+          fontFamily: {
+            'heading': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            'body': ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(0,51,161,0.15); }
+    .progress-bar { transition: width 0.6s ease; }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+
+  <!-- NAV -->
+  <nav class="bg-umce-azul text-white py-4">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="font-heading font-extrabold text-lg">U</span>
+        </div>
+        <div>
+          <div class="font-heading font-bold text-base leading-tight">UMCE Virtual</div>
+          <div class="text-white/70 text-xs leading-tight">Mis Cursos</div>
+        </div>
+      </a>
+      <a href="/" class="text-white/80 text-sm hover:text-white transition-colors flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="max-w-md mx-auto text-center">
+      <div class="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm">
+        <div class="w-16 h-16 bg-umce-azul/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        </div>
+        <h1 class="font-heading font-extrabold text-2xl text-gray-900 mb-2">Mis Cursos</h1>
+        <p class="text-gray-500 text-sm mb-8">Ingresa tu correo institucional para ver todos tus cursos en las 5 plataformas Moodle de la UMCE.</p>
+
+        <form id="email-form" class="space-y-4">
+          <div class="relative">
+            <input
+              type="email"
+              id="email-input"
+              placeholder="nombre.apellido@umce.cl"
+              required
+              pattern=".+@umce\.cl$"
+              class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
+            >
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            </div>
+          </div>
+          <div id="email-error" class="text-red-500 text-xs hidden"></div>
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full h-12 bg-umce-azul text-white font-heading font-bold rounded-xl hover:bg-umce-azul-light transition-colors flex items-center justify-center gap-2"
+          >
+            <span id="btn-text">Buscar mis cursos</span>
+            <svg id="btn-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </button>
+        </form>
+
+        <p class="text-gray-400 text-xs mt-6">Solo correos @umce.cl &middot; Consulta en tiempo real las 5 plataformas</p>
+      </div>
+    </div>
+
+    <!-- RESULTS SECTION (hidden initially) -->
+    <div id="results-section" class="hidden">
+      <!-- User header -->
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+        <div>
+          <h1 class="font-heading font-extrabold text-2xl text-gray-900" id="user-name">Cargando...</h1>
+          <p class="text-gray-500 text-sm" id="user-email"></p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="bg-umce-azul/10 text-umce-azul font-heading font-bold text-sm px-4 py-2 rounded-xl" id="total-courses">0 cursos</div>
+          <button onclick="logout()" class="text-gray-400 hover:text-gray-600 text-sm flex items-center gap-1 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+            Cambiar usuario
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading skeletons -->
+      <div id="loading-state" class="space-y-8">
+        <div>
+          <div class="skeleton h-6 w-32 mb-4"></div>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
+            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
+            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platforms & courses -->
+      <div id="platforms-container" class="space-y-8 hidden"></div>
+
+      <!-- No courses state -->
+      <div id="no-courses" class="hidden text-center py-16">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        </div>
+        <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">No se encontraron cursos</h3>
+        <p class="text-gray-500 text-sm max-w-sm mx-auto">No tienes cursos asignados en ninguna de las 5 plataformas. Si crees que esto es un error, contacta a <a href="mailto:udfv@umce.cl" class="text-umce-azul hover:underline">udfv@umce.cl</a>.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-gray-200 py-8">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between text-xs text-gray-400">
+      <span>&copy; 2026 UMCE &mdash; Unidad de Desarrollo y Formaci&oacute;n Virtual</span>
+      <a href="mailto:udfv@umce.cl" class="hover:text-umce-azul transition-colors">udfv@umce.cl</a>
+    </div>
+  </footer>
+
+  <script>
+    const loginSection = document.getElementById('login-section');
+    const resultsSection = document.getElementById('results-section');
+    const loadingState = document.getElementById('loading-state');
+    const platformsContainer = document.getElementById('platforms-container');
+    const noCourses = document.getElementById('no-courses');
+    const emailForm = document.getElementById('email-form');
+    const emailInput = document.getElementById('email-input');
+    const emailError = document.getElementById('email-error');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+
+    // Check for saved email
+    const savedEmail = localStorage.getItem('umce_email');
+    if (savedEmail) {
+      fetchCourses(savedEmail);
+    }
+
+    emailForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim().toLowerCase();
+
+      if (!email.endsWith('@umce.cl')) {
+        emailError.textContent = 'Solo se permiten correos @umce.cl';
+        emailError.classList.remove('hidden');
+        return;
+      }
+
+      emailError.classList.add('hidden');
+      localStorage.setItem('umce_email', email);
+      fetchCourses(email);
+    });
+
+    async function fetchCourses(email) {
+      // Show loading
+      loginSection.classList.add('hidden');
+      resultsSection.classList.remove('hidden');
+      loadingState.classList.remove('hidden');
+      platformsContainer.classList.add('hidden');
+      noCourses.classList.add('hidden');
+
+      document.getElementById('user-email').textContent = email;
+
+      // Disable button
+      submitBtn.disabled = true;
+      btnText.textContent = 'Buscando...';
+      btnSpinner.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`/api/mis-cursos?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Error al consultar');
+        }
+
+        // Update header
+        document.getElementById('user-name').textContent = data.userName || email.split('@')[0];
+        document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''}`;
+
+        // Hide loading
+        loadingState.classList.add('hidden');
+
+        if (data.totalCourses === 0) {
+          noCourses.classList.remove('hidden');
+          return;
+        }
+
+        // Render platforms
+        platformsContainer.innerHTML = '';
+        platformsContainer.classList.remove('hidden');
+
+        data.platforms.forEach(platform => {
+          if (platform.courses.length === 0) return;
+
+          const section = document.createElement('div');
+          section.innerHTML = `
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-heading font-bold text-xs" style="background: ${platform.platformColor}">
+                ${platform.platformName.substring(0, 2)}
+              </div>
+              <div>
+                <h2 class="font-heading font-bold text-lg text-gray-900">${platform.platformName}</h2>
+                <span class="text-gray-400 text-xs">${platform.courses.length} curso${platform.courses.length !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${platform.courses.map(course => renderCourseCard(course)).join('')}
+            </div>
+          `;
+          platformsContainer.appendChild(section);
+        });
+
+      } catch (err) {
+        loadingState.classList.add('hidden');
+        platformsContainer.classList.remove('hidden');
+        platformsContainer.innerHTML = `
+          <div class="text-center py-12">
+            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            </div>
+            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Error al buscar cursos</h3>
+            <p class="text-gray-500 text-sm">${err.message}</p>
+            <button onclick="logout()" class="mt-4 text-umce-azul text-sm font-medium hover:underline">Intentar de nuevo</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderCourseCard(course) {
+      const isActive = !course.enddate || new Date(course.enddate) > new Date();
+      const progressBar = course.progress != null
+        ? `<div class="mt-3">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-gray-400">Progreso</span>
+              <span class="font-medium text-gray-600">${course.progress}%</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="progress-bar h-full rounded-full" style="width: ${course.progress}%; background: ${course.platform.color}"></div>
+            </div>
+          </div>`
+        : '';
+
+      const statusBadge = isActive
+        ? '<span class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Activo</span>'
+        : '<span class="text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Finalizado</span>';
+
+      const dateInfo = course.startdate
+        ? `<span class="text-gray-400 text-xs">${formatDate(course.startdate)}${course.enddate ? ' — ' + formatDate(course.enddate) : ''}</span>`
+        : '';
+
+      return `
+        <a href="${course.courseUrl}" target="_blank" class="card-hover bg-white rounded-xl p-5 border border-gray-100 group block">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            ${statusBadge}
+            <div class="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold" style="background: ${course.platform.color}">${course.platform.name.substring(0, 2)}</div>
+          </div>
+          <h4 class="font-heading font-bold text-sm text-gray-900 group-hover:text-umce-azul transition-colors leading-snug mb-1">${course.fullname}</h4>
+          ${course.summary ? `<p class="text-gray-400 text-xs leading-relaxed line-clamp-2 mb-2">${course.summary}</p>` : ''}
+          ${dateInfo}
+          ${progressBar}
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-gray-300 text-xs">${course.platform.name}</span>
+            <span class="text-umce-azul text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ir al curso &rarr;</span>
+          </div>
+        </a>
+      `;
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      return `${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function logout() {
+      localStorage.removeItem('umce_email');
+      loginSection.classList.remove('hidden');
+      resultsSection.classList.add('hidden');
+      emailInput.value = '';
+      submitBtn.disabled = false;
+      btnText.textContent = 'Buscar mis cursos';
+      btnSpinner.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
