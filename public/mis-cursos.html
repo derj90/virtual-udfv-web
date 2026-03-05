@@ -83,42 +83,27 @@
     <div id="login-section" class="max-w-md mx-auto text-center">
       <div class="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm">
         <div class="w-16 h-16 bg-umce-azul/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+          <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
         </div>
         <h1 class="font-heading font-extrabold text-2xl text-gray-900 mb-2">Mis Cursos</h1>
-        <p class="text-gray-500 text-sm mb-8">Ingresa tus credenciales de Moodle UMCE para ver todos tus cursos activos en las 5 plataformas.</p>
+        <p class="text-gray-500 text-sm mb-8">Ingresa tu correo institucional para ver tus cursos activos en las 5 plataformas Moodle de la UMCE.</p>
 
         <form id="login-form" class="space-y-4 text-left">
           <div>
-            <label for="username-input" class="block text-xs font-medium text-gray-500 mb-1.5">Usuario Moodle</label>
+            <label for="email-input" class="block text-xs font-medium text-gray-500 mb-1.5">Correo institucional</label>
             <div class="relative">
               <input
-                type="text"
-                id="username-input"
-                placeholder="nombre.apellido"
+                type="email"
+                id="email-input"
+                placeholder="nombre.apellido@umce.cl"
                 required
-                autocomplete="username"
+                pattern=".+@umce\.cl$"
+                autocomplete="email"
                 class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
               >
               <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
               </div>
-            </div>
-          </div>
-          <div>
-            <label for="password-input" class="block text-xs font-medium text-gray-500 mb-1.5">Contrase&ntilde;a</label>
-            <div class="relative">
-              <input
-                type="password"
-                id="password-input"
-                placeholder="Tu contrase&ntilde;a de Moodle"
-                required
-                autocomplete="current-password"
-                class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
-              >
-              <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">
-                <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              </button>
             </div>
           </div>
           <div id="login-error" class="text-red-500 text-xs hidden bg-red-50 p-3 rounded-lg"></div>
@@ -127,12 +112,12 @@
             id="submit-btn"
             class="w-full h-12 bg-umce-azul text-white font-heading font-bold rounded-xl hover:bg-umce-azul-light transition-colors flex items-center justify-center gap-2"
           >
-            <span id="btn-text">Iniciar sesi&oacute;n</span>
+            <span id="btn-text">Ver mis cursos</span>
             <svg id="btn-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           </button>
         </form>
 
-        <p class="text-gray-400 text-xs mt-6">Usa las mismas credenciales que en cualquier plataforma Moodle UMCE.<br>Tu contrase&ntilde;a no se almacena.</p>
+        <p class="text-gray-400 text-xs mt-6">Solo correos @umce.cl &middot; Consulta en tiempo real en las 5 plataformas</p>
       </div>
     </div>
 
@@ -253,8 +238,7 @@
     const platformTabs = document.getElementById('platform-tabs');
     const noCourses = document.getElementById('no-courses');
     const loginForm = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username-input');
-    const passwordInput = document.getElementById('password-input');
+    const emailInput = document.getElementById('email-input');
     const loginError = document.getElementById('login-error');
     const submitBtn = document.getElementById('submit-btn');
     const btnText = document.getElementById('btn-text');
@@ -262,103 +246,63 @@
 
     let allCourses = [];
     let currentFilter = 'all';
-
-    // Toggle password visibility
-    document.getElementById('toggle-password').addEventListener('click', () => {
-      const type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-    });
+    let currentEmail = '';
 
     // Check saved session
-    const savedToken = localStorage.getItem('umce_token');
-    const savedUser = localStorage.getItem('umce_user');
-    if (savedToken && savedUser) {
-      showResults(JSON.parse(savedUser));
-      refreshCourses();
+    const savedEmail = localStorage.getItem('umce_email');
+    if (savedEmail) {
+      currentEmail = savedEmail;
+      showResults({ email: savedEmail });
+      fetchCourses(savedEmail);
     }
 
     // Login form
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = usernameInput.value.trim().toLowerCase();
-      const password = passwordInput.value;
+      const email = emailInput.value.trim().toLowerCase();
 
-      if (!username || !password) return;
+      if (!email.endsWith('@umce.cl')) {
+        loginError.textContent = 'Solo se permiten correos @umce.cl';
+        loginError.classList.remove('hidden');
+        return;
+      }
 
       loginError.classList.add('hidden');
-      setLoading(true);
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Error al iniciar sesion');
-        }
-
-        // Save session
-        localStorage.setItem('umce_token', data.token);
-        localStorage.setItem('umce_user', JSON.stringify({
-          userName: data.userName,
-          userEmail: data.userEmail,
-          username: data.username
-        }));
-
-        showResults({ userName: data.userName, userEmail: data.userEmail, username: data.username });
-        renderCourses(data);
-
-      } catch (err) {
-        loginError.textContent = err.message;
-        loginError.classList.remove('hidden');
-        setLoading(false);
-      }
+      currentEmail = email;
+      localStorage.setItem('umce_email', email);
+      showResults({ email });
+      fetchCourses(email);
     });
 
     function setLoading(loading) {
       submitBtn.disabled = loading;
-      btnText.textContent = loading ? 'Verificando...' : 'Iniciar sesion';
+      btnText.textContent = loading ? 'Buscando...' : 'Ver mis cursos';
       btnSpinner.classList.toggle('hidden', !loading);
     }
 
     function showResults(user) {
       loginSection.classList.add('hidden');
       resultsSection.classList.remove('hidden');
-      document.getElementById('user-name').textContent = user.userName || user.username;
-      document.getElementById('user-email').textContent = user.userEmail || '';
-      document.getElementById('user-avatar').textContent = (user.userName || user.username || 'U')[0].toUpperCase();
+      document.getElementById('user-name').textContent = user.userName || user.email.split('@')[0];
+      document.getElementById('user-email').textContent = user.email || '';
+      document.getElementById('user-avatar').textContent = (user.userName || user.email || 'U')[0].toUpperCase();
     }
 
-    async function refreshCourses() {
-      const token = localStorage.getItem('umce_token');
-      if (!token) return logout();
-
+    async function fetchCourses(email) {
       loadingState.classList.remove('hidden');
       coursesContainer.classList.add('hidden');
       platformTabs.classList.add('hidden');
       noCourses.classList.add('hidden');
+      setLoading(true);
 
       try {
-        const res = await fetch('/api/mis-cursos', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.status === 401) {
-          return logout();
-        }
-
+        const res = await fetch(`/api/mis-cursos?email=${encodeURIComponent(email)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
-        const user = JSON.parse(localStorage.getItem('umce_user') || '{}');
-        user.userName = data.userName;
-        localStorage.setItem('umce_user', JSON.stringify(user));
-        document.getElementById('user-name').textContent = data.userName;
-        document.getElementById('user-avatar').textContent = (data.userName || 'U')[0].toUpperCase();
+        document.getElementById('user-name').textContent = data.userName || email.split('@')[0];
+        document.getElementById('user-avatar').textContent = (data.userName || email)[0].toUpperCase();
+        document.getElementById('user-email').textContent = email;
 
         renderCourses(data);
 
@@ -368,10 +312,16 @@
         coursesContainer.innerHTML = `
           <div class="col-span-full text-center py-12">
             <p class="text-red-500 text-sm mb-2">${err.message}</p>
-            <button onclick="refreshCourses()" class="text-umce-azul text-sm font-medium hover:underline">Reintentar</button>
+            <button onclick="fetchCourses('${email}')" class="text-umce-azul text-sm font-medium hover:underline">Reintentar</button>
           </div>
         `;
+      } finally {
+        setLoading(false);
       }
+    }
+
+    async function refreshCourses() {
+      if (currentEmail) fetchCourses(currentEmail);
     }
 
     function renderCourses(data) {
@@ -471,16 +421,16 @@
     }
 
     function logout() {
-      localStorage.removeItem('umce_token');
-      localStorage.removeItem('umce_user');
+      localStorage.removeItem('umce_email');
+      currentEmail = '';
       allCourses = [];
       historialCourses = [];
       historialLoaded = false;
       historialOpen = false;
       loginSection.classList.remove('hidden');
       resultsSection.classList.add('hidden');
-      usernameInput.value = '';
-      passwordInput.value = '';
+      document.getElementById('historial-section').classList.add('hidden');
+      emailInput.value = '';
       loginError.classList.add('hidden');
       setLoading(false);
     }
@@ -508,17 +458,13 @@
     }
 
     async function loadHistorial() {
-      const token = localStorage.getItem('umce_token');
-      if (!token) return;
+      if (!currentEmail) return;
 
       const loading = document.getElementById('historial-loading');
       loading.classList.remove('hidden');
 
       try {
-        const res = await fetch('/api/historial', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.status === 401) return logout();
+        const res = await fetch(`/api/historial?email=${encodeURIComponent(currentEmail)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 

@@ -176,166 +176,75 @@ function filterHistorical(courses, platform) {
   return courses.filter(c => c.visible && !isActive2026(c)).map(c => enrichCourse(c, platform));
 }
 
+// --- Helper: find user by email ---
+async function findUserByEmail(platform, email) {
+  const users = await moodleCall(platform, 'core_user_get_users', {
+    'criteria[0][key]': 'email',
+    'criteria[0][value]': email
+  });
+  return users.users && users.users.length > 0 ? users.users[0] : null;
+}
+
+// --- Helper: query all platforms for a user ---
+async function queryAllPlatforms(email, filterFn) {
+  return Promise.all(
+    PLATFORMS.map(async (platform) => {
+      try {
+        const user = await findUserByEmail(platform, email);
+        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
+
+        const courses = await getUserCourses(platform, user.id);
+        const filtered = filterFn(courses, platform);
+
+        return {
+          platform: platform.id,
+          platformName: platform.name,
+          platformColor: platform.color,
+          userName: user.fullname,
+          courses: filtered,
+          found: true
+        };
+      } catch (err) {
+        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
+      }
+    })
+  );
+}
+
+// --- Validate email ---
+function validateEmail(email) {
+  if (!email || !email.includes('@')) return 'Se requiere un email válido';
+  if (!email.toLowerCase().endsWith('@umce.cl')) return 'Solo se permiten correos @umce.cl';
+  return null;
+}
+
 // --- Static files ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- API: Login with Moodle credentials ---
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Se requiere usuario y contraseña' });
-  }
-
-  // Try to authenticate against all 5 platforms in parallel
-  const authResults = await Promise.all(
-    PLATFORMS.map(async (platform) => {
-      try {
-        const valid = await validateMoodleLogin(platform, username, password);
-        return { platform: platform.id, valid };
-      } catch {
-        return { platform: platform.id, valid: false };
-      }
-    })
-  );
-
-  const authenticated = authResults.some(r => r.valid);
-  if (!authenticated) {
-    return res.status(401).json({ error: 'Credenciales inválidas. Verifica tu usuario y contraseña de Moodle.' });
-  }
-
-  // User authenticated — get their info and courses from all platforms
-  const platformResults = await Promise.all(
-    PLATFORMS.map(async (platform) => {
-      try {
-        const user = await findUserByUsername(platform, username);
-        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
-
-        const courses = await getUserCourses(platform, user.id);
-        const filtered = filterAndEnrich(courses, platform);
-
-        return {
-          platform: platform.id,
-          platformName: platform.name,
-          platformColor: platform.color,
-          platformUrl: platform.url,
-          userName: user.fullname,
-          userEmail: user.email,
-          courses: filtered,
-          found: true
-        };
-      } catch (err) {
-        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
-      }
-    })
-  );
-
-  const userName = platformResults.find(r => r.userName)?.userName || username;
-  const userEmail = platformResults.find(r => r.userEmail)?.userEmail || '';
-  const totalCourses = platformResults.reduce((sum, r) => sum + r.courses.length, 0);
-
-  // Create session token
-  const token = createToken(username, userEmail);
-
-  res.json({
-    authenticated: true,
-    token,
-    userName,
-    userEmail,
-    username,
-    totalCourses,
-    platforms: platformResults
-  });
-});
-
-// --- API: Refresh courses (with token) ---
+// --- API: Active 2026 courses ---
 app.get('/api/mis-cursos', async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Sesión no válida. Inicia sesión nuevamente.' });
-  }
+  const email = (req.query.email || '').toLowerCase();
+  const err = validateEmail(email);
+  if (err) return res.status(400).json({ error: err });
 
-  const session = verifyToken(authHeader.slice(7));
-  if (!session) {
-    return res.status(401).json({ error: 'Sesión expirada. Inicia sesión nuevamente.' });
-  }
+  const platforms = await queryAllPlatforms(email, filterAndEnrich);
+  const totalCourses = platforms.reduce((sum, r) => sum + r.courses.length, 0);
+  const userName = platforms.find(r => r.userName)?.userName || null;
 
-  const { username } = session;
-
-  const platformResults = await Promise.all(
-    PLATFORMS.map(async (platform) => {
-      try {
-        const user = await findUserByUsername(platform, username);
-        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
-
-        const courses = await getUserCourses(platform, user.id);
-        const filtered = filterAndEnrich(courses, platform);
-
-        return {
-          platform: platform.id,
-          platformName: platform.name,
-          platformColor: platform.color,
-          platformUrl: platform.url,
-          userName: user.fullname,
-          courses: filtered,
-          found: true
-        };
-      } catch (err) {
-        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
-      }
-    })
-  );
-
-  const totalCourses = platformResults.reduce((sum, r) => sum + r.courses.length, 0);
-  const userName = platformResults.find(r => r.userName)?.userName || username;
-
-  res.json({ userName, username, totalCourses, platforms: platformResults });
+  res.json({ email, userName, totalCourses, platforms });
 });
 
-// --- API: Historical courses (lazy, on demand) ---
+// --- API: Historical courses (non-2026, lazy) ---
 app.get('/api/historial', async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Sesión no válida.' });
-  }
+  const email = (req.query.email || '').toLowerCase();
+  const err = validateEmail(email);
+  if (err) return res.status(400).json({ error: err });
 
-  const session = verifyToken(authHeader.slice(7));
-  if (!session) {
-    return res.status(401).json({ error: 'Sesión expirada.' });
-  }
-
-  const { username } = session;
-
-  const platformResults = await Promise.all(
-    PLATFORMS.map(async (platform) => {
-      try {
-        const user = await findUserByUsername(platform, username);
-        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
-
-        const courses = await getUserCourses(platform, user.id);
-        const historical = filterHistorical(courses, platform);
-
-        return {
-          platform: platform.id,
-          platformName: platform.name,
-          platformColor: platform.color,
-          courses: historical,
-          found: true
-        };
-      } catch (err) {
-        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
-      }
-    })
-  );
-
-  const allHistorical = platformResults.flatMap(p => p.courses);
+  const platforms = await queryAllPlatforms(email, filterHistorical);
+  const allHistorical = platforms.flatMap(p => p.courses);
   const years = [...new Set(allHistorical.map(c => c.year).filter(Boolean))].sort((a, b) => b - a);
 
-  res.json({
-    totalCourses: allHistorical.length,
-    years,
-    platforms: platformResults
-  });
+  res.json({ totalCourses: allHistorical.length, years, platforms });
 });
 
 // --- API: Health check ---
