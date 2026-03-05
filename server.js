@@ -1,8 +1,9 @@
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
+const fs = require('fs');
 
 // Load .env manually (no dotenv dependency needed)
-const fs = require('fs');
 try {
   const envFile = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
   envFile.split('\n').forEach(line => {
@@ -14,7 +15,9 @@ try {
 } catch (e) { /* .env optional if vars set externally */ }
 
 const app = express();
+app.use(express.json());
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
 // --- Moodle platforms config ---
 const PLATFORMS = [
@@ -60,6 +63,27 @@ const PLATFORMS = [
   }
 ];
 
+// --- Session token helpers ---
+function createToken(username, email) {
+  const payload = `${username}|${email}|${Date.now()}`;
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+  return Buffer.from(`${payload}|${hmac}`).toString('base64');
+}
+
+function verifyToken(token) {
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    const parts = decoded.split('|');
+    if (parts.length !== 4) return null;
+    const [username, email, timestamp, hmac] = parts;
+    const expected = crypto.createHmac('sha256', SESSION_SECRET).update(`${username}|${email}|${timestamp}`).digest('hex');
+    if (hmac !== expected) return null;
+    // Token valid for 24h
+    if (Date.now() - parseInt(timestamp) > 24 * 60 * 60 * 1000) return null;
+    return { username, email };
+  } catch { return null; }
+}
+
 // --- Moodle API helper ---
 async function moodleCall(platform, wsfunction, params = {}) {
   const url = new URL('/webservice/rest/server.php', platform.url);
@@ -74,7 +98,7 @@ async function moodleCall(platform, wsfunction, params = {}) {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
-    signal: AbortSignal.timeout(10000) // 10s timeout per platform
+    signal: AbortSignal.timeout(10000)
   });
 
   const data = await res.json();
@@ -82,100 +106,189 @@ async function moodleCall(platform, wsfunction, params = {}) {
   return data;
 }
 
-// --- Find user by email in a platform ---
-async function findUser(platform, email) {
+// --- Validate credentials against Moodle login/token.php ---
+async function validateMoodleLogin(platform, username, password) {
+  const url = new URL('/login/token.php', platform.url);
+  const body = new URLSearchParams({
+    username,
+    password,
+    service: 'moodle_mobile_app'
+  });
+
+  const res = await fetch(url.toString(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+    signal: AbortSignal.timeout(10000)
+  });
+
+  const data = await res.json();
+  // Success returns { token: "xxx" }, failure returns { error: "...", errorcode: "..." }
+  return !data.error && data.token;
+}
+
+// --- Find user by username in a platform ---
+async function findUserByUsername(platform, username) {
   const users = await moodleCall(platform, 'core_user_get_users', {
-    'criteria[0][key]': 'email',
-    'criteria[0][value]': email
+    'criteria[0][key]': 'username',
+    'criteria[0][value]': username
   });
   return users.users && users.users.length > 0 ? users.users[0] : null;
 }
 
 // --- Get enrolled courses for a user ---
 async function getUserCourses(platform, userId) {
-  const courses = await moodleCall(platform, 'core_enrol_get_users_courses', {
-    userid: userId
-  });
-  return courses;
+  return moodleCall(platform, 'core_enrol_get_users_courses', { userid: userId });
+}
+
+// --- Filter and enrich courses (2026 only, active) ---
+const YEAR_2026_START = new Date('2026-01-01T00:00:00Z').getTime() / 1000;
+const YEAR_2027_START = new Date('2027-01-01T00:00:00Z').getTime() / 1000;
+
+function filterAndEnrich(courses, platform) {
+  return courses
+    .filter(c => {
+      if (!c.visible) return false;
+      // Include if: course started in 2026, OR course is ongoing (no enddate or enddate in 2026+)
+      const start = c.startdate || 0;
+      const end = c.enddate || 0;
+      // Course active in 2026: started before 2027 AND (no end OR ends after 2026 start)
+      if (start >= YEAR_2027_START) return false; // starts in 2027+
+      if (end > 0 && end < YEAR_2026_START) return false; // ended before 2026
+      return true;
+    })
+    .map(c => ({
+      id: c.id,
+      fullname: c.fullname,
+      shortname: c.shortname,
+      summary: (c.summary || '').replace(/<[^>]*>/g, '').substring(0, 200),
+      startdate: c.startdate ? new Date(c.startdate * 1000).toISOString().split('T')[0] : null,
+      enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
+      progress: c.progress != null ? Math.round(c.progress) : null,
+      courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
+      platform: {
+        id: platform.id,
+        name: platform.name,
+        color: platform.color,
+        url: platform.url
+      }
+    }));
 }
 
 // --- Static files ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- API: Get courses for a user across all platforms ---
-app.get('/api/mis-cursos', async (req, res) => {
-  const email = req.query.email;
+// --- API: Login with Moodle credentials ---
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
 
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ error: 'Se requiere un email válido' });
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Se requiere usuario y contraseña' });
   }
 
-  // Restrict to @umce.cl domain
-  if (!email.toLowerCase().endsWith('@umce.cl')) {
-    return res.status(403).json({ error: 'Solo se permiten correos @umce.cl' });
+  // Try to authenticate against all 5 platforms in parallel
+  const authResults = await Promise.all(
+    PLATFORMS.map(async (platform) => {
+      try {
+        const valid = await validateMoodleLogin(platform, username, password);
+        return { platform: platform.id, valid };
+      } catch {
+        return { platform: platform.id, valid: false };
+      }
+    })
+  );
+
+  const authenticated = authResults.some(r => r.valid);
+  if (!authenticated) {
+    return res.status(401).json({ error: 'Credenciales inválidas. Verifica tu usuario y contraseña de Moodle.' });
   }
 
-  const results = [];
+  // User authenticated — get their info and courses from all platforms
+  const platformResults = await Promise.all(
+    PLATFORMS.map(async (platform) => {
+      try {
+        const user = await findUserByUsername(platform, username);
+        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
 
-  // Query all 5 platforms in parallel
-  const promises = PLATFORMS.map(async (platform) => {
-    try {
-      const user = await findUser(platform, email);
-      if (!user) return { platform: platform.id, courses: [], found: false };
+        const courses = await getUserCourses(platform, user.id);
+        const filtered = filterAndEnrich(courses, platform);
 
-      const courses = await getUserCourses(platform, user.id);
+        return {
+          platform: platform.id,
+          platformName: platform.name,
+          platformColor: platform.color,
+          platformUrl: platform.url,
+          userName: user.fullname,
+          userEmail: user.email,
+          courses: filtered,
+          found: true
+        };
+      } catch (err) {
+        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
+      }
+    })
+  );
 
-      // Filter visible courses and enrich with platform info
-      const enriched = courses
-        .filter(c => c.visible)
-        .map(c => ({
-          id: c.id,
-          fullname: c.fullname,
-          shortname: c.shortname,
-          summary: (c.summary || '').replace(/<[^>]*>/g, '').substring(0, 200),
-          startdate: c.startdate ? new Date(c.startdate * 1000).toISOString().split('T')[0] : null,
-          enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
-          progress: c.progress != null ? Math.round(c.progress) : null,
-          courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
-          platform: {
-            id: platform.id,
-            name: platform.name,
-            color: platform.color,
-            url: platform.url
-          }
-        }));
+  const userName = platformResults.find(r => r.userName)?.userName || username;
+  const userEmail = platformResults.find(r => r.userEmail)?.userEmail || '';
+  const totalCourses = platformResults.reduce((sum, r) => sum + r.courses.length, 0);
 
-      return {
-        platform: platform.id,
-        platformName: platform.name,
-        platformColor: platform.color,
-        userName: user.fullname,
-        courses: enriched,
-        found: true
-      };
-    } catch (err) {
-      return {
-        platform: platform.id,
-        platformName: platform.name,
-        error: err.message,
-        courses: [],
-        found: false
-      };
-    }
-  });
-
-  const allResults = await Promise.all(promises);
-
-  // Aggregate
-  const totalCourses = allResults.reduce((sum, r) => sum + r.courses.length, 0);
-  const userName = allResults.find(r => r.userName)?.userName || null;
+  // Create session token
+  const token = createToken(username, userEmail);
 
   res.json({
-    email,
+    authenticated: true,
+    token,
     userName,
+    userEmail,
+    username,
     totalCourses,
-    platforms: allResults
+    platforms: platformResults
   });
+});
+
+// --- API: Refresh courses (with token) ---
+app.get('/api/mis-cursos', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Sesión no válida. Inicia sesión nuevamente.' });
+  }
+
+  const session = verifyToken(authHeader.slice(7));
+  if (!session) {
+    return res.status(401).json({ error: 'Sesión expirada. Inicia sesión nuevamente.' });
+  }
+
+  const { username } = session;
+
+  const platformResults = await Promise.all(
+    PLATFORMS.map(async (platform) => {
+      try {
+        const user = await findUserByUsername(platform, username);
+        if (!user) return { platform: platform.id, platformName: platform.name, platformColor: platform.color, courses: [], found: false };
+
+        const courses = await getUserCourses(platform, user.id);
+        const filtered = filterAndEnrich(courses, platform);
+
+        return {
+          platform: platform.id,
+          platformName: platform.name,
+          platformColor: platform.color,
+          platformUrl: platform.url,
+          userName: user.fullname,
+          courses: filtered,
+          found: true
+        };
+      } catch (err) {
+        return { platform: platform.id, platformName: platform.name, platformColor: platform.color, error: err.message, courses: [], found: false };
+      }
+    })
+  );
+
+  const totalCourses = platformResults.reduce((sum, r) => sum + r.courses.length, 0);
+  const userName = platformResults.find(r => r.userName)?.userName || username;
+
+  res.json({ userName, username, totalCourses, platforms: platformResults });
 });
 
 // --- API: Health check ---

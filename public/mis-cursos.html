@@ -47,9 +47,10 @@
       animation: shimmer 1.5s infinite;
       border-radius: 8px;
     }
+    .platform-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; color: white; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col">
 
   <!-- NAV -->
   <nav class="bg-umce-azul text-white py-4">
@@ -60,7 +61,7 @@
         </div>
         <div>
           <div class="font-heading font-bold text-base leading-tight">UMCE Virtual</div>
-          <div class="text-white/70 text-xs leading-tight">Mis Cursos</div>
+          <div class="text-white/70 text-xs leading-tight">Mis Cursos 2026</div>
         </div>
       </a>
       <a href="/" class="text-white/80 text-sm hover:text-white transition-colors flex items-center gap-1">
@@ -70,43 +71,62 @@
     </div>
   </nav>
 
-  <main class="max-w-6xl mx-auto px-6 py-12">
+  <main class="max-w-6xl mx-auto px-6 py-12 flex-1 w-full">
 
     <!-- LOGIN SECTION -->
     <div id="login-section" class="max-w-md mx-auto text-center">
       <div class="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm">
         <div class="w-16 h-16 bg-umce-azul/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+          <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
         </div>
         <h1 class="font-heading font-extrabold text-2xl text-gray-900 mb-2">Mis Cursos</h1>
-        <p class="text-gray-500 text-sm mb-8">Ingresa tu correo institucional para ver todos tus cursos en las 5 plataformas Moodle de la UMCE.</p>
+        <p class="text-gray-500 text-sm mb-8">Ingresa tus credenciales de Moodle UMCE para ver todos tus cursos activos en las 5 plataformas.</p>
 
-        <form id="email-form" class="space-y-4">
-          <div class="relative">
-            <input
-              type="email"
-              id="email-input"
-              placeholder="nombre.apellido@umce.cl"
-              required
-              pattern=".+@umce\.cl$"
-              class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
-            >
-            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        <form id="login-form" class="space-y-4 text-left">
+          <div>
+            <label for="username-input" class="block text-xs font-medium text-gray-500 mb-1.5">Usuario Moodle</label>
+            <div class="relative">
+              <input
+                type="text"
+                id="username-input"
+                placeholder="nombre.apellido"
+                required
+                autocomplete="username"
+                class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
+              >
+              <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+              </div>
             </div>
           </div>
-          <div id="email-error" class="text-red-500 text-xs hidden"></div>
+          <div>
+            <label for="password-input" class="block text-xs font-medium text-gray-500 mb-1.5">Contrase&ntilde;a</label>
+            <div class="relative">
+              <input
+                type="password"
+                id="password-input"
+                placeholder="Tu contrase&ntilde;a de Moodle"
+                required
+                autocomplete="current-password"
+                class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
+              >
+              <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">
+                <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div id="login-error" class="text-red-500 text-xs hidden bg-red-50 p-3 rounded-lg"></div>
           <button
             type="submit"
             id="submit-btn"
             class="w-full h-12 bg-umce-azul text-white font-heading font-bold rounded-xl hover:bg-umce-azul-light transition-colors flex items-center justify-center gap-2"
           >
-            <span id="btn-text">Buscar mis cursos</span>
+            <span id="btn-text">Iniciar sesi&oacute;n</span>
             <svg id="btn-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           </button>
         </form>
 
-        <p class="text-gray-400 text-xs mt-6">Solo correos @umce.cl &middot; Consulta en tiempo real las 5 plataformas</p>
+        <p class="text-gray-400 text-xs mt-6">Usa las mismas credenciales que en cualquier plataforma Moodle UMCE.<br>Tu contrase&ntilde;a no se almacena.</p>
       </div>
     </div>
 
@@ -114,48 +134,60 @@
     <div id="results-section" class="hidden">
       <!-- User header -->
       <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
-        <div>
-          <h1 class="font-heading font-extrabold text-2xl text-gray-900" id="user-name">Cargando...</h1>
-          <p class="text-gray-500 text-sm" id="user-email"></p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-umce-azul rounded-xl flex items-center justify-center text-white font-heading font-bold text-lg" id="user-avatar">D</div>
+          <div>
+            <h1 class="font-heading font-extrabold text-2xl text-gray-900" id="user-name">Cargando...</h1>
+            <p class="text-gray-500 text-sm" id="user-email"></p>
+          </div>
         </div>
         <div class="flex items-center gap-3">
           <div class="bg-umce-azul/10 text-umce-azul font-heading font-bold text-sm px-4 py-2 rounded-xl" id="total-courses">0 cursos</div>
-          <button onclick="logout()" class="text-gray-400 hover:text-gray-600 text-sm flex items-center gap-1 transition-colors">
+          <button onclick="refreshCourses()" class="text-gray-400 hover:text-umce-azul text-sm flex items-center gap-1 transition-colors" title="Actualizar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+          </button>
+          <button onclick="logout()" class="text-gray-400 hover:text-red-500 text-sm flex items-center gap-1 transition-colors" title="Cerrar sesi&oacute;n">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
-            Cambiar usuario
+            Salir
           </button>
         </div>
       </div>
 
+      <!-- Platform filter tabs -->
+      <div id="platform-tabs" class="flex flex-wrap gap-2 mb-6 hidden">
+        <button onclick="filterPlatform('all')" class="filter-tab px-4 py-2 rounded-lg text-xs font-semibold transition-colors bg-umce-azul text-white" data-platform="all">Todas</button>
+      </div>
+
       <!-- Loading skeletons -->
       <div id="loading-state" class="space-y-8">
-        <div>
-          <div class="skeleton h-6 w-32 mb-4"></div>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
-            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
-            <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
-          </div>
+        <div class="text-center py-8">
+          <svg class="w-8 h-8 animate-spin text-umce-azul mx-auto mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <p class="text-gray-500 text-sm">Consultando 5 plataformas Moodle...</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
+          <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
+          <div class="bg-white rounded-2xl p-6 border border-gray-100"><div class="skeleton h-4 w-3/4 mb-3"></div><div class="skeleton h-3 w-full mb-2"></div><div class="skeleton h-3 w-2/3"></div></div>
         </div>
       </div>
 
-      <!-- Platforms & courses -->
-      <div id="platforms-container" class="space-y-8 hidden"></div>
+      <!-- Courses grid -->
+      <div id="courses-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></div>
 
       <!-- No courses state -->
       <div id="no-courses" class="hidden text-center py-16">
         <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
         </div>
-        <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">No se encontraron cursos</h3>
-        <p class="text-gray-500 text-sm max-w-sm mx-auto">No tienes cursos asignados en ninguna de las 5 plataformas. Si crees que esto es un error, contacta a <a href="mailto:udfv@umce.cl" class="text-umce-azul hover:underline">udfv@umce.cl</a>.</p>
+        <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Sin cursos activos en 2026</h3>
+        <p class="text-gray-500 text-sm max-w-sm mx-auto">No tienes cursos activos este a&ntilde;o en ninguna de las 5 plataformas. Si crees que esto es un error, contacta a <a href="mailto:udfv@umce.cl" class="text-umce-azul hover:underline">udfv@umce.cl</a>.</p>
       </div>
     </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="mt-auto border-t border-gray-200 py-8">
+  <footer class="border-t border-gray-200 py-8">
     <div class="max-w-6xl mx-auto px-6 flex items-center justify-between text-xs text-gray-400">
       <span>&copy; 2026 UMCE &mdash; Unidad de Desarrollo y Formaci&oacute;n Virtual</span>
       <a href="mailto:udfv@umce.cl" class="hover:text-umce-azul transition-colors">udfv@umce.cl</a>
@@ -163,117 +195,187 @@
   </footer>
 
   <script>
+    // DOM refs
     const loginSection = document.getElementById('login-section');
     const resultsSection = document.getElementById('results-section');
     const loadingState = document.getElementById('loading-state');
-    const platformsContainer = document.getElementById('platforms-container');
+    const coursesContainer = document.getElementById('courses-container');
+    const platformTabs = document.getElementById('platform-tabs');
     const noCourses = document.getElementById('no-courses');
-    const emailForm = document.getElementById('email-form');
-    const emailInput = document.getElementById('email-input');
-    const emailError = document.getElementById('email-error');
+    const loginForm = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
+    const loginError = document.getElementById('login-error');
     const submitBtn = document.getElementById('submit-btn');
     const btnText = document.getElementById('btn-text');
     const btnSpinner = document.getElementById('btn-spinner');
 
-    // Check for saved email
-    const savedEmail = localStorage.getItem('umce_email');
-    if (savedEmail) {
-      fetchCourses(savedEmail);
-    }
+    let allCourses = [];
+    let currentFilter = 'all';
 
-    emailForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim().toLowerCase();
-
-      if (!email.endsWith('@umce.cl')) {
-        emailError.textContent = 'Solo se permiten correos @umce.cl';
-        emailError.classList.remove('hidden');
-        return;
-      }
-
-      emailError.classList.add('hidden');
-      localStorage.setItem('umce_email', email);
-      fetchCourses(email);
+    // Toggle password visibility
+    document.getElementById('toggle-password').addEventListener('click', () => {
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = type;
     });
 
-    async function fetchCourses(email) {
-      // Show loading
-      loginSection.classList.add('hidden');
-      resultsSection.classList.remove('hidden');
-      loadingState.classList.remove('hidden');
-      platformsContainer.classList.add('hidden');
-      noCourses.classList.add('hidden');
+    // Check saved session
+    const savedToken = localStorage.getItem('umce_token');
+    const savedUser = localStorage.getItem('umce_user');
+    if (savedToken && savedUser) {
+      showResults(JSON.parse(savedUser));
+      refreshCourses();
+    }
 
-      document.getElementById('user-email').textContent = email;
+    // Login form
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
 
-      // Disable button
-      submitBtn.disabled = true;
-      btnText.textContent = 'Buscando...';
-      btnSpinner.classList.remove('hidden');
+      if (!username || !password) return;
+
+      loginError.classList.add('hidden');
+      setLoading(true);
 
       try {
-        const res = await fetch(`/api/mis-cursos?email=${encodeURIComponent(email)}`);
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.error || 'Error al consultar');
+          throw new Error(data.error || 'Error al iniciar sesion');
         }
 
-        // Update header
-        document.getElementById('user-name').textContent = data.userName || email.split('@')[0];
-        document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''}`;
+        // Save session
+        localStorage.setItem('umce_token', data.token);
+        localStorage.setItem('umce_user', JSON.stringify({
+          userName: data.userName,
+          userEmail: data.userEmail,
+          username: data.username
+        }));
 
-        // Hide loading
-        loadingState.classList.add('hidden');
+        showResults({ userName: data.userName, userEmail: data.userEmail, username: data.username });
+        renderCourses(data);
 
-        if (data.totalCourses === 0) {
-          noCourses.classList.remove('hidden');
-          return;
-        }
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+        setLoading(false);
+      }
+    });
 
-        // Render platforms
-        platformsContainer.innerHTML = '';
-        platformsContainer.classList.remove('hidden');
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Verificando...' : 'Iniciar sesion';
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
 
-        data.platforms.forEach(platform => {
-          if (platform.courses.length === 0) return;
+    function showResults(user) {
+      loginSection.classList.add('hidden');
+      resultsSection.classList.remove('hidden');
+      document.getElementById('user-name').textContent = user.userName || user.username;
+      document.getElementById('user-email').textContent = user.userEmail || '';
+      document.getElementById('user-avatar').textContent = (user.userName || user.username || 'U')[0].toUpperCase();
+    }
 
-          const section = document.createElement('div');
-          section.innerHTML = `
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-heading font-bold text-xs" style="background: ${platform.platformColor}">
-                ${platform.platformName.substring(0, 2)}
-              </div>
-              <div>
-                <h2 class="font-heading font-bold text-lg text-gray-900">${platform.platformName}</h2>
-                <span class="text-gray-400 text-xs">${platform.courses.length} curso${platform.courses.length !== 1 ? 's' : ''}</span>
-              </div>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              ${platform.courses.map(course => renderCourseCard(course)).join('')}
-            </div>
-          `;
-          platformsContainer.appendChild(section);
+    async function refreshCourses() {
+      const token = localStorage.getItem('umce_token');
+      if (!token) return logout();
+
+      loadingState.classList.remove('hidden');
+      coursesContainer.classList.add('hidden');
+      platformTabs.classList.add('hidden');
+      noCourses.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/mis-cursos', {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (res.status === 401) {
+          return logout();
+        }
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        const user = JSON.parse(localStorage.getItem('umce_user') || '{}');
+        user.userName = data.userName;
+        localStorage.setItem('umce_user', JSON.stringify(user));
+        document.getElementById('user-name').textContent = data.userName;
+        document.getElementById('user-avatar').textContent = (data.userName || 'U')[0].toUpperCase();
+
+        renderCourses(data);
 
       } catch (err) {
         loadingState.classList.add('hidden');
-        platformsContainer.classList.remove('hidden');
-        platformsContainer.innerHTML = `
-          <div class="text-center py-12">
-            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
-            </div>
-            <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Error al buscar cursos</h3>
-            <p class="text-gray-500 text-sm">${err.message}</p>
-            <button onclick="logout()" class="mt-4 text-umce-azul text-sm font-medium hover:underline">Intentar de nuevo</button>
+        coursesContainer.classList.remove('hidden');
+        coursesContainer.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <p class="text-red-500 text-sm mb-2">${err.message}</p>
+            <button onclick="refreshCourses()" class="text-umce-azul text-sm font-medium hover:underline">Reintentar</button>
           </div>
         `;
       }
     }
 
+    function renderCourses(data) {
+      loadingState.classList.add('hidden');
+
+      // Flatten all courses
+      allCourses = [];
+      const platformCounts = {};
+
+      data.platforms.forEach(p => {
+        if (p.courses.length > 0) {
+          platformCounts[p.platform] = { name: p.platformName, color: p.platformColor, count: p.courses.length };
+        }
+        p.courses.forEach(c => allCourses.push(c));
+      });
+
+      document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''}`;
+
+      if (data.totalCourses === 0) {
+        noCourses.classList.remove('hidden');
+        return;
+      }
+
+      // Build platform filter tabs
+      const tabsHtml = [`<button onclick="filterPlatform('all')" class="filter-tab px-4 py-2 rounded-lg text-xs font-semibold transition-colors bg-umce-azul text-white" data-platform="all">Todas (${data.totalCourses})</button>`];
+      Object.entries(platformCounts).forEach(([id, info]) => {
+        tabsHtml.push(`<button onclick="filterPlatform('${id}')" class="filter-tab px-4 py-2 rounded-lg text-xs font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200" data-platform="${id}">${info.name} (${info.count})</button>`);
+      });
+      platformTabs.innerHTML = tabsHtml.join('');
+      platformTabs.classList.remove('hidden');
+
+      // Render cards
+      currentFilter = 'all';
+      renderCards();
+    }
+
+    function filterPlatform(platformId) {
+      currentFilter = platformId;
+      // Update tab styles
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        const isActive = tab.dataset.platform === platformId;
+        tab.className = `filter-tab px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive ? 'bg-umce-azul text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+      });
+      renderCards();
+    }
+
+    function renderCards() {
+      const filtered = currentFilter === 'all' ? allCourses : allCourses.filter(c => c.platform.id === currentFilter);
+
+      coursesContainer.innerHTML = filtered.map(course => renderCourseCard(course)).join('');
+      coursesContainer.classList.remove('hidden');
+    }
+
     function renderCourseCard(course) {
-      const isActive = !course.enddate || new Date(course.enddate) > new Date();
       const progressBar = course.progress != null
         ? `<div class="mt-3">
             <div class="flex justify-between text-xs mb-1">
@@ -286,27 +388,24 @@
           </div>`
         : '';
 
-      const statusBadge = isActive
-        ? '<span class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Activo</span>'
-        : '<span class="text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Finalizado</span>';
-
       const dateInfo = course.startdate
-        ? `<span class="text-gray-400 text-xs">${formatDate(course.startdate)}${course.enddate ? ' — ' + formatDate(course.enddate) : ''}</span>`
+        ? `<div class="text-gray-400 text-xs mt-2">${formatDate(course.startdate)}${course.enddate ? ' — ' + formatDate(course.enddate) : ''}</div>`
         : '';
 
       return `
-        <a href="${course.courseUrl}" target="_blank" class="card-hover bg-white rounded-xl p-5 border border-gray-100 group block">
-          <div class="flex items-start justify-between gap-2 mb-2">
-            ${statusBadge}
-            <div class="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold" style="background: ${course.platform.color}">${course.platform.name.substring(0, 2)}</div>
+        <a href="${course.courseUrl}" target="_blank" rel="noopener" class="card-hover bg-white rounded-xl p-5 border border-gray-100 group block">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <span class="platform-chip" style="background: ${course.platform.color}">${course.platform.name}</span>
           </div>
           <h4 class="font-heading font-bold text-sm text-gray-900 group-hover:text-umce-azul transition-colors leading-snug mb-1">${course.fullname}</h4>
-          ${course.summary ? `<p class="text-gray-400 text-xs leading-relaxed line-clamp-2 mb-2">${course.summary}</p>` : ''}
+          ${course.summary ? `<p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${course.summary}</p>` : ''}
           ${dateInfo}
           ${progressBar}
-          <div class="mt-3 flex items-center justify-between">
-            <span class="text-gray-300 text-xs">${course.platform.name}</span>
-            <span class="text-umce-azul text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">Ir al curso &rarr;</span>
+          <div class="mt-3 flex items-center justify-end">
+            <span class="text-umce-azul text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              Ir al curso
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </span>
           </div>
         </a>
       `;
@@ -315,17 +414,19 @@
     function formatDate(dateStr) {
       const d = new Date(dateStr);
       const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-      return `${months[d.getMonth()]} ${d.getFullYear()}`;
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     }
 
     function logout() {
-      localStorage.removeItem('umce_email');
+      localStorage.removeItem('umce_token');
+      localStorage.removeItem('umce_user');
+      allCourses = [];
       loginSection.classList.remove('hidden');
       resultsSection.classList.add('hidden');
-      emailInput.value = '';
-      submitBtn.disabled = false;
-      btnText.textContent = 'Buscar mis cursos';
-      btnSpinner.classList.add('hidden');
+      usernameInput.value = '';
+      passwordInput.value = '';
+      loginError.classList.add('hidden');
+      setLoading(false);
     }
   </script>
 </body>
