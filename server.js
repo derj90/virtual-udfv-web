@@ -18,6 +18,28 @@ const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const BASE_URL = process.env.BASE_URL || 'https://virtual.udfv.cloud';
+const COOKIE_NAME = 'umce_session';
+
+// --- Cookie helpers ---
+function parseCookies(req) {
+  const cookies = {};
+  (req.headers.cookie || '').split(';').forEach(c => {
+    const [key, ...val] = c.trim().split('=');
+    if (key) cookies[key] = decodeURIComponent(val.join('='));
+  });
+  return cookies;
+}
+
+function setSessionCookie(res, token, maxAge) {
+  res.setHeader('Set-Cookie', `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge || 24 * 60 * 60}`);
+}
+
+function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
+}
 
 // --- Moodle platforms config ---
 const PLATFORMS = [
@@ -64,8 +86,9 @@ const PLATFORMS = [
 ];
 
 // --- Session token helpers ---
-function createToken(username, email) {
-  const payload = `${username}|${email}|${Date.now()}`;
+function createToken(username, email, maxAgeSec) {
+  const ttl = maxAgeSec || 24 * 60 * 60;
+  const payload = `${username}|${email}|${Date.now()}|${ttl}`;
   const hmac = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
   return Buffer.from(`${payload}|${hmac}`).toString('base64');
 }
@@ -74,12 +97,11 @@ function verifyToken(token) {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf8');
     const parts = decoded.split('|');
-    if (parts.length !== 4) return null;
-    const [username, email, timestamp, hmac] = parts;
-    const expected = crypto.createHmac('sha256', SESSION_SECRET).update(`${username}|${email}|${timestamp}`).digest('hex');
+    if (parts.length !== 5) return null;
+    const [username, email, timestamp, ttl, hmac] = parts;
+    const expected = crypto.createHmac('sha256', SESSION_SECRET).update(`${username}|${email}|${timestamp}|${ttl}`).digest('hex');
     if (hmac !== expected) return null;
-    // Token valid for 24h
-    if (Date.now() - parseInt(timestamp) > 24 * 60 * 60 * 1000) return null;
+    if (Date.now() - parseInt(timestamp) > parseInt(ttl) * 1000) return null;
     return { username, email };
   } catch { return null; }
 }
@@ -155,6 +177,7 @@ function enrichCourse(c, platform) {
     enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
     year: c.startdate ? new Date(c.startdate * 1000).getFullYear() : null,
     progress: c.progress != null ? Math.round(c.progress) : null,
+    courseImage: c.courseimage || (c.overviewfiles && c.overviewfiles[0] ? c.overviewfiles[0].fileurl.replace('/webservice/pluginfile.php/', '/pluginfile.php/') : null),
     courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
     platform: { id: platform.id, name: platform.name, color: platform.color, url: platform.url }
   };
@@ -218,33 +241,287 @@ function validateEmail(email) {
   return null;
 }
 
+// --- Auth middleware ---
+function authMiddleware(req, res, next) {
+  const cookies = parseCookies(req);
+  const token = cookies[COOKIE_NAME];
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  const user = verifyToken(token);
+  if (!user) return res.status(401).json({ error: 'Sesión expirada' });
+
+  req.userEmail = user.email;
+  req.userName = user.username;
+  next();
+}
+
+// --- Google OAuth routes ---
+app.get('/auth/login', (req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(500).send('Google OAuth no configurado');
+
+  const remember = req.query.remember === '1';
+  const state = JSON.stringify({ nonce: crypto.randomBytes(16).toString('hex'), remember });
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: `${BASE_URL}/auth/callback`,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'online',
+    prompt: 'select_account',
+    state,
+    hd: 'umce.cl'
+  });
+
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+app.get('/auth/callback', async (req, res) => {
+  const { code, error, state: stateParam } = req.query;
+  if (error || !code) return res.redirect('/mis-cursos.html?error=auth_denied');
+
+  let remember = false;
+  try { remember = JSON.parse(stateParam).remember === true; } catch {}
+
+  try {
+    // Exchange code for tokens
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: `${BASE_URL}/auth/callback`,
+        grant_type: 'authorization_code'
+      }).toString()
+    });
+
+    const tokenData = await tokenRes.json();
+    if (tokenData.error) throw new Error(tokenData.error_description || tokenData.error);
+
+    // Get user info
+    const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    });
+    const userInfo = await userRes.json();
+
+    const email = (userInfo.email || '').toLowerCase();
+    if (!email.endsWith('@umce.cl')) {
+      return res.redirect('/mis-cursos.html?error=domain');
+    }
+
+    const name = userInfo.name || email.split('@')[0];
+    const maxAge = remember ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+    const token = createToken(name, email, maxAge);
+    setSessionCookie(res, token, maxAge);
+    res.redirect('/mis-cursos.html');
+
+  } catch (err) {
+    console.error('OAuth callback error:', err.message);
+    res.redirect('/mis-cursos.html?error=auth_failed');
+  }
+});
+
+app.get('/auth/logout', (req, res) => {
+  clearSessionCookie(res);
+  res.redirect('/');
+});
+
+app.get('/auth/me', (req, res) => {
+  const cookies = parseCookies(req);
+  const token = cookies[COOKIE_NAME];
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  const user = verifyToken(token);
+  if (!user) return res.status(401).json({ error: 'Sesión expirada' });
+
+  res.json({ email: user.email, name: user.username });
+});
+
 // --- Static files ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- API: Active 2026 courses ---
-app.get('/api/mis-cursos', async (req, res) => {
-  const email = (req.query.email || '').toLowerCase();
-  const err = validateEmail(email);
-  if (err) return res.status(400).json({ error: err });
+// --- API: Active 2026 courses (authenticated) ---
+app.get('/api/mis-cursos', authMiddleware, async (req, res) => {
+  const email = req.userEmail;
 
   const platforms = await queryAllPlatforms(email, filterAndEnrich);
   const totalCourses = platforms.reduce((sum, r) => sum + r.courses.length, 0);
-  const userName = platforms.find(r => r.userName)?.userName || null;
+  const userName = platforms.find(r => r.userName)?.userName || req.userName;
 
   res.json({ email, userName, totalCourses, platforms });
 });
 
-// --- API: Historical courses (non-2026, lazy) ---
-app.get('/api/historial', async (req, res) => {
-  const email = (req.query.email || '').toLowerCase();
-  const err = validateEmail(email);
-  if (err) return res.status(400).json({ error: err });
+// --- API: Historical courses (authenticated) ---
+app.get('/api/historial', authMiddleware, async (req, res) => {
+  const email = req.userEmail;
 
   const platforms = await queryAllPlatforms(email, filterHistorical);
   const allHistorical = platforms.flatMap(p => p.courses);
   const years = [...new Set(allHistorical.map(c => c.year).filter(Boolean))].sort((a, b) => b - a);
 
   res.json({ totalCourses: allHistorical.length, years, platforms });
+});
+
+// --- Supabase UCampus config ---
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://supabase.udfv.cloud';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+// Helper: query Supabase REST API (ucampus schema)
+async function supabaseQuery(table, params = '') {
+  if (!SUPABASE_SERVICE_KEY) throw new Error('SUPABASE_SERVICE_KEY no configurado');
+  const url = `${SUPABASE_URL}/rest/v1/${table}${params ? '?' + params : ''}`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'Accept-Profile': 'ucampus',
+      'Accept': 'application/json'
+    },
+    signal: AbortSignal.timeout(10000)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase ${table}: ${res.status} ${text}`);
+  }
+  return res.json();
+}
+
+// Helper: format UCampus horario from horarios rows
+function formatHorario(horarios) {
+  if (!horarios || horarios.length === 0) return null;
+  const dayNames = { 1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb', 7: 'Dom' };
+  return horarios
+    .sort((a, b) => a.dia - b.dia)
+    .map(h => {
+      const day = dayNames[h.dia] || `D${h.dia}`;
+      if (h.hora_inicio && h.hora_fin) return `${day} ${h.hora_inicio}-${h.hora_fin}`;
+      if (h.bloque) return `${day} B${h.bloque}`;
+      return day;
+    })
+    .join(' · ');
+}
+
+// --- API: UCampus data (authenticated) ---
+app.get('/api/ucampus', authMiddleware, async (req, res) => {
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.json({ found: false, error: 'UCampus no configurado' });
+  }
+
+  const email = req.userEmail;
+
+  try {
+    // Step 1: Find persona by email
+    const personas = await supabaseQuery('personas', `email=eq.${encodeURIComponent(email)}&limit=1`);
+    if (!personas || personas.length === 0) {
+      return res.json({ found: false });
+    }
+
+    const persona = personas[0];
+    const rut = persona.rut;
+    const nombre = persona.nombres ? `${persona.nombres} ${persona.apellido_paterno || ''} ${persona.apellido_materno || ''}`.trim() : null;
+
+    // Step 2: Query docente and estudiante data in parallel
+    const periodo = '2026.1';
+    const [dictados, inscritos] = await Promise.all([
+      supabaseQuery('cursos_dictados', `rut=eq.${encodeURIComponent(rut)}&periodo=eq.${periodo}`).catch(() => []),
+      supabaseQuery('cursos_inscritos', `rut=eq.${encodeURIComponent(rut)}&periodo=eq.${periodo}`).catch(() => [])
+    ]);
+
+    // Step 3: Gather unique curso IDs and ramo codes for batch lookups
+    const cursoIds = [...new Set([
+      ...dictados.map(d => d.id_curso).filter(Boolean),
+      ...inscritos.map(i => i.id_curso).filter(Boolean)
+    ])];
+    const ramoCodes = [...new Set([
+      ...dictados.map(d => d.codigo_ramo).filter(Boolean),
+      ...inscritos.map(i => i.codigo_ramo).filter(Boolean)
+    ])];
+
+    // Step 4: Batch fetch ramos, cursos, horarios
+    const [ramos, cursos, horarios, carrAlumnos] = await Promise.all([
+      ramoCodes.length > 0
+        ? supabaseQuery('ramos', `codigo=in.(${ramoCodes.map(c => `"${c}"`).join(',')})`)
+        : [],
+      cursoIds.length > 0
+        ? supabaseQuery('cursos', `id=in.(${cursoIds.join(',')})`)
+        : [],
+      dictados.length > 0
+        ? supabaseQuery('horarios', `id_curso=in.(${dictados.map(d => d.id_curso).filter(Boolean).join(',')})`)
+        : [],
+      inscritos.length > 0
+        ? supabaseQuery('carreras_alumnos', `rut=eq.${encodeURIComponent(rut)}`).catch(() => [])
+        : []
+    ]);
+
+    // Index lookups
+    const ramoMap = {};
+    ramos.forEach(r => { ramoMap[r.codigo] = r; });
+    const cursoMap = {};
+    cursos.forEach(c => { cursoMap[c.id] = c; });
+    const horarioMap = {};
+    horarios.forEach(h => {
+      if (!horarioMap[h.id_curso]) horarioMap[h.id_curso] = [];
+      horarioMap[h.id_curso].push(h);
+    });
+
+    // Step 5: Get carrera name
+    let carreraNombre = null;
+    if (carrAlumnos.length > 0) {
+      try {
+        const carreras = await supabaseQuery('carreras', `codigo=eq.${encodeURIComponent(carrAlumnos[0].codigo_carrera)}&limit=1`);
+        if (carreras.length > 0) carreraNombre = carreras[0].nombre;
+      } catch {}
+    }
+
+    // Step 6: Build response
+    const asDocente = {
+      total: dictados.length,
+      secciones: dictados.map(d => {
+        const ramo = ramoMap[d.codigo_ramo] || {};
+        const curso = cursoMap[d.id_curso] || {};
+        return {
+          idCurso: d.id_curso,
+          codigoRamo: d.codigo_ramo || '',
+          nombreRamo: ramo.nombre || d.nombre_ramo || '',
+          seccion: d.seccion || curso.seccion || null,
+          inscritos: curso.inscritos || d.inscritos || null,
+          rol: d.rol || 'Docente',
+          horario: formatHorario(horarioMap[d.id_curso]),
+          ucampusUrl: `https://ucampus.umce.cl`
+        };
+      })
+    };
+
+    const asEstudiante = {
+      total: inscritos.length,
+      carrera: carreraNombre,
+      ramos: inscritos.map(i => {
+        const ramo = ramoMap[i.codigo_ramo] || {};
+        return {
+          codigoRamo: i.codigo_ramo || '',
+          nombreRamo: ramo.nombre || i.nombre_ramo || '',
+          seccion: i.seccion || null,
+          notaFinal: i.nota_final != null ? parseFloat(i.nota_final) : null,
+          estado: i.estado || null,
+          ucampusUrl: `https://ucampus.umce.cl`
+        };
+      })
+    };
+
+    res.json({
+      found: true,
+      rut,
+      nombre,
+      periodo: 'Primer Semestre 2026',
+      asDocente: asDocente.total > 0 ? asDocente : null,
+      asEstudiante: asEstudiante.total > 0 ? asEstudiante : null
+    });
+
+  } catch (err) {
+    console.error('UCampus API error:', err.message);
+    res.json({ found: false, error: err.message });
+  }
 });
 
 // --- API: Health check ---

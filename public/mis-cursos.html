@@ -77,54 +77,39 @@
     </div>
   </nav>
 
-  <main class="max-w-6xl mx-auto px-6 py-12 flex-1 w-full">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12 flex-1 w-full">
 
     <!-- LOGIN SECTION -->
-    <div id="login-section" class="max-w-md mx-auto text-center">
+    <div id="login-section" class="max-w-md mx-auto text-center hidden">
       <div class="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm">
         <div class="w-16 h-16 bg-umce-azul/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <svg class="w-8 h-8 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
         </div>
         <h1 class="font-heading font-extrabold text-2xl text-gray-900 mb-2">Mis Cursos</h1>
-        <p class="text-gray-500 text-sm mb-8">Ingresa tu correo institucional para ver tus cursos activos en las 5 plataformas Moodle de la UMCE.</p>
+        <p class="text-gray-500 text-sm mb-8">Inicia sesi&oacute;n con tu cuenta institucional Google (@umce.cl) para ver tus cursos activos en las 5 plataformas Moodle.</p>
 
-        <form id="login-form" class="space-y-4 text-left">
-          <div>
-            <label for="email-input" class="block text-xs font-medium text-gray-500 mb-1.5">Correo institucional</label>
-            <div class="relative">
-              <input
-                type="email"
-                id="email-input"
-                placeholder="nombre.apellido@umce.cl"
-                required
-                pattern=".+@umce\.cl$"
-                autocomplete="email"
-                class="w-full h-12 px-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-umce-azul focus:ring-2 focus:ring-umce-azul/20 outline-none transition-all"
-              >
-              <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-              </div>
-            </div>
-          </div>
-          <div id="login-error" class="text-red-500 text-xs hidden bg-red-50 p-3 rounded-lg"></div>
-          <button
-            type="submit"
-            id="submit-btn"
-            class="w-full h-12 bg-umce-azul text-white font-heading font-bold rounded-xl hover:bg-umce-azul-light transition-colors flex items-center justify-center gap-2"
-          >
-            <span id="btn-text">Ver mis cursos</span>
-            <svg id="btn-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-          </button>
-        </form>
+        <div id="login-error" class="text-red-500 text-xs hidden bg-red-50 p-3 rounded-lg mb-4"></div>
 
-        <p class="text-gray-400 text-xs mt-6">Solo correos @umce.cl &middot; Consulta en tiempo real en las 5 plataformas</p>
+        <a id="google-login-btn" href="/auth/login"
+          class="w-full h-12 bg-white border-2 border-gray-200 text-gray-700 font-heading font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-colors flex items-center justify-center gap-3"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Iniciar sesi&oacute;n con Google
+        </a>
+
+        <label class="flex items-center justify-center gap-2 mt-4 cursor-pointer select-none">
+          <input type="checkbox" id="remember-check" checked class="w-4 h-4 rounded border-gray-300 text-umce-azul focus:ring-umce-azul/30">
+          <span class="text-gray-500 text-xs">Mantener sesi&oacute;n iniciada (30 d&iacute;as)</span>
+        </label>
+
+        <p class="text-gray-400 text-xs mt-4">Solo cuentas @umce.cl &middot; Inicio de sesi&oacute;n seguro con Google</p>
       </div>
     </div>
 
     <!-- RESULTS SECTION (hidden initially) -->
     <div id="results-section" class="hidden">
       <!-- User header -->
-      <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-umce-azul rounded-xl flex items-center justify-center text-white font-heading font-bold text-lg" id="user-avatar">D</div>
           <div>
@@ -142,6 +127,32 @@
             Salir
           </button>
         </div>
+      </div>
+
+      <!-- MAIN TABS -->
+      <div id="main-tabs" class="flex gap-2 mb-6 hidden">
+        <button onclick="switchMainTab('moodle')" id="tab-btn-moodle" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-umce-azul bg-umce-azul text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+          Cursos Virtuales <span id="tab-count-moodle" class="opacity-80"></span>
+        </button>
+        <button onclick="switchMainTab('ucampus')" id="tab-btn-ucampus" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-gray-200 bg-white text-gray-500 hover:border-teal-400 hover:text-teal-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+          UCampus <span id="tab-count-ucampus" class="opacity-80"></span>
+        </button>
+      </div>
+
+      <!-- TAB: Moodle (Cursos Virtuales) -->
+      <div id="tab-moodle">
+
+      <!-- Moodle login hint -->
+      <div id="moodle-hint" class="hidden bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+        <svg class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+        <div class="flex-1">
+          <p class="text-blue-800 text-xs leading-relaxed">La primera vez que accedas a cada plataforma Moodle, se te pedir&aacute; iniciar sesi&oacute;n. Haz clic en <strong>&ldquo;Google&rdquo;</strong> y entrar&aacute;s autom&aacute;ticamente con tu cuenta UMCE.</p>
+        </div>
+        <button onclick="this.parentElement.classList.add('hidden');localStorage.setItem('moodle_hint_dismissed','1')" class="text-blue-300 hover:text-blue-500 shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
 
       <!-- Platform filter tabs -->
@@ -217,6 +228,69 @@
         </div>
       </div>
 
+      </div><!-- end tab-moodle -->
+
+      <!-- TAB: UCampus (Gesti&oacute;n Acad&eacute;mica) -->
+      <div id="tab-ucampus" class="hidden">
+
+        <!-- UCampus loading -->
+        <div id="ucampus-loading" class="text-center py-12 hidden">
+          <svg class="w-8 h-8 animate-spin text-teal-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <p class="text-gray-500 text-sm">Consultando registros acad&eacute;micos...</p>
+        </div>
+
+        <!-- UCampus content -->
+        <div id="ucampus-content" class="hidden">
+
+          <!-- Period badge -->
+          <div id="ucampus-periodo" class="inline-flex items-center gap-2 bg-teal-50 text-teal-700 font-heading font-bold text-sm px-4 py-2 rounded-xl mb-6">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+            <span id="ucampus-periodo-text">Per&iacute;odo</span>
+          </div>
+
+          <!-- Docente section -->
+          <div id="ucampus-docente" class="hidden mb-8">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+              </div>
+              <h3 class="font-heading font-bold text-base text-gray-800">Como Docente</h3>
+              <span id="ucampus-docente-count" class="text-xs text-teal-600 font-semibold bg-teal-50 px-2 py-0.5 rounded-full"></span>
+            </div>
+            <div id="ucampus-docente-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Estudiante section -->
+          <div id="ucampus-estudiante" class="hidden mb-8">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+              </div>
+              <h3 class="font-heading font-bold text-base text-gray-800">Como Estudiante</h3>
+              <span id="ucampus-estudiante-count" class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full"></span>
+            </div>
+            <p id="ucampus-carrera" class="text-gray-500 text-xs mb-4 ml-10"></p>
+            <div id="ucampus-estudiante-list" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- UCampus not found -->
+        <div id="ucampus-empty" class="hidden text-center py-16">
+          <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-teal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-lg text-gray-900 mb-2">Sin registros en UCampus</h3>
+          <p class="text-gray-500 text-sm max-w-sm mx-auto">No se encontraron registros acad&eacute;micos asociados a tu correo. Si crees que esto es un error, contacta a <a href="mailto:udfv@umce.cl" class="text-teal-600 hover:underline">udfv@umce.cl</a>.</p>
+        </div>
+
+        <!-- UCampus error -->
+        <div id="ucampus-error" class="hidden text-center py-12">
+          <p class="text-red-500 text-sm mb-2" id="ucampus-error-msg"></p>
+          <button onclick="fetchUCampus()" class="text-teal-600 text-sm font-medium hover:underline">Reintentar</button>
+        </div>
+
+      </div><!-- end tab-ucampus -->
+
     </div>
 
   </main>
@@ -237,72 +311,77 @@
     const coursesContainer = document.getElementById('courses-container');
     const platformTabs = document.getElementById('platform-tabs');
     const noCourses = document.getElementById('no-courses');
-    const loginForm = document.getElementById('login-form');
-    const emailInput = document.getElementById('email-input');
     const loginError = document.getElementById('login-error');
-    const submitBtn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnSpinner = document.getElementById('btn-spinner');
 
     let allCourses = [];
     let currentFilter = 'all';
     let currentEmail = '';
 
-    // Check saved session
-    const savedEmail = localStorage.getItem('umce_email');
-    if (savedEmail) {
-      currentEmail = savedEmail;
-      showResults({ email: savedEmail });
-      fetchCourses(savedEmail);
+    // Check for error params from OAuth redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const authError = urlParams.get('error');
+    if (authError) {
+      const messages = {
+        auth_denied: 'Inicio de sesi&oacute;n cancelado.',
+        domain: 'Solo se permiten cuentas @umce.cl.',
+        auth_failed: 'Error en la autenticaci&oacute;n. Int&eacute;ntalo de nuevo.'
+      };
+      loginError.innerHTML = messages[authError] || 'Error de autenticaci&oacute;n.';
+      loginError.classList.remove('hidden');
+      loginSection.classList.remove('hidden');
+      // Clean URL
+      history.replaceState(null, '', '/mis-cursos.html');
+    } else {
+      // Try to load session — call /auth/me to check
+      checkSession();
     }
 
-    // Login form
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim().toLowerCase();
+    // Remember me toggle
+    const rememberCheck = document.getElementById('remember-check');
+    const googleBtn = document.getElementById('google-login-btn');
+    function updateLoginHref() {
+      googleBtn.href = rememberCheck.checked ? '/auth/login?remember=1' : '/auth/login';
+    }
+    rememberCheck.addEventListener('change', updateLoginHref);
+    updateLoginHref();
 
-      if (!email.endsWith('@umce.cl')) {
-        loginError.textContent = 'Solo se permiten correos @umce.cl';
-        loginError.classList.remove('hidden');
-        return;
+    async function checkSession() {
+      try {
+        const res = await fetch('/auth/me');
+        if (!res.ok) throw new Error('No session');
+        const user = await res.json();
+        currentEmail = user.email;
+        showResults(user);
+        fetchCourses();
+      } catch {
+        // No session — show login
+        loginSection.classList.remove('hidden');
       }
-
-      loginError.classList.add('hidden');
-      currentEmail = email;
-      localStorage.setItem('umce_email', email);
-      showResults({ email });
-      fetchCourses(email);
-    });
-
-    function setLoading(loading) {
-      submitBtn.disabled = loading;
-      btnText.textContent = loading ? 'Buscando...' : 'Ver mis cursos';
-      btnSpinner.classList.toggle('hidden', !loading);
     }
 
     function showResults(user) {
       loginSection.classList.add('hidden');
       resultsSection.classList.remove('hidden');
-      document.getElementById('user-name').textContent = user.userName || user.email.split('@')[0];
+      document.getElementById('user-name').textContent = user.name || user.email.split('@')[0];
       document.getElementById('user-email').textContent = user.email || '';
-      document.getElementById('user-avatar').textContent = (user.userName || user.email || 'U')[0].toUpperCase();
+      document.getElementById('user-avatar').textContent = (user.name || user.email || 'U')[0].toUpperCase();
     }
 
-    async function fetchCourses(email) {
+    async function fetchCourses() {
       loadingState.classList.remove('hidden');
       coursesContainer.classList.add('hidden');
       platformTabs.classList.add('hidden');
       noCourses.classList.add('hidden');
-      setLoading(true);
 
       try {
-        const res = await fetch(`/api/mis-cursos?email=${encodeURIComponent(email)}`);
+        const res = await fetch('/api/mis-cursos');
+        if (res.status === 401) return window.location.href = '/auth/login';
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
-        document.getElementById('user-name').textContent = data.userName || email.split('@')[0];
-        document.getElementById('user-avatar').textContent = (data.userName || email)[0].toUpperCase();
-        document.getElementById('user-email').textContent = email;
+        document.getElementById('user-name').textContent = data.userName || currentEmail.split('@')[0];
+        document.getElementById('user-avatar').textContent = (data.userName || currentEmail)[0].toUpperCase();
+        document.getElementById('user-email').textContent = data.email;
 
         renderCourses(data);
 
@@ -312,16 +391,14 @@
         coursesContainer.innerHTML = `
           <div class="col-span-full text-center py-12">
             <p class="text-red-500 text-sm mb-2">${err.message}</p>
-            <button onclick="fetchCourses('${email}')" class="text-umce-azul text-sm font-medium hover:underline">Reintentar</button>
+            <button onclick="fetchCourses()" class="text-umce-azul text-sm font-medium hover:underline">Reintentar</button>
           </div>
         `;
-      } finally {
-        setLoading(false);
       }
     }
 
     async function refreshCourses() {
-      if (currentEmail) fetchCourses(currentEmail);
+      fetchCourses();
     }
 
     function renderCourses(data) {
@@ -340,8 +417,17 @@
 
       document.getElementById('total-courses').textContent = `${data.totalCourses} curso${data.totalCourses !== 1 ? 's' : ''} activo${data.totalCourses !== 1 ? 's' : ''}`;
 
+      // Show main tabs
+      document.getElementById('main-tabs').classList.remove('hidden');
+      document.getElementById('tab-count-moodle').textContent = `(${data.totalCourses})`;
+
       // Always show historial toggle after login
       document.getElementById('historial-section').classList.remove('hidden');
+
+      // Show Moodle login hint (dismissible)
+      if (!localStorage.getItem('moodle_hint_dismissed')) {
+        document.getElementById('moodle-hint').classList.remove('hidden');
+      }
 
       if (data.totalCourses === 0) {
         noCourses.classList.remove('hidden');
@@ -363,7 +449,6 @@
 
     function filterPlatform(platformId) {
       currentFilter = platformId;
-      // Update tab styles
       document.querySelectorAll('.filter-tab').forEach(tab => {
         const isActive = tab.dataset.platform === platformId;
         tab.className = `filter-tab px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive ? 'bg-umce-azul text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
@@ -373,42 +458,56 @@
 
     function renderCards() {
       const filtered = currentFilter === 'all' ? allCourses : allCourses.filter(c => c.platform.id === currentFilter);
-
       coursesContainer.innerHTML = filtered.map(course => renderCourseCard(course)).join('');
       coursesContainer.classList.remove('hidden');
     }
 
     function renderCourseCard(course) {
       const progressBar = course.progress != null
-        ? `<div class="mt-3">
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Progreso</span>
-              <span class="font-medium text-gray-600">${course.progress}%</span>
+        ? `<div class="mb-3">
+            <div class="flex justify-between text-[11px] mb-1.5">
+              <span class="text-gray-400 font-medium">Progreso</span>
+              <span class="font-bold" style="color: ${course.platform.color}">${course.progress}%</span>
             </div>
-            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
               <div class="progress-bar h-full rounded-full" style="width: ${course.progress}%; background: ${course.platform.color}"></div>
             </div>
           </div>`
         : '';
 
-      const dateInfo = course.startdate
-        ? `<div class="text-gray-400 text-xs mt-2">${formatDate(course.startdate)}${course.enddate ? ' — ' + formatDate(course.enddate) : ''}</div>`
-        : '';
+      const dateInfo = course.startdate;
+
+      const imageSrc = course.courseImage;
+      const initial = course.shortname ? course.shortname.substring(0, 2).toUpperCase() : 'C';
+
+      const imageSection = imageSrc
+        ? `<div class="relative h-36 overflow-hidden">
+            <img src="${imageSrc}" alt="" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center\\' style=\\'background:linear-gradient(135deg,${course.platform.color}22,${course.platform.color}44)\\'><span class=\\'font-heading font-extrabold text-3xl\\' style=\\'color:${course.platform.color}66\\'>${initial}</span></div>'">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            <span class="absolute top-3 left-3 platform-chip shadow-sm" style="background: ${course.platform.color}">${course.platform.name}</span>
+          </div>`
+        : `<div class="relative h-28 overflow-hidden" style="background: linear-gradient(135deg, ${course.platform.color}15, ${course.platform.color}35)">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="font-heading font-extrabold text-4xl" style="color: ${course.platform.color}40">${initial}</span>
+            </div>
+            <span class="absolute top-3 left-3 platform-chip shadow-sm" style="background: ${course.platform.color}">${course.platform.name}</span>
+          </div>`;
 
       return `
-        <a href="${course.courseUrl}" target="_blank" rel="noopener" class="card-hover bg-white rounded-xl p-5 border border-gray-100 group block">
-          <div class="flex items-start justify-between gap-2 mb-3">
-            <span class="platform-chip" style="background: ${course.platform.color}">${course.platform.name}</span>
-          </div>
-          <h4 class="font-heading font-bold text-sm text-gray-900 group-hover:text-umce-azul transition-colors leading-snug mb-1">${course.fullname}</h4>
-          ${course.summary ? `<p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${course.summary}</p>` : ''}
-          ${dateInfo}
-          ${progressBar}
-          <div class="mt-3 flex items-center justify-end">
-            <span class="text-umce-azul text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-              Ir al curso
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
-            </span>
+        <a href="${course.courseUrl}" target="_blank" rel="noopener" class="card-hover bg-white rounded-2xl border border-gray-100 group block overflow-hidden shadow-sm hover:shadow-lg">
+          ${imageSection}
+          <div class="p-5">
+            <h4 class="font-heading font-bold text-[15px] text-gray-900 group-hover:text-umce-azul transition-colors leading-snug mb-2 line-clamp-2">${course.fullname}</h4>
+            ${course.summary ? `<p class="text-gray-400 text-xs leading-relaxed line-clamp-2 mb-3">${course.summary}</p>` : ''}
+            ${dateInfo ? `<div class="text-gray-400 text-xs mb-3 flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>${course.startdate ? formatDate(course.startdate) : ''}${course.enddate ? ' &mdash; ' + formatDate(course.enddate) : ''}</div>` : ''}
+            ${progressBar}
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+              <span class="text-gray-300 text-[11px] font-medium">${course.platform.name}</span>
+              <span class="text-umce-azul text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                Abrir curso
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+              </span>
+            </div>
           </div>
         </a>
       `;
@@ -421,18 +520,7 @@
     }
 
     function logout() {
-      localStorage.removeItem('umce_email');
-      currentEmail = '';
-      allCourses = [];
-      historialCourses = [];
-      historialLoaded = false;
-      historialOpen = false;
-      loginSection.classList.remove('hidden');
-      resultsSection.classList.add('hidden');
-      document.getElementById('historial-section').classList.add('hidden');
-      emailInput.value = '';
-      loginError.classList.add('hidden');
-      setLoading(false);
+      window.location.href = '/auth/logout';
     }
 
     // ===== HISTORIAL (lazy) =====
@@ -458,13 +546,12 @@
     }
 
     async function loadHistorial() {
-      if (!currentEmail) return;
-
       const loading = document.getElementById('historial-loading');
       loading.classList.remove('hidden');
 
       try {
-        const res = await fetch(`/api/historial?email=${encodeURIComponent(currentEmail)}`);
+        const res = await fetch('/api/historial');
+        if (res.status === 401) return window.location.href = '/auth/login';
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
@@ -528,7 +615,6 @@
       if (histFilterYear !== 'all') filtered = filtered.filter(c => String(c.year) === histFilterYear);
       if (histFilterPlatform !== 'all') filtered = filtered.filter(c => c.platform.id === histFilterPlatform);
 
-      // Sort by date desc
       filtered.sort((a, b) => (b.startdate || '').localeCompare(a.startdate || ''));
 
       const countEl = document.getElementById('historial-count');
@@ -555,6 +641,158 @@
           <svg class="w-4 h-4 text-gray-300 group-hover:text-umce-azul shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
       `).join('');
+    }
+
+    // ===== MAIN TABS (Moodle / UCampus) =====
+    let activeMainTab = 'moodle';
+    let ucampusLoaded = false;
+    let ucampusData = null;
+
+    function switchMainTab(tab) {
+      activeMainTab = tab;
+      const moodleTab = document.getElementById('tab-moodle');
+      const ucampusTab = document.getElementById('tab-ucampus');
+      const btnMoodle = document.getElementById('tab-btn-moodle');
+      const btnUcampus = document.getElementById('tab-btn-ucampus');
+
+      if (tab === 'moodle') {
+        moodleTab.classList.remove('hidden');
+        ucampusTab.classList.add('hidden');
+        btnMoodle.className = 'flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-umce-azul bg-umce-azul text-white';
+        btnUcampus.className = 'flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-gray-200 bg-white text-gray-500 hover:border-teal-400 hover:text-teal-600';
+      } else {
+        moodleTab.classList.add('hidden');
+        ucampusTab.classList.remove('hidden');
+        btnMoodle.className = 'flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-gray-200 bg-white text-gray-500 hover:border-umce-azul hover:text-umce-azul';
+        btnUcampus.className = 'flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-teal-500 bg-teal-500 text-white';
+        if (!ucampusLoaded) fetchUCampus();
+      }
+    }
+
+    async function fetchUCampus() {
+      const loading = document.getElementById('ucampus-loading');
+      const content = document.getElementById('ucampus-content');
+      const empty = document.getElementById('ucampus-empty');
+      const errorDiv = document.getElementById('ucampus-error');
+
+      loading.classList.remove('hidden');
+      content.classList.add('hidden');
+      empty.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/ucampus');
+        if (res.status === 401) return window.location.href = '/auth/login';
+        const data = await res.json();
+
+        ucampusLoaded = true;
+        ucampusData = data;
+        loading.classList.add('hidden');
+
+        if (!data.found) {
+          empty.classList.remove('hidden');
+          document.getElementById('tab-count-ucampus').textContent = '(0)';
+          return;
+        }
+
+        renderUCampus(data);
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        document.getElementById('ucampus-error-msg').textContent = err.message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    function renderUCampus(data) {
+      const content = document.getElementById('ucampus-content');
+      content.classList.remove('hidden');
+
+      // Period
+      document.getElementById('ucampus-periodo-text').textContent = data.periodo || 'Per\u00edodo actual';
+
+      const totalUcampus = (data.asDocente ? data.asDocente.total : 0) + (data.asEstudiante ? data.asEstudiante.total : 0);
+      document.getElementById('tab-count-ucampus').textContent = `(${totalUcampus})`;
+
+      // Docente section
+      if (data.asDocente && data.asDocente.total > 0) {
+        const docenteDiv = document.getElementById('ucampus-docente');
+        docenteDiv.classList.remove('hidden');
+        document.getElementById('ucampus-docente-count').textContent = `${data.asDocente.total} secci${data.asDocente.total !== 1 ? 'ones' : '\u00f3n'}`;
+
+        const list = document.getElementById('ucampus-docente-list');
+        list.innerHTML = data.asDocente.secciones.map(s => `
+          <div class="bg-white border border-gray-100 rounded-xl p-4 hover:border-teal-200 transition-colors">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-teal-600 font-heading font-bold text-xs bg-teal-50 px-2 py-0.5 rounded">${escapeHtml(s.codigoRamo)}</span>
+                  ${s.rol && s.rol !== 'Docente' ? `<span class="text-gray-400 text-[10px] font-medium">${escapeHtml(s.rol)}</span>` : ''}
+                </div>
+                <h4 class="font-heading font-bold text-sm text-gray-900 leading-snug">${escapeHtml(s.nombreRamo)}</h4>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
+                  ${s.seccion != null ? `<span>Secci\u00f3n ${s.seccion}</span>` : ''}
+                  ${s.inscritos != null ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>${s.inscritos} estudiantes</span>` : ''}
+                  ${s.horario ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${escapeHtml(s.horario)}</span>` : ''}
+                </div>
+              </div>
+              <a href="${escapeHtml(s.ucampusUrl)}" target="_blank" rel="noopener" class="shrink-0 text-teal-500 hover:text-teal-700 transition-colors flex items-center gap-1 text-xs font-medium mt-1">
+                Ver
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+              </a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Estudiante section
+      if (data.asEstudiante && data.asEstudiante.total > 0) {
+        const estDiv = document.getElementById('ucampus-estudiante');
+        estDiv.classList.remove('hidden');
+        document.getElementById('ucampus-estudiante-count').textContent = `${data.asEstudiante.total} ramo${data.asEstudiante.total !== 1 ? 's' : ''}`;
+
+        if (data.asEstudiante.carrera) {
+          document.getElementById('ucampus-carrera').textContent = `Carrera: ${data.asEstudiante.carrera}`;
+        }
+
+        const list = document.getElementById('ucampus-estudiante-list');
+        list.innerHTML = data.asEstudiante.ramos.map(r => {
+          const notaColor = r.notaFinal != null
+            ? (r.notaFinal >= 4.0 ? 'text-emerald-600' : 'text-red-500')
+            : 'text-gray-300';
+          const notaText = r.notaFinal != null ? r.notaFinal.toFixed(1) : '---';
+          const estadoBadge = r.estado
+            ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                r.estado === 'Aprobado' ? 'bg-emerald-50 text-emerald-600' :
+                r.estado === 'Reprobado' ? 'bg-red-50 text-red-500' :
+                'bg-gray-100 text-gray-500'
+              }">${escapeHtml(r.estado)}</span>`
+            : '';
+
+          return `
+            <div class="bg-white border border-gray-100 rounded-xl p-4 hover:border-emerald-200 transition-colors">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-emerald-600 font-heading font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded">${escapeHtml(r.codigoRamo)}</span>
+                    ${estadoBadge}
+                  </div>
+                  <h4 class="font-heading font-bold text-sm text-gray-900 leading-snug">${escapeHtml(r.nombreRamo)}</h4>
+                  ${r.seccion != null ? `<p class="text-gray-400 text-xs mt-1">Secci\u00f3n ${r.seccion}</p>` : ''}
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="font-heading font-extrabold text-xl ${notaColor}">${notaText}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
   </script>
 </body>
