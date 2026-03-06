@@ -9,6 +9,7 @@
   let userRole = null;
   let userEmail = '';
   let sending = false;
+  let lastUploadUrl = null;
 
   // DOM refs
   const authGate = document.getElementById('auth-gate');
@@ -26,6 +27,15 @@
   const pendingModal = document.getElementById('pending-modal');
   const closePending = document.getElementById('close-pending');
   const pendingList = document.getElementById('pending-list');
+  const fileInput = document.getElementById('admin-file');
+  const attachBtn = document.getElementById('admin-attach');
+  const uploadPreview = document.getElementById('upload-preview');
+  const uploadThumb = document.getElementById('upload-thumb');
+  const uploadFileIcon = document.getElementById('upload-file-icon');
+  const uploadName = document.getElementById('upload-name');
+  const uploadUrl = document.getElementById('upload-url');
+  const uploadRemove = document.getElementById('upload-remove');
+  const uploadProgress = document.getElementById('upload-progress');
 
   // ==========================================
   // Auth Check
@@ -242,6 +252,13 @@
     sendBtn.disabled = true;
     hideQuickActions();
 
+    // Include upload URL in message context if present
+    let fullMessage = text.trim();
+    if (lastUploadUrl) {
+      fullMessage += `\n[Archivo adjunto: ${lastUploadUrl}]`;
+      clearUpload();
+    }
+
     appendMessage('user', text);
     input.value = '';
     showTyping();
@@ -250,7 +267,7 @@
       const res = await fetch('/api/admin/assistant/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text.trim() })
+        body: JSON.stringify({ message: fullMessage })
       });
 
       hideTyping();
@@ -369,6 +386,89 @@
   }
 
   // ==========================================
+  // File Upload
+  // ==========================================
+  async function uploadFile(file) {
+    uploadProgress.classList.remove('hidden');
+    uploadPreview.classList.add('hidden');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error subiendo archivo');
+
+      lastUploadUrl = data.url;
+
+      // Show preview
+      uploadPreview.classList.remove('hidden');
+      uploadName.textContent = data.originalName;
+      uploadUrl.textContent = data.url;
+
+      if (data.isImage) {
+        uploadThumb.src = data.url;
+        uploadThumb.classList.remove('hidden');
+        uploadFileIcon.classList.add('hidden');
+      } else {
+        uploadThumb.classList.add('hidden');
+        uploadFileIcon.classList.remove('hidden');
+      }
+
+      // Show uploaded file as message in chat
+      if (data.isImage) {
+        appendUploadMessage(data.url, data.originalName, true);
+      } else {
+        appendUploadMessage(data.url, data.originalName, false);
+      }
+
+    } catch (err) {
+      appendMessage('assistant', `Error al subir archivo: ${err.message}`);
+      clearUpload();
+    } finally {
+      uploadProgress.classList.add('hidden');
+    }
+  }
+
+  function appendUploadMessage(url, name, isImage) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'admin-msg user';
+    const bubble = document.createElement('div');
+    bubble.className = 'px-4 py-3 text-sm max-w-[85%]';
+    if (isImage) {
+      bubble.innerHTML = `
+        <img src="${url}" alt="${name}" class="max-w-[240px] rounded-lg mb-1" loading="lazy">
+        <p class="text-xs opacity-80">${name}</p>
+      `;
+    } else {
+      bubble.innerHTML = `
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+          <span class="text-xs">${name}</span>
+        </div>
+      `;
+    }
+    wrapper.appendChild(bubble);
+    messages.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function clearUpload() {
+    lastUploadUrl = null;
+    uploadPreview.classList.add('hidden');
+    uploadThumb.src = '';
+    uploadThumb.classList.add('hidden');
+    uploadFileIcon.classList.add('hidden');
+    uploadName.textContent = '';
+    uploadUrl.textContent = '';
+    fileInput.value = '';
+  }
+
+  // ==========================================
   // Event Binding
   // ==========================================
   form.addEventListener('submit', (e) => {
@@ -384,6 +484,20 @@
   quickActions.addEventListener('click', (e) => {
     const chip = e.target.closest('.quick-chip');
     if (chip) sendMessage(chip.dataset.msg || chip.textContent);
+  });
+
+  // File upload
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) uploadFile(fileInput.files[0]);
+  });
+  uploadRemove.addEventListener('click', clearUpload);
+
+  // Drag & drop on chat area
+  messages.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
+  messages.addEventListener('drop', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (e.dataTransfer.files.length > 0) uploadFile(e.dataTransfer.files[0]);
   });
 
   // Pending modal

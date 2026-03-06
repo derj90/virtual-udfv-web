@@ -4,5 +4,6 @@ COPY package*.json ./
 RUN npm ci --only=production
 ARG CACHEBUST=1
 COPY . .
+RUN mkdir -p /app/uploads
 EXPOSE 3000
 CMD ["node", "server.js"]

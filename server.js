@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
+const multer = require('multer');
 
 // Load .env manually (no dotenv dependency needed)
 try {
@@ -391,6 +392,29 @@ app.get('/auth/me', (req, res) => {
 
 // --- Static files ---
 app.use(express.static(path.join(__dirname, 'public')));
+
+// --- Uploads config ---
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+app.use('/uploads', express.static(UPLOADS_DIR));
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const name = path.basename(file.originalname, ext).toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      cb(null, `${Date.now()}-${name}${ext}`);
+    }
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx|xls|xlsx|ppt|pptx)$/i;
+    if (allowed.test(path.extname(file.originalname))) cb(null, true);
+    else cb(new Error('Tipo de archivo no permitido'));
+  }
+});
 
 // --- API: Active 2026 courses (authenticated) ---
 app.get('/api/mis-cursos', authMiddleware, async (req, res) => {
@@ -1109,6 +1133,29 @@ function slugify(text) {
   return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').substring(0, 100);
 }
+
+// --- File upload endpoint (admin/editor) ---
+app.post('/api/admin/upload', adminOrEditorMiddleware, (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      const msg = err instanceof multer.MulterError
+        ? (err.code === 'LIMIT_FILE_SIZE' ? 'Archivo demasiado grande (máx 10 MB)' : err.message)
+        : err.message;
+      return res.status(400).json({ error: msg });
+    }
+    if (!req.file) return res.status(400).json({ error: 'No se recibió ningún archivo' });
+
+    const fileUrl = `${BASE_URL}/uploads/${req.file.filename}`;
+    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(req.file.originalname);
+    res.json({
+      url: fileUrl,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+      isImage
+    });
+  });
+});
 
 // === Admin Assistant API ===
 
