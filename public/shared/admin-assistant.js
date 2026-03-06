@@ -231,7 +231,7 @@
 
   function formatText(text) {
     if (!text) return '';
-    return text
+    let html = text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -240,6 +240,14 @@
       .replace(/\n\d+\.\s/g, (m) => '\n' + m.trim() + ' ')
       .replace(/\n/g, '<br>')
       .replace(/`(.+?)`/g, '<code style="background:#F3F4F6;padding:1px 4px;border-radius:3px;font-size:12px;">$1</code>');
+
+    // Convert YouTube URLs to embedded players
+    html = html.replace(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})(?:[&amp;?][\w=.-]*)?/gi,
+      (match, id) => `<div style="margin:8px 0"><iframe width="100%" height="200" style="border-radius:8px;max-width:400px;" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe></div>`
+    );
+
+    return html;
   }
 
   // ==========================================

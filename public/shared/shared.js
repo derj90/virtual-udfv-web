@@ -32,6 +32,8 @@
     initNavigation();
     // Initialize scroll observer
     initScrollObserver();
+    // Check admin role and show admin button
+    checkAdminAccess();
   }
 
   // ==========================================
@@ -96,6 +98,38 @@
 
     // Re-observe if new elements are added dynamically
     window._umceObserver = observer;
+  }
+
+  // ==========================================
+  // Admin Access Button
+  // ==========================================
+  async function checkAdminAccess() {
+    try {
+      const res = await fetch('/api/admin/role');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.role) return;
+
+      // Inject admin button in desktop nav (before CTA div)
+      const cta = document.querySelector('#navbar .flex.items-center.gap-3:last-child');
+      if (cta) {
+        const btn = document.createElement('a');
+        btn.href = '/admin';
+        btn.className = 'inline-flex items-center gap-1.5 bg-white/15 text-white font-medium text-xs px-3 py-2 rounded-lg hover:bg-white/25 transition-colors border border-white/20';
+        btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Admin';
+        cta.insertBefore(btn, cta.firstChild);
+      }
+
+      // Inject in mobile menu too
+      const mobileMenu = document.querySelector('#mobile-menu .flex.flex-col');
+      if (mobileMenu) {
+        const mobileBtn = document.createElement('a');
+        mobileBtn.href = '/admin';
+        mobileBtn.className = 'mt-2 inline-flex items-center justify-center gap-2 bg-white/15 text-white font-bold text-sm px-5 py-2.5 rounded-lg border border-white/20';
+        mobileBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Panel Admin';
+        mobileMenu.appendChild(mobileBtn);
+      }
+    } catch { /* not logged in or no role — silently ignore */ }
   }
 
   // ==========================================

@@ -1215,10 +1215,13 @@ REGLAS:
 - Para update, incluye solo los campos que cambian + el id
 - Para delete, incluye table e id
 - Para create, genera un slug automáticamente a partir del título
-- Responde en español chileno, amable y profesional
+- Responde en español chileno (tú/usted, NO voseo argentino como "revivé/mirá"). Tono amable y profesional
 - Si el usuario pregunta sobre contenido existente, responde con la información del listado
 - Si piden estadísticas, calcula a partir de los datos disponibles
-- Nunca propongas acciones que no correspondan al rol del usuario`;
+- Nunca propongas acciones que no correspondan al rol del usuario
+- Si el usuario comparte un enlace de YouTube, usa la metadata proporcionada (título, embed URL, thumbnail) para proponer acciones relevantes. Por ejemplo, crear un recurso con embed_code del video o agregar el video a una noticia usando image_url para el thumbnail y source_url para el enlace
+- Para embed de YouTube usa: <iframe width="560" height="315" src="EMBED_URL" frameborder="0" allowfullscreen></iframe>
+- Si el usuario comparte un video sin contexto adicional, pregunta qué quiere hacer: crear recurso, agregar a noticia, etc.`;
 
     console.log('Admin system prompt built:', adminSystemPrompt.length, 'chars');
   } catch (err) {
@@ -1268,6 +1271,33 @@ app.post('/api/admin/assistant/session', adminOrEditorMiddleware, async (req, re
   res.json({ messages: session.messages, role: req.userRole });
 });
 
+// Extract YouTube video IDs from text
+function extractYouTubeIds(text) {
+  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})(?:[&?][\w=.-]*)?/gi;
+  const ids = [];
+  let match;
+  while ((match = regex.exec(text)) !== null) ids.push(match[1]);
+  return [...new Set(ids)];
+}
+
+// Fetch YouTube video metadata via oEmbed (no API key needed)
+async function fetchYouTubeMetadata(videoId) {
+  try {
+    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      videoId,
+      title: data.title,
+      author: data.author_name,
+      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}`,
+      watchUrl: `https://www.youtube.com/watch?v=${videoId}`
+    };
+  } catch { return null; }
+}
+
 // POST /api/admin/assistant/message — send message to Claude, parse action
 app.post('/api/admin/assistant/message', adminOrEditorMiddleware, async (req, res) => {
   const { message } = req.body;
@@ -1279,6 +1309,18 @@ app.post('/api/admin/assistant/message', adminOrEditorMiddleware, async (req, re
   }
   const session = adminChatSessions.get(email);
 
+  // Detect and fetch YouTube metadata
+  const ytIds = extractYouTubeIds(message);
+  let ytContext = '';
+  if (ytIds.length > 0) {
+    const metaResults = await Promise.all(ytIds.map(fetchYouTubeMetadata));
+    const metas = metaResults.filter(Boolean);
+    if (metas.length > 0) {
+      ytContext = '\n\nVIDEOS DETECTADOS EN EL MENSAJE:\n' +
+        metas.map(m => `- YouTube: "${m.title}" por ${m.author}\n  URL: ${m.watchUrl}\n  Embed: ${m.embedUrl}\n  Thumbnail: ${m.thumbnail}`).join('\n');
+    }
+  }
+
   // Add user message
   session.messages.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
 
@@ -1289,7 +1331,7 @@ app.post('/api/admin/assistant/message', adminOrEditorMiddleware, async (req, re
   const recent = session.messages.slice(-10);
   const history = recent.map(m => `${m.role === 'user' ? 'Admin' : 'Asistente'}: ${m.content}`).join('\n');
   const roleContext = `El usuario actual es ${req.userName} (${email}) con rol: ${req.userRole}.`;
-  const fullPrompt = `${roleContext}\n\nConversación:\n${history}\n\nAdmin: ${message}`;
+  const fullPrompt = `${roleContext}\n\nConversación:\n${history}\n\nAdmin: ${message}${ytContext}`;
 
   try {
     // Call Claude proxy
