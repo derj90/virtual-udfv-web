@@ -178,7 +178,7 @@
     }
     #a11y-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,51,161,0.45); }
     #a11y-fab:focus-visible { outline: 3px solid #FF9E18; outline-offset: 3px; }
-    #a11y-fab svg { width: 26px; height: 26px; }
+    #a11y-fab svg { width: 26px; height: 26px; pointer-events: none; }
 
     #a11y-panel {
       position: fixed;
