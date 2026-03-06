@@ -415,11 +415,21 @@ async function supabaseQuery(table, params = '') {
 function formatHorario(horarios) {
   if (!horarios || horarios.length === 0) return null;
   const dayNames = { 1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb', 7: 'Dom' };
+  // Deduplicate by dia+hora to avoid repeated entries from sync
+  const seen = new Set();
   return horarios
     .sort((a, b) => a.dia - b.dia)
+    .filter(h => {
+      const key = `${h.dia}-${h.hora_fin || h.raw_data?.hora_fin}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .map(h => {
       const day = dayNames[h.dia] || `D${h.dia}`;
-      if (h.hora_inicio && h.hora_fin) return `${day} ${h.hora_inicio}-${h.hora_fin}`;
+      const inicio = h.hora_inicio || h.raw_data?.hora_ini;
+      const fin = h.hora_fin || h.raw_data?.hora_fin;
+      if (inicio && fin) return `${day} ${inicio}-${fin}`;
       if (h.bloque) return `${day} B${h.bloque}`;
       return day;
     })
@@ -443,7 +453,7 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
 
     const persona = personas[0];
     const rut = persona.rut;
-    const nombre = persona.nombres ? `${persona.nombres} ${persona.apellido_paterno || ''} ${persona.apellido_materno || ''}`.trim() : null;
+    const nombre = persona.nombres ? `${persona.nombres} ${persona.apellido1 || ''} ${persona.apellido2 || ''}`.trim() : null;
 
     // Step 2: Query docente and estudiante data in parallel
     const periodo = '2026.1';
@@ -453,13 +463,14 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     ]);
 
     // Step 3: Gather unique curso IDs and ramo codes for batch lookups
+    // Fields like codigo, nombre, seccion are inside raw_data, not top-level
     const cursoIds = [...new Set([
       ...dictados.map(d => d.id_curso).filter(Boolean),
       ...inscritos.map(i => i.id_curso).filter(Boolean)
     ])];
     const ramoCodes = [...new Set([
-      ...dictados.map(d => d.codigo_ramo).filter(Boolean),
-      ...inscritos.map(i => i.codigo_ramo).filter(Boolean)
+      ...dictados.map(d => d.raw_data?.codigo).filter(Boolean),
+      ...inscritos.map(i => i.raw_data?.codigo).filter(Boolean)
     ])];
 
     // Step 4: Batch fetch ramos, cursos, horarios
@@ -468,7 +479,7 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
         ? supabaseQuery('ramos', `codigo=in.(${ramoCodes.map(c => `"${c}"`).join(',')})`)
         : [],
       cursoIds.length > 0
-        ? supabaseQuery('cursos', `id=in.(${cursoIds.join(',')})`)
+        ? supabaseQuery('cursos', `id_curso=in.(${cursoIds.join(',')})`)
         : [],
       dictados.length > 0
         ? supabaseQuery('horarios', `id_curso=in.(${dictados.map(d => d.id_curso).filter(Boolean).join(',')})`)
@@ -482,7 +493,7 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     const ramoMap = {};
     ramos.forEach(r => { ramoMap[r.codigo] = r; });
     const cursoMap = {};
-    cursos.forEach(c => { cursoMap[c.id] = c; });
+    cursos.forEach(c => { cursoMap[c.id_curso] = c; });
     const horarioMap = {};
     horarios.forEach(h => {
       if (!horarioMap[h.id_curso]) horarioMap[h.id_curso] = [];
@@ -493,24 +504,32 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     let carreraNombre = null;
     if (carrAlumnos.length > 0) {
       try {
-        const carreras = await supabaseQuery('carreras', `codigo=eq.${encodeURIComponent(carrAlumnos[0].codigo_carrera)}&limit=1`);
-        if (carreras.length > 0) carreraNombre = carreras[0].nombre;
+        const ca = carrAlumnos[0];
+        // Use raw_data.nombre directly if available, otherwise look up carreras table
+        if (ca.raw_data?.nombre) {
+          carreraNombre = ca.raw_data.nombre;
+        } else {
+          const carreras = await supabaseQuery('carreras', `id_carrera=eq.${encodeURIComponent(ca.id_carrera)}&limit=1`);
+          if (carreras.length > 0) carreraNombre = carreras[0].nombre;
+        }
       } catch {}
     }
 
-    // Step 6: Build response
+    // Step 6: Build response — fields are in raw_data, not top-level columns
     const asDocente = {
       total: dictados.length,
       secciones: dictados.map(d => {
-        const ramo = ramoMap[d.codigo_ramo] || {};
+        const rd = d.raw_data || {};
+        const codigo = rd.codigo || '';
+        const ramo = ramoMap[codigo] || {};
         const curso = cursoMap[d.id_curso] || {};
         return {
           idCurso: d.id_curso,
-          codigoRamo: d.codigo_ramo || '',
-          nombreRamo: ramo.nombre || d.nombre_ramo || '',
-          seccion: d.seccion || curso.seccion || null,
-          inscritos: curso.inscritos || d.inscritos || null,
-          rol: d.rol || 'Docente',
+          codigoRamo: codigo,
+          nombreRamo: ramo.nombre || rd.nombre || '',
+          seccion: rd.seccion || curso.seccion || null,
+          inscritos: curso.inscritos || curso.cupos || null,
+          rol: d.rol || rd.cargo || 'Docente',
           horario: formatHorario(horarioMap[d.id_curso]),
           ucampusUrl: `https://ucampus.umce.cl`
         };
@@ -521,13 +540,15 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
       total: inscritos.length,
       carrera: carreraNombre,
       ramos: inscritos.map(i => {
-        const ramo = ramoMap[i.codigo_ramo] || {};
+        const rd = i.raw_data || {};
+        const codigo = rd.codigo || '';
+        const ramo = ramoMap[codigo] || {};
         return {
-          codigoRamo: i.codigo_ramo || '',
-          nombreRamo: ramo.nombre || i.nombre_ramo || '',
-          seccion: i.seccion || null,
-          notaFinal: i.nota_final != null ? parseFloat(i.nota_final) : null,
-          estado: i.estado || null,
+          codigoRamo: codigo,
+          nombreRamo: ramo.nombre || rd.nombre || '',
+          seccion: rd.seccion || null,
+          notaFinal: rd.nota_final != null ? parseFloat(rd.nota_final) : null,
+          estado: rd.estado_texto || null,
           ucampusUrl: `https://ucampus.umce.cl`
         };
       })
