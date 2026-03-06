@@ -1,0 +1,21 @@
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'umce-azul': '#0033A1',
+        'umce-azul-light': '#1A4DB5',
+        'umce-azul-dark': '#002280',
+        'umce-amarillo': '#FF9E18',
+        'umce-amarillo-dark': '#E08800',
+        'umce-azul-oscuro': '#003F6E',
+        'umce-verde': '#127C29',
+        'umce-naranja': '#E9511D',
+        'umce-rojo': '#90120D',
+      },
+      fontFamily: {
+        'heading': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        'body': ['Inter', 'system-ui', 'sans-serif'],
+      },
+    },
+  },
+}

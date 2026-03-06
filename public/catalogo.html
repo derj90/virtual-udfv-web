@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+  <div id="nav-placeholder"></div>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="bg-umce-azul pt-28 pb-14 relative overflow-hidden">
+    <!-- Background decorative circles -->
+    <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white/5 pointer-events-none"></div>
+    <div class="absolute bottom-0 -left-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <h1 class="font-heading font-extrabold text-4xl sm:text-5xl text-white mb-4 leading-tight">
+        Catálogo de Formación
+      </h1>
+      <p class="text-blue-100 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
+        Explora diplomados, cursos y rutas formativas diseñadas para potenciar tu desarrollo profesional docente.
+      </p>
+
+      <!-- Search bar -->
+      <div class="relative max-w-2xl mx-auto">
+        <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/>
+          </svg>
+        </div>
+        <input
+          id="catalog-search"
+          type="search"
+          placeholder="Buscar por nombre, tema o área..."
+          class="w-full pl-14 pr-6 py-4 rounded-2xl text-gray-900 text-base border-0 shadow-xl search-input outline-none"
+          autocomplete="off"
+        >
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FILTERS (sticky)
+  ============================================================ -->
+  <div class="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+
+      <!-- Type filter -->
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1 shrink-0">Tipo</span>
+        <button class="filter-tab active" data-filter-type="type" data-filter="">Todos</button>
+        <button class="filter-tab" data-filter-type="type" data-filter="diplomado">Diplomados</button>
+        <button class="filter-tab" data-filter-type="type" data-filter="curso_abierto">Cursos</button>
+        <button class="filter-tab" data-filter-type="type" data-filter="ruta_formativa">Rutas Formativas</button>
+      </div>
+
+      <!-- Secondary filters row -->
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <!-- Category -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1 shrink-0">Área</span>
+          <button class="filter-tab" data-filter-type="category" data-filter="ia">IA</button>
+          <button class="filter-tab" data-filter-type="category" data-filter="competencias_digitales">Competencias Digitales</button>
+          <button class="filter-tab" data-filter-type="category" data-filter="pedagogico">Pedagógico</button>
+          <button class="filter-tab" data-filter-type="category" data-filter="tecnologia">Tecnología</button>
+        </div>
+
+        <!-- Level -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1 shrink-0">Nivel</span>
+          <button class="filter-tab" data-filter-type="level" data-filter="basico">Básico</button>
+          <button class="filter-tab" data-filter-type="level" data-filter="intermedio">Intermedio</button>
+          <button class="filter-tab" data-filter-type="level" data-filter="avanzado">Avanzado</button>
+        </div>
+
+        <!-- Status -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1 shrink-0">Estado</span>
+          <button class="filter-tab" data-filter-type="status" data-filter="active">Inscripciones Abiertas</button>
+          <button class="filter-tab" data-filter-type="status" data-filter="upcoming">Próximamente</button>
+        </div>
+
+        <!-- Clear filters -->
+        <button
+          id="clear-filters-btn"
+          class="ml-auto text-sm text-gray-400 hover:text-umce-azul transition-colors hidden shrink-0"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       RESULTS
+  ============================================================ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Results header -->
+    <div class="flex items-center justify-between mb-6">
+      <p id="results-count" class="text-sm text-gray-500 font-medium"></p>
+    </div>
+
+    <!-- Cards grid -->
+    <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden flex flex-col items-center justify-center py-24 text-center">
+      <svg class="w-24 h-24 text-gray-200 mb-6" fill="none" viewBox="0 0 96 96">
+        <circle cx="42" cy="42" r="30" stroke="currentColor" stroke-width="4"/>
+        <path d="M64 64l16 16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path d="M30 42h24M42 30v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <h3 class="font-heading font-bold text-xl text-gray-700 mb-2">No encontramos resultados</h3>
+      <p id="empty-message" class="text-gray-400 text-sm max-w-sm">
+        Intenta con otras palabras clave o ajusta los filtros para ampliar la búsqueda.
+      </p>
+      <button
+        id="empty-clear-btn"
+        class="mt-6 px-6 py-2.5 bg-umce-azul text-white text-sm font-semibold rounded-xl hover:bg-umce-azul-dark transition-colors"
+      >
+        Ver todos los cursos
+      </button>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <div id="chatbot-placeholder"></div>
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
+  <script src="/accesibilidad-dua.js" defer></script>
+
+  <script>
+    // ============================================================
+    // State
+    // ============================================================
+    const currentFilters = { type: '', category: '', level: '', status: '' };
+    let searchQuery = (UMCE && UMCE.getParam('q')) ? UMCE.getParam('q') : '';
+    let searchTimer = null;
+
+    // ============================================================
+    // Elements
+    // ============================================================
+    const searchInput = document.getElementById('catalog-search');
+    const resultsGrid = document.getElementById('results-grid');
+    const resultsCount = document.getElementById('results-count');
+    const emptyState = document.getElementById('empty-state');
+    const emptyMessage = document.getElementById('empty-message');
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const emptyClearBtn = document.getElementById('empty-clear-btn');
+
+    // ============================================================
+    // Init
+    // ============================================================
+    if (searchQuery) {
+      searchInput.value = searchQuery;
+    }
+    loadResults();
+
+    // ============================================================
+    // Search with debounce
+    // ============================================================
+    searchInput.addEventListener('input', function (e) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () {
+        searchQuery = e.target.value.trim();
+        loadResults();
+      }, 300);
+    });
+
+    // ============================================================
+    // Filter chips
+    // ============================================================
+    document.querySelectorAll('[data-filter]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var filterType = chip.dataset.filterType;
+        var filterValue = chip.dataset.filter;
+
+        if (filterType === 'type') {
+          // Type row: remove active from all, set on clicked
+          document.querySelectorAll('[data-filter-type="type"]').forEach(function (s) {
+            s.classList.remove('active');
+          });
+          chip.classList.add('active');
+          currentFilters.type = filterValue;
+        } else {
+          // Toggle for other filter groups
+          if (currentFilters[filterType] === filterValue) {
+            currentFilters[filterType] = '';
+            chip.classList.remove('active');
+          } else {
+            document.querySelectorAll('[data-filter-type="' + filterType + '"]').forEach(function (s) {
+              s.classList.remove('active');
+            });
+            currentFilters[filterType] = filterValue;
+            chip.classList.add('active');
+          }
+        }
+
+        updateClearButton();
+        loadResults();
+      });
+    });
+
+    clearFiltersBtn.addEventListener('click', clearAllFilters);
+    emptyClearBtn.addEventListener('click', function () {
+      searchInput.value = '';
+      searchQuery = '';
+      clearAllFilters();
+    });
+
+    function clearAllFilters() {
+      currentFilters.type = '';
+      currentFilters.category = '';
+      currentFilters.level = '';
+      currentFilters.status = '';
+
+      // Reset type chips — 'Todos' gets active
+      document.querySelectorAll('[data-filter-type="type"]').forEach(function (s) {
+        s.classList.remove('active');
+      });
+      var todosBtn = document.querySelector('[data-filter-type="type"][data-filter=""]');
+      if (todosBtn) todosBtn.classList.add('active');
+
+      document.querySelectorAll('[data-filter-type="category"], [data-filter-type="level"], [data-filter-type="status"]').forEach(function (s) {
+        s.classList.remove('active');
+      });
+
+      updateClearButton();
+      loadResults();
+    }
+
+    function updateClearButton() {
+      var hasActive = currentFilters.type || currentFilters.category || currentFilters.level || currentFilters.status;
+      if (hasActive) {
+        clearFiltersBtn.classList.remove('hidden');
+      } else {
+        clearFiltersBtn.classList.add('hidden');
+      }
+    }
+
+    // ============================================================
+    // Load results
+    // ============================================================
+    async function loadResults() {
+      UMCE.renderSkeletons(resultsGrid, 6);
+      emptyState.classList.add('hidden');
+      resultsCount.textContent = '';
+
+      try {
+        var programs = [];
+        var courses = [];
+
+        if (searchQuery) {
+          var searchData = await fetch('/api/catalog/search?q=' + encodeURIComponent(searchQuery)).then(function (r) { return r.json(); });
+          programs = searchData.programs || [];
+          courses = searchData.courses || [];
+        } else {
+          var programParams = new URLSearchParams();
+          var courseParams = new URLSearchParams();
+
+          if (currentFilters.type) {
+            programParams.set('type', currentFilters.type);
+          }
+          if (currentFilters.level) {
+            programParams.set('level', currentFilters.level);
+            courseParams.set('level', currentFilters.level);
+          }
+          if (currentFilters.status) {
+            courseParams.set('status', currentFilters.status);
+          }
+          if (currentFilters.category) {
+            courseParams.set('category', currentFilters.category);
+          }
+
+          var results = await Promise.all([
+            fetch('/api/catalog/programs?' + programParams.toString()).then(function (r) { return r.json(); }),
+            fetch('/api/catalog/courses?' + courseParams.toString()).then(function (r) { return r.json(); })
+          ]);
+          programs = results[0] || [];
+          courses = results[1] || [];
+        }
+
+        // Filter by type for combined results
+        if (currentFilters.type === 'curso_abierto') {
+          programs = [];
+        }
+        if (currentFilters.type === 'diplomado' || currentFilters.type === 'ruta_formativa') {
+          courses = [];
+        }
+
+        var total = programs.length + courses.length;
+
+        resultsCount.textContent = total + ' resultado' + (total !== 1 ? 's' : '') + ' encontrado' + (total !== 1 ? 's' : '');
+
+        if (total === 0) {
+          resultsGrid.innerHTML = '';
+          if (searchQuery) {
+            emptyMessage.textContent = 'No encontramos resultados para "' + searchQuery + '". Intenta con otros términos o ajusta los filtros.';
+          } else {
+            emptyMessage.textContent = 'No hay programas o cursos que coincidan con los filtros seleccionados.';
+          }
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        resultsGrid.innerHTML = '';
+        programs.forEach(function (p) {
+          resultsGrid.innerHTML += renderProgramCard(p);
+        });
+        courses.forEach(function (c) {
+          resultsGrid.innerHTML += renderCourseCard(c);
+        });
+
+        UMCE.observeNewElements(resultsGrid);
+
+      } catch (err) {
+        console.error('Error loading catalog:', err);
+        resultsGrid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-16"><p class="font-heading font-semibold text-lg mb-2">Error al cargar el catálogo</p><p class="text-sm">Intenta recargar la página o contacta a soporte.</p></div>';
+      }
+    }
+
+    // ============================================================
+    // SVG icons (inline, reusable)
+    // ============================================================
+    var ICON_GRADUATION = '<svg class="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.437 60.437 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>';
+
+    var ICON_BOOK = '<svg class="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25" /></svg>';
+
+    var ICON_ROUTE = '<svg class="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>';
+
+    var ICON_CLOCK = '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 3"/></svg>';
+
+    var ICON_USERS = '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-4.586M9 20H4v-2a4 4 0 015-4.586m0 0a4 4 0 015 0M9 7a4 4 0 108 0 4 4 0 00-8 0z"/></svg>';
+
+    var ICON_LEVEL = '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 18h4v-6H3v6zm7-12v12h4V6h-4zm7 6v6h4v-6h-4z"/></svg>';
+
+    var ICON_PLACE = '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>';
+
+    // ============================================================
+    // Card renderers
+    // ============================================================
+    function iconForType(type) {
+      if (type === 'ruta_formativa') return ICON_ROUTE;
+      if (type === 'diplomado') return ICON_GRADUATION;
+      return ICON_BOOK;
+    }
+
+    function renderProgramCard(p) {
+      var meta = [];
+      if (p.duration_hours) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_CLOCK + p.duration_hours + 'h</span>');
+      }
+      if (p.level) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_LEVEL + escapeHtml(levelLabel(p.level)) + '</span>');
+      }
+      if (p.modality) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_PLACE + escapeHtml(p.modality) + '</span>');
+      }
+
+      return '<a href="/programa/' + escapeHtml(p.slug) + '" class="catalog-card bg-white border border-gray-100 block fade-up">' +
+        '<div class="h-36 bg-gradient-to-br from-umce-azul to-umce-azul-dark flex items-center justify-center relative">' +
+          iconForType(p.type) +
+          '<span class="absolute top-3 left-3 badge ' + UMCE.typeBadgeClass(p.type) + '">' + escapeHtml(UMCE.typeLabel(p.type)) + '</span>' +
+        '</div>' +
+        '<div class="p-5">' +
+          '<h3 class="font-heading font-bold text-base text-gray-900 mb-2 line-clamp-2">' + escapeHtml(p.title) + '</h3>' +
+          '<p class="text-gray-500 text-sm mb-4 line-clamp-2">' + escapeHtml(UMCE.truncate(UMCE.stripHtml(p.description || ''), 120)) + '</p>' +
+          '<div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">' + meta.join('') + '</div>' +
+        '</div>' +
+      '</a>';
+    }
+
+    function renderCourseCard(c) {
+      var meta = [];
+      if (c.duration_hours) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_CLOCK + c.duration_hours + 'h</span>');
+      }
+      if (c.enrolled_count) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_USERS + Number(c.enrolled_count).toLocaleString('es-CL') + ' inscritos</span>');
+      }
+      if (c.level) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_LEVEL + escapeHtml(levelLabel(c.level)) + '</span>');
+      }
+
+      var statusBadge = '';
+      if (c.enrollment_status) {
+        statusBadge = '<span class="absolute top-3 right-3 badge ' + UMCE.statusBadgeClass(c.enrollment_status) + '">' + escapeHtml(UMCE.statusLabel(c.enrollment_status)) + '</span>';
+      }
+
+      return '<a href="/curso/' + escapeHtml(c.slug) + '" class="catalog-card bg-white border border-gray-100 block fade-up">' +
+        '<div class="h-36 bg-gradient-to-br from-umce-verde to-emerald-700 flex items-center justify-center relative">' +
+          ICON_BOOK +
+          '<span class="absolute top-3 left-3 badge badge-curso">Curso</span>' +
+          statusBadge +
+        '</div>' +
+        '<div class="p-5">' +
+          '<h3 class="font-heading font-bold text-base text-gray-900 mb-2 line-clamp-2">' + escapeHtml(c.title) + '</h3>' +
+          '<p class="text-gray-500 text-sm mb-4 line-clamp-2">' + escapeHtml(UMCE.truncate(UMCE.stripHtml(c.description || ''), 120)) + '</p>' +
+          '<div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">' + meta.join('') + '</div>' +
+        '</div>' +
+      '</a>';
+    }
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function levelLabel(level) {
+      var map = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
+      return map[level] || level;
+    }
+  </script>
+</body>
+</html>

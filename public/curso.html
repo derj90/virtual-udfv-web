@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curso — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <div id="nav-placeholder"></div>
+
+  <main class="pt-28 pb-20">
+    <div class="max-w-4xl mx-auto px-6">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb text-sm mb-8">
+        <a href="/">Inicio</a>
+        <span class="separator">/</span>
+        <a href="/catalogo">Cat&aacute;logo</a>
+        <span class="separator">/</span>
+        <span id="breadcrumb-title" class="text-gray-500">Cargando...</span>
+      </nav>
+
+      <div id="course-content">
+        <div class="skeleton h-8 w-3/4 mb-4"></div>
+        <div class="skeleton h-4 w-48 mb-8"></div>
+        <div class="skeleton h-40 w-full mb-6"></div>
+        <div class="skeleton h-4 w-full mb-2"></div>
+        <div class="skeleton h-4 w-2/3"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <div id="chatbot-placeholder"></div>
+
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
+  <script>
+    async function loadCourse() {
+      const slug = UMCE.getSlugFromPath();
+      if (!slug) { window.location.href = '/catalogo'; return; }
+
+      try {
+        const resp = await fetch(`/api/catalog/courses/${encodeURIComponent(slug)}`);
+        if (!resp.ok) throw new Error('Not found');
+        const c = await resp.json();
+
+        document.title = `${c.title} — UMCE Virtual`;
+        document.getElementById('breadcrumb-title').textContent = UMCE.truncate(c.title, 50);
+
+        const moodleUrl = c.moodle_course_id && c.moodle_platform
+          ? getMoodleUrl(c.moodle_platform, c.moodle_course_id)
+          : null;
+
+        document.getElementById('course-content').innerHTML = `
+          <div class="grid lg:grid-cols-3 gap-12">
+            <!-- Main -->
+            <div class="lg:col-span-2">
+              <div class="flex flex-wrap items-center gap-3 mb-4">
+                <span class="badge badge-curso">Curso</span>
+                ${c.category ? `<span class="badge" style="background:#F3F4F6;color:#6B7280;">${c.category}</span>` : ''}
+                ${c.enrollment_status ? `<span class="badge ${UMCE.statusBadgeClass(c.enrollment_status)}">${UMCE.statusLabel(c.enrollment_status)}</span>` : ''}
+              </div>
+
+              <h1 class="font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-6">${c.title}</h1>
+
+              ${c.description ? `
+                <div class="text-gray-600 leading-relaxed space-y-4 mb-8">
+                  ${c.description}
+                </div>
+              ` : ''}
+
+              ${c.tags && c.tags.length ? `
+                <div class="mb-8">
+                  <h3 class="font-heading font-semibold text-sm text-gray-400 uppercase tracking-wider mb-3">Temas</h3>
+                  <div class="flex flex-wrap gap-2">
+                    ${c.tags.map(t => `<span class="bg-gray-50 text-gray-600 text-sm px-3 py-1.5 rounded-lg border border-gray-100">${t}</span>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${c.program_id ? `
+                <div class="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                  <p class="text-sm text-umce-azul font-medium">Este curso es parte de un programa.</p>
+                  <a href="/catalogo" class="text-umce-azul text-sm hover:underline mt-1 inline-block">Ver programa completo &rarr;</a>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+              <div class="sticky top-24 bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                <h3 class="font-heading font-bold text-lg mb-4">Detalles del curso</h3>
+                <dl class="space-y-4 text-sm">
+                  ${c.duration_hours ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">Duraci&oacute;n</dt>
+                        <dd class="font-medium">${c.duration_hours} horas</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${c.level ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">Nivel</dt>
+                        <dd class="font-medium">${c.level}</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${c.enrolled_count ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">Inscritos</dt>
+                        <dd class="font-medium">${c.enrolled_count} participantes</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${c.start_date ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">Inicio</dt>
+                        <dd class="font-medium">${UMCE.formatDate(c.start_date)}</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${c.end_date ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">T&eacute;rmino</dt>
+                        <dd class="font-medium">${UMCE.formatDate(c.end_date)}</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                  ${c.moodle_platform ? `
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                      <div>
+                        <dt class="text-gray-400 text-xs">Plataforma</dt>
+                        <dd class="font-medium capitalize">${c.moodle_platform}</dd>
+                      </div>
+                    </div>
+                  ` : ''}
+                </dl>
+
+                ${moodleUrl ? `
+                  <a href="${moodleUrl}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 bg-umce-azul text-white font-heading font-bold text-sm px-6 py-3 rounded-lg hover:bg-umce-azul-light transition-colors">
+                    Ir al curso en Moodle
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
+                ` : ''}
+
+                <a href="/catalogo" class="mt-3 w-full inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-600 font-heading font-semibold text-sm px-6 py-3 rounded-lg hover:border-umce-azul hover:text-umce-azul transition-colors">
+                  Ver m&aacute;s cursos
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('course-content').innerHTML = `
+          <div class="text-center py-20">
+            <h2 class="font-heading text-2xl font-bold text-gray-900 mb-4">Curso no encontrado</h2>
+            <p class="text-gray-500 mb-6">El curso que buscas no existe o ha sido removido.</p>
+            <a href="/catalogo" class="inline-flex items-center gap-2 bg-umce-azul text-white font-heading font-semibold text-sm px-6 py-3 rounded-lg hover:bg-umce-azul-light transition-colors">Ver cat&aacute;logo</a>
+          </div>
+        `;
+      }
+    }
+
+    function getMoodleUrl(platform, courseId) {
+      const urls = {
+        evirtual: 'https://evirtual.umce.cl',
+        practica: 'https://evirtual-practica.umce.cl',
+        virtual: 'https://virtual.umce.cl',
+        pregrado: 'https://evirtual-pregrado.umce.cl',
+        postgrado: 'https://evirtual-postgrado.umce.cl'
+      };
+      const base = urls[platform];
+      return base ? `${base}/course/view.php?id=${courseId}` : null;
+    }
+
+    loadCourse();
+  </script>
+  <script src="/accesibilidad-dua.js" defer></script>
+</body>
+</html>

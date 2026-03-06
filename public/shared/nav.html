@@ -1,0 +1,50 @@
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-umce-azul text-white transition-all duration-300 py-4">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+        <span class="font-heading font-extrabold text-lg">U</span>
+      </div>
+      <div class="hidden sm:block">
+        <div class="font-heading font-bold text-base leading-tight">UMCE Virtual</div>
+        <div class="text-white/70 text-xs leading-tight">Unidad de Desarrollo y Formaci&oacute;n Virtual</div>
+      </div>
+    </a>
+
+    <!-- Links desktop -->
+    <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+      <a href="/" class="nav-link text-white/90 hover:text-white" data-page="home">Inicio</a>
+      <a href="/catalogo" class="nav-link text-white/90 hover:text-white" data-page="catalogo">Cat&aacute;logo</a>
+      <a href="/competencias" class="nav-link text-white/90 hover:text-white" data-page="competencias">Competencias</a>
+      <a href="/servicios" class="nav-link text-white/90 hover:text-white" data-page="servicios">Servicios</a>
+      <a href="/noticias" class="nav-link text-white/90 hover:text-white" data-page="noticias">Noticias</a>
+      <a href="/ayuda" class="nav-link text-white/90 hover:text-white" data-page="ayuda">Ayuda</a>
+    </div>
+
+    <!-- CTA -->
+    <div class="flex items-center gap-3">
+      <a href="/mis-cursos" class="inline-flex items-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+        Mis Cursos
+      </a>
+
+      <!-- Mobile menu button -->
+      <button id="mobile-menu-btn" class="lg:hidden p-2 hover:bg-white/10 rounded-lg" aria-label="Men&uacute;">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden lg:hidden px-6 pb-4 pt-2">
+    <div class="flex flex-col gap-2 text-sm font-medium">
+      <a href="/" class="py-2 text-white/90 hover:text-white">Inicio</a>
+      <a href="/catalogo" class="py-2 text-white/90 hover:text-white">Cat&aacute;logo</a>
+      <a href="/competencias" class="py-2 text-white/90 hover:text-white">Competencias</a>
+      <a href="/servicios" class="py-2 text-white/90 hover:text-white">Servicios</a>
+      <a href="/noticias" class="py-2 text-white/90 hover:text-white">Noticias</a>
+      <a href="/ayuda" class="py-2 text-white/90 hover:text-white">Ayuda</a>
+      <a href="/mis-cursos" class="mt-2 inline-flex items-center justify-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold text-sm px-5 py-2.5 rounded-lg">Mis Cursos</a>
+    </div>
+  </div>
+</nav>

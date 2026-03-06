@@ -31,6 +31,8 @@
       },
     }
   </script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
     h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
@@ -58,26 +60,9 @@
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col">
 
-  <!-- NAV -->
-  <nav class="bg-umce-azul text-white py-4">
-    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-          <span class="font-heading font-extrabold text-lg">U</span>
-        </div>
-        <div>
-          <div class="font-heading font-bold text-base leading-tight">UMCE Virtual</div>
-          <div class="text-white/70 text-xs leading-tight">Mis Cursos 2026</div>
-        </div>
-      </a>
-      <a href="/" class="text-white/80 text-sm hover:text-white transition-colors flex items-center gap-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        Volver al inicio
-      </a>
-    </div>
-  </nav>
+  <div id="nav-placeholder"></div>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12 flex-1 w-full">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-6 sm:pb-12 flex-1 w-full">
 
     <!-- LOGIN SECTION -->
     <div id="login-section" class="max-w-md mx-auto text-center hidden">
@@ -317,13 +302,7 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-gray-200 py-8">
-    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between text-xs text-gray-400">
-      <span>&copy; 2026 UMCE &mdash; Unidad de Desarrollo y Formaci&oacute;n Virtual</span>
-      <a href="mailto:udfv@umce.cl" class="hover:text-umce-azul transition-colors">udfv@umce.cl</a>
-    </div>
-  </footer>
+  <div id="footer-placeholder"></div>
 
   <script>
     // DOM refs
@@ -1076,6 +1055,9 @@
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
   </script>
+  <div id="chatbot-placeholder"></div>
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
   <script src="/accesibilidad-dua.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P&aacute;gina no encontrada — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <div id="nav-placeholder"></div>
+
+  <main class="min-h-[80vh] flex items-center justify-center pt-24 pb-16">
+    <div class="max-w-lg mx-auto px-6 text-center">
+      <div class="text-8xl font-heading font-extrabold text-umce-azul/10 mb-4">404</div>
+      <h1 class="font-heading text-3xl font-bold text-gray-900 mb-4">P&aacute;gina no encontrada</h1>
+      <p class="text-gray-500 text-lg mb-8">
+        Lo sentimos, la p&aacute;gina que buscas no existe o ha sido movida.
+      </p>
+
+      <!-- Search -->
+      <form action="/catalogo" method="get" class="mb-8">
+        <div class="relative max-w-md mx-auto">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" name="q" placeholder="Buscar cursos, programas..." class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none search-input">
+        </div>
+      </form>
+
+      <!-- Quick links -->
+      <div class="flex flex-wrap justify-center gap-3">
+        <a href="/" class="inline-flex items-center gap-2 bg-umce-azul text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-umce-azul-light transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Volver al inicio
+        </a>
+        <a href="/catalogo" class="inline-flex items-center gap-2 border border-gray-200 text-gray-700 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg hover:border-umce-azul hover:text-umce-azul transition-colors">
+          Cat&aacute;logo
+        </a>
+        <a href="/mis-cursos" class="inline-flex items-center gap-2 border border-gray-200 text-gray-700 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg hover:border-umce-azul hover:text-umce-azul transition-colors">
+          Mis Cursos
+        </a>
+        <a href="/ayuda" class="inline-flex items-center gap-2 border border-gray-200 text-gray-700 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg hover:border-umce-azul hover:text-umce-azul transition-colors">
+          Ayuda
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <div id="chatbot-placeholder"></div>
+
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
+  <script src="/accesibilidad-dua.js" defer></script>
+</body>
+</html>

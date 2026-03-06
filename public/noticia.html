@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noticia — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <div id="nav-placeholder"></div>
+
+  <main class="pt-28 pb-20">
+    <div class="max-w-3xl mx-auto px-6">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb text-sm mb-8">
+        <a href="/">Inicio</a>
+        <span class="separator">/</span>
+        <a href="/noticias">Noticias</a>
+        <span class="separator">/</span>
+        <span id="breadcrumb-title" class="text-gray-500">Cargando...</span>
+      </nav>
+
+      <!-- Article -->
+      <article id="article-content">
+        <div class="skeleton h-8 w-3/4 mb-4"></div>
+        <div class="skeleton h-4 w-48 mb-8"></div>
+        <div class="skeleton h-64 w-full mb-8"></div>
+        <div class="skeleton h-4 w-full mb-2"></div>
+        <div class="skeleton h-4 w-full mb-2"></div>
+        <div class="skeleton h-4 w-2/3"></div>
+      </article>
+
+      <!-- Back link -->
+      <div class="mt-12 pt-8 border-t border-gray-100">
+        <a href="/noticias" class="inline-flex items-center gap-2 text-umce-azul font-medium text-sm hover:underline">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+          Volver a noticias
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <div id="chatbot-placeholder"></div>
+
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
+  <script>
+    async function loadArticle() {
+      const slug = UMCE.getSlugFromPath();
+      if (!slug) {
+        window.location.href = '/noticias';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/api/news/${encodeURIComponent(slug)}`);
+        if (!resp.ok) throw new Error('Not found');
+        const news = await resp.json();
+
+        document.title = `${news.title} — UMCE Virtual`;
+        document.getElementById('breadcrumb-title').textContent = UMCE.truncate(news.title, 50);
+
+        document.getElementById('article-content').innerHTML = `
+          ${news.category ? `<span class="inline-block badge badge-diplomado mb-4">${news.category}</span>` : ''}
+          <h1 class="font-heading text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">${news.title}</h1>
+          <p class="text-gray-400 text-sm mb-8">${UMCE.formatDate(news.published_at)}${news.source === 'sync_umce' ? ' · Fuente: umce.cl' : ''}</p>
+          ${news.image_url ? `<img src="${news.image_url}" alt="${news.title}" class="w-full rounded-2xl mb-8 shadow-sm" loading="lazy">` : ''}
+          <div class="prose prose-gray max-w-none text-gray-600 leading-relaxed space-y-4">
+            ${news.content || news.excerpt || '<p>Contenido no disponible.</p>'}
+          </div>
+          ${news.source_url ? `<div class="mt-8"><a href="${news.source_url}" target="_blank" class="text-umce-azul text-sm font-medium hover:underline">Ver fuente original &rarr;</a></div>` : ''}
+        `;
+      } catch (err) {
+        document.getElementById('article-content').innerHTML = `
+          <div class="text-center py-20">
+            <h1 class="font-heading text-2xl font-bold text-gray-900 mb-4">Noticia no encontrada</h1>
+            <p class="text-gray-500 mb-6">La noticia que buscas no existe o ha sido removida.</p>
+            <a href="/noticias" class="inline-flex items-center gap-2 bg-umce-azul text-white font-heading font-semibold text-sm px-6 py-3 rounded-lg hover:bg-umce-azul-light transition-colors">Ver todas las noticias</a>
+          </div>
+        `;
+      }
+    }
+
+    loadArticle();
+  </script>
+  <script src="/accesibilidad-dua.js" defer></script>
+</body>
+</html>

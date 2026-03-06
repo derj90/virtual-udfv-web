@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/shared.css">
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <div id="nav-placeholder"></div>
+
+  <!-- Hero -->
+  <section class="hero-gradient pt-28 pb-16 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <nav class="breadcrumb text-sm mb-6">
+        <a href="/" class="text-white/60 hover:text-white">Inicio</a>
+        <span class="separator text-white/30">/</span>
+        <span class="text-white/90">Servicios</span>
+      </nav>
+      <h1 class="fade-up font-heading text-4xl md:text-5xl font-extrabold mb-4">Servicios UDFV</h1>
+      <p class="fade-up text-white/80 text-lg max-w-2xl">
+        La Unidad de Desarrollo y Formaci&oacute;n Virtual ofrece un ecosistema completo de servicios tecnol&oacute;gicos y pedag&oacute;gicos para la comunidad acad&eacute;mica UMCE.
+      </p>
+    </div>
+  </section>
+
+  <!-- Services grid -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- Plataformas LMS -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Plataformas Moodle</h3>
+          <p class="text-gray-500 text-sm mb-4">5 plataformas Moodle especializadas para formaci&oacute;n continua, pr&aacute;ctica, docencia, pregrado y postgrado.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-azul"></span> eVirtual — Formaci&oacute;n continua</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-naranja"></span> Pr&aacute;ctica — Experimentaci&oacute;n</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-azul-oscuro"></span> Virtual — Apoyo docencia</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-verde"></span> Pregrado — Carreras</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-rojo"></span> Postgrado — Mag&iacute;ster y diplomados</li>
+          </ul>
+          <a href="/mis-cursos" class="text-umce-azul text-sm font-medium hover:underline">Acceder a Mis Cursos &rarr;</a>
+        </div>
+
+        <!-- Dashboard Docente -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-umce-verde" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Dashboard Docente</h3>
+          <p class="text-gray-500 text-sm mb-4">Panel anal&iacute;tico integrado con Moodle via LTI 1.3. Visualiza m&eacute;tricas de participaci&oacute;n, avance y rendimiento de tus cursos.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-verde"></span> M&eacute;tricas en tiempo real</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-verde"></span> Integraci&oacute;n LTI con Moodle</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-verde"></span> Exportar reportes</li>
+          </ul>
+          <a href="https://dashboard.udfv.cloud" target="_blank" class="text-umce-azul text-sm font-medium hover:underline">Abrir Dashboard &rarr;</a>
+        </div>
+
+        <!-- Asistente IA -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Asistente IA UDFV</h3>
+          <p class="text-gray-500 text-sm mb-4">Bot de Telegram con inteligencia artificial que consulta en tiempo real las 5 plataformas Moodle. Soporte 24/7 para docentes y estudiantes.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Consultas Moodle en tiempo real</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Soporte aut&oacute;nomo</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Disponible v&iacute;a Telegram</li>
+          </ul>
+          <a href="https://t.me/asistente_udfv_bot" target="_blank" class="text-umce-azul text-sm font-medium hover:underline">Abrir en Telegram &rarr;</a>
+        </div>
+
+        <!-- Learning Record Store -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-umce-amarillo-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Learning Record Store (xAPI)</h3>
+          <p class="text-gray-500 text-sm mb-4">Almacenamiento centralizado de experiencias de aprendizaje usando el est&aacute;ndar xAPI. Trazabilidad completa de interacciones educativas.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-amarillo-dark"></span> Est&aacute;ndar xAPI 1.0.3</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-amarillo-dark"></span> Ralph LRS (open source)</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-umce-amarillo-dark"></span> Interoperabilidad total</li>
+          </ul>
+          <span class="text-gray-400 text-sm">Uso interno — integrado con Moodle</span>
+        </div>
+
+        <!-- Asesoría Pedagógica -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-rose-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Asesor&iacute;a Pedag&oacute;gica</h3>
+          <p class="text-gray-500 text-sm mb-4">Acompa&ntilde;amiento personalizado para docentes en dise&ntilde;o instruccional, virtualizaci&oacute;n de cursos e integraci&oacute;n de tecnolog&iacute;as en el aula.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Dise&ntilde;o instruccional</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Virtualizaci&oacute;n de cursos</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Innovaci&oacute;n pedag&oacute;gica</li>
+          </ul>
+          <a href="mailto:udfv@umce.cl" class="text-umce-azul text-sm font-medium hover:underline">Solicitar asesor&iacute;a &rarr;</a>
+        </div>
+
+        <!-- Soporte Técnico -->
+        <div class="fade-up bg-white rounded-2xl border border-gray-100 p-8 card-hover">
+          <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <h3 class="font-heading font-bold text-xl mb-3">Soporte T&eacute;cnico</h3>
+          <p class="text-gray-500 text-sm mb-4">Asistencia para docentes y estudiantes con problemas de acceso, configuraci&oacute;n de cursos, matr&iacute;cula y uso de las plataformas.</p>
+          <ul class="space-y-1.5 text-sm text-gray-600 mb-4">
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-400"></span> Acceso a plataformas</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-400"></span> Configuraci&oacute;n de cursos</li>
+            <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-400"></span> Problemas t&eacute;cnicos</li>
+          </ul>
+          <a href="/ayuda" class="text-umce-azul text-sm font-medium hover:underline">Centro de Ayuda &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="fade-up font-heading text-3xl font-bold text-center mb-4">Equipo UDFV</h2>
+      <p class="fade-up text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+        Profesionales dedicados al desarrollo y la innovaci&oacute;n en formaci&oacute;n virtual.
+      </p>
+
+      <div id="team-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Loaded dynamically from /api/team -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="py-20">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="fade-up font-heading text-3xl font-bold mb-4">Cont&aacute;ctanos</h2>
+      <p class="fade-up text-gray-500 mb-8">
+        &iquest;Tienes preguntas o necesitas ayuda? Estamos disponibles para la comunidad acad&eacute;mica UMCE.
+      </p>
+      <div class="fade-up grid md:grid-cols-3 gap-6">
+        <div class="bg-gray-50 rounded-xl p-6">
+          <svg class="w-8 h-8 text-umce-azul mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <div class="font-heading font-semibold text-sm mb-1">Email</div>
+          <a href="mailto:udfv@umce.cl" class="text-umce-azul text-sm hover:underline">udfv@umce.cl</a>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-6">
+          <svg class="w-8 h-8 text-umce-azul mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <div class="font-heading font-semibold text-sm mb-1">Ubicaci&oacute;n</div>
+          <p class="text-gray-500 text-sm">Av. Jos&eacute; Pedro Alessandri 774, &Ntilde;u&ntilde;oa</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-6">
+          <svg class="w-8 h-8 text-umce-azul mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div class="font-heading font-semibold text-sm mb-1">Horario</div>
+          <p class="text-gray-500 text-sm">Lunes a Viernes, 9:00 - 18:00</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <div id="chatbot-placeholder"></div>
+
+  <script src="/shared/shared.js"></script>
+  <script src="/shared/chatbot.js" defer></script>
+  <script>
+    // Load team from API
+    async function loadTeam() {
+      const grid = document.getElementById('team-grid');
+      try {
+        const team = await fetch('/api/team').then(r => r.json());
+        if (!team.length) {
+          grid.innerHTML = renderFallbackTeam();
+          return;
+        }
+        grid.innerHTML = team.map(m => `
+          <div class="fade-up bg-white rounded-xl p-6 text-center border border-gray-100">
+            <div class="w-20 h-20 rounded-full bg-gray-100 mx-auto mb-4 overflow-hidden flex items-center justify-center">
+              ${m.photo_url
+                ? `<img src="${m.photo_url}" alt="${m.name}" class="w-full h-full object-cover" loading="lazy">`
+                : `<span class="text-2xl font-heading font-bold text-gray-300">${m.name.charAt(0)}</span>`
+              }
+            </div>
+            <h3 class="font-heading font-bold text-base">${m.name}</h3>
+            <p class="text-umce-azul text-sm font-medium">${m.role || ''}</p>
+            ${m.subunit ? `<p class="text-gray-400 text-xs mt-1">${m.subunit}</p>` : ''}
+          </div>
+        `).join('');
+        UMCE.observeNewElements(grid);
+      } catch (err) {
+        grid.innerHTML = renderFallbackTeam();
+      }
+    }
+
+    function renderFallbackTeam() {
+      return `
+        <div class="fade-up bg-white rounded-xl p-6 text-center border border-gray-100">
+          <div class="w-20 h-20 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+            <span class="text-2xl font-heading font-bold text-gray-300">D</span>
+          </div>
+          <h3 class="font-heading font-bold text-base">David Reyes</h3>
+          <p class="text-umce-azul text-sm font-medium">Coordinador UDFV</p>
+        </div>
+      `;
+    }
+
+    loadTeam();
+  </script>
+  <script src="/accesibilidad-dua.js" defer></script>
+</body>
+</html>

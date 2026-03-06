@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración — UMCE Virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/shared/tailwind-config.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-heading { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+
+    /* Chat messages */
+    .admin-msg { display: flex; margin-bottom: 0.75rem; }
+    .admin-msg.user { justify-content: flex-end; }
+    .admin-msg.user > div { background: #0033A1; color: white; border-radius: 1rem 1rem 0.25rem 1rem; }
+    .admin-msg.assistant > div { background: #F9FAFB; border-radius: 1rem 1rem 1rem 0.25rem; border: 1px solid #E5E7EB; }
+
+    /* Action card */
+    .action-card {
+      background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 0.75rem;
+      padding: 1rem; margin-top: 0.5rem;
+    }
+    .action-card .action-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #92400E; margin-bottom: 0.5rem;
+    }
+    .action-card pre {
+      background: #FEF3C7; border-radius: 0.5rem; padding: 0.75rem;
+      font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+      color: #78350F; margin-bottom: 0.75rem;
+    }
+
+    /* Quick action chips */
+    .quick-chip {
+      font-size: 12px; padding: 6px 14px; border-radius: 999px;
+      background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .quick-chip:hover { background: #E5E7EB; border-color: #D1D5DB; }
+
+    /* Spinner */
+    .spinner { width: 24px; height: 24px; border: 3px solid #E5E7EB; border-top-color: #0033A1; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Typing indicator */
+    .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+    .typing-dots span { width: 6px; height: 6px; background: #9CA3AF; border-radius: 50%; animation: bounce 1.4s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+
+    /* Pending modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+  <!-- Auth Gate (spinner while checking) -->
+  <div id="auth-gate" class="flex-1 flex items-center justify-center">
+    <div class="text-center">
+      <div class="spinner mx-auto mb-4"></div>
+      <p class="text-gray-500 text-sm">Verificando acceso...</p>
+    </div>
+  </div>
+
+  <!-- Unauthorized view -->
+  <div id="unauthorized" class="hidden flex-1 flex items-center justify-center">
+    <div class="text-center max-w-md px-6">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h2 class="font-heading font-bold text-xl text-gray-800 mb-2">Sin permisos de acceso</h2>
+      <p class="text-gray-500 text-sm mb-6">Tu cuenta no tiene permisos para acceder al panel de administración. Contacta al administrador si crees que esto es un error.</p>
+      <a href="/" class="inline-flex items-center gap-2 bg-umce-azul text-white font-medium text-sm px-5 py-2.5 rounded-lg hover:bg-umce-azul-light transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </div>
+
+  <!-- Admin Panel (shown when authorized) -->
+  <div id="admin-panel" class="hidden flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-umce-azul text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <a href="/" class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">
+          <span class="font-heading font-extrabold text-sm">U</span>
+        </a>
+        <div>
+          <h1 class="font-heading font-bold text-base leading-tight">Panel de Administración</h1>
+          <p class="text-white/60 text-xs">UMCE Virtual — Gestión de contenido</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Pending button (admin only) -->
+        <button id="btn-pending" class="hidden items-center gap-1.5 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Pendientes (<span id="pending-count">0</span>)
+        </button>
+        <!-- Role badge -->
+        <span id="role-badge" class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full uppercase"></span>
+        <!-- User email -->
+        <span id="user-email" class="text-white/70 text-xs hidden sm:inline"></span>
+        <!-- Logout -->
+        <a href="/auth/logout" class="text-white/60 hover:text-white text-xs">Salir</a>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <div class="flex-1 flex flex-col max-w-4xl w-full mx-auto">
+      <!-- Messages -->
+      <div id="admin-messages" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-1">
+        <!-- Welcome message -->
+        <div class="admin-msg assistant">
+          <div class="px-4 py-3 text-sm text-gray-700 max-w-[85%]">
+            <strong>Hola, bienvenido al panel de administración.</strong><br>
+            Puedo ayudarte a gestionar programas, cursos, noticias, equipo y recursos del portal.<br><br>
+            Prueba con algo como: <em>"Muestra los programas"</em>, <em>"Agrega una noticia sobre el taller de IA"</em>, o <em>"Estadísticas del contenido"</em>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div id="admin-quick-actions" class="px-4 sm:px-6 pb-2 flex flex-wrap gap-1.5">
+        <button class="quick-chip" data-msg="Mostrar programas">Mostrar programas</button>
+        <button class="quick-chip" data-msg="Mostrar cursos">Mostrar cursos</button>
+        <button class="quick-chip" data-msg="Agregar noticia">Agregar noticia</button>
+        <button class="quick-chip" data-msg="Estadísticas del sitio">Estadísticas del sitio</button>
+      </div>
+
+      <!-- Input bar -->
+      <div class="px-4 sm:px-6 pb-4 pt-2 flex-shrink-0 border-t border-gray-100 bg-white">
+        <form id="admin-form" class="flex gap-2">
+          <input id="admin-input" type="text" placeholder="Escribe una instrucción..." maxlength="3000" autocomplete="off"
+            class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-umce-azul focus:ring-1 focus:ring-umce-azul/20 transition-colors">
+          <button type="submit" id="admin-send" disabled
+            class="bg-umce-azul text-white rounded-xl px-4 py-3 hover:bg-umce-azul-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+          </button>
+        </form>
+        <p class="text-[10px] text-gray-300 text-center mt-1.5">Asistente IA — Las acciones requieren confirmación antes de ejecutarse</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Approvals Modal -->
+  <div id="pending-modal" class="modal-overlay">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h3 class="font-heading font-bold text-base">Eliminaciones pendientes</h3>
+        <button id="close-pending" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="pending-list" class="flex-1 overflow-y-auto p-5 space-y-3">
+        <p class="text-gray-400 text-sm text-center py-8">Cargando...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/admin-assistant.js"></script>
+</body>
+</html>
