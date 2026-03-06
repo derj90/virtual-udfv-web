@@ -255,6 +255,30 @@ function authMiddleware(req, res, next) {
   next();
 }
 
+// --- Admin config ---
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'david.reyes_j@umce.cl,udfv@umce.cl').split(',').map(e => e.trim().toLowerCase());
+
+function isAdmin(email) {
+  return ADMIN_EMAILS.includes((email || '').toLowerCase());
+}
+
+// Helper: resolve target email (admin can override with ?email= param)
+function resolveTargetEmail(req) {
+  const ownEmail = req.userEmail;
+  const targetEmail = req.query.email;
+  if (targetEmail && isAdmin(ownEmail)) {
+    const err = validateEmail(targetEmail);
+    if (err) return { email: ownEmail, impersonating: false };
+    return { email: targetEmail.toLowerCase(), impersonating: true };
+  }
+  return { email: ownEmail, impersonating: false };
+}
+
+// --- Admin API: check if current user is admin ---
+app.get('/api/admin/check', authMiddleware, (req, res) => {
+  res.json({ isAdmin: isAdmin(req.userEmail) });
+});
+
 // --- Google OAuth routes ---
 app.get('/auth/login', (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(500).send('Google OAuth no configurado');
@@ -343,18 +367,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- API: Active 2026 courses (authenticated) ---
 app.get('/api/mis-cursos', authMiddleware, async (req, res) => {
-  const email = req.userEmail;
+  const { email, impersonating } = resolveTargetEmail(req);
 
   const platforms = await queryAllPlatforms(email, filterAndEnrich);
   const totalCourses = platforms.reduce((sum, r) => sum + r.courses.length, 0);
-  const userName = platforms.find(r => r.userName)?.userName || req.userName;
+  const userName = platforms.find(r => r.userName)?.userName || (impersonating ? email.split('@')[0] : req.userName);
 
-  res.json({ email, userName, totalCourses, platforms });
+  res.json({ email, userName, totalCourses, platforms, impersonating });
 });
 
 // --- API: Historical courses (authenticated) ---
 app.get('/api/historial', authMiddleware, async (req, res) => {
-  const email = req.userEmail;
+  const { email } = resolveTargetEmail(req);
 
   const platforms = await queryAllPlatforms(email, filterHistorical);
   const allHistorical = platforms.flatMap(p => p.courses);
@@ -408,7 +432,7 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     return res.json({ found: false, error: 'UCampus no configurado' });
   }
 
-  const email = req.userEmail;
+  const { email } = resolveTargetEmail(req);
 
   try {
     // Step 1: Find persona by email

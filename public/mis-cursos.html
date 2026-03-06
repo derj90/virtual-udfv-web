@@ -129,6 +129,25 @@
         </div>
       </div>
 
+      <!-- ADMIN: View As -->
+      <div id="admin-bar" class="hidden mb-6">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+            <span class="text-amber-700 font-heading font-bold text-xs">Modo Administrador</span>
+          </div>
+          <form id="admin-search-form" class="flex gap-2" onsubmit="return adminSearch(event)">
+            <input type="email" id="admin-email-input" placeholder="Ver como: email@umce.cl" class="flex-1 text-sm px-3 py-2 rounded-lg border border-amber-200 bg-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300">
+            <button type="submit" class="bg-amber-500 text-white font-heading font-bold text-xs px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors">Buscar</button>
+            <button type="button" onclick="adminReset()" id="admin-reset-btn" class="hidden text-amber-600 font-heading font-bold text-xs px-3 py-2 rounded-lg border border-amber-300 hover:bg-amber-100 transition-colors">Volver a mi vista</button>
+          </form>
+          <div id="admin-viewing" class="hidden mt-2 text-xs text-amber-600 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Viendo como: <strong id="admin-viewing-email"></strong>
+          </div>
+        </div>
+      </div>
+
       <!-- MAIN TABS -->
       <div id="main-tabs" class="flex gap-2 mb-6 hidden">
         <button onclick="switchMainTab('moodle')" id="tab-btn-moodle" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-heading font-bold text-sm transition-all border-2 border-umce-azul bg-umce-azul text-white">
@@ -316,6 +335,8 @@
     let allCourses = [];
     let currentFilter = 'all';
     let currentEmail = '';
+    let isAdminUser = false;
+    let viewingAsEmail = null;
 
     // Check for error params from OAuth redirect
     const urlParams = new URLSearchParams(window.location.search);
@@ -353,6 +374,7 @@
         currentEmail = user.email;
         showResults(user);
         fetchCourses();
+        checkAdmin();
       } catch {
         // No session — show login
         loginSection.classList.remove('hidden');
@@ -681,6 +703,8 @@
       errorDiv.classList.add('hidden');
 
       try {
+        if (viewingAsEmail) return fetchUCampusAs(viewingAsEmail);
+
         const res = await fetch('/api/ucampus');
         if (res.status === 401) return window.location.href = '/auth/login';
         const data = await res.json();
@@ -787,6 +811,114 @@
             </div>
           `;
         }).join('');
+      }
+    }
+
+    // ===== ADMIN: View As =====
+    async function checkAdmin() {
+      try {
+        const res = await fetch('/api/admin/check');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.isAdmin) {
+          isAdminUser = true;
+          document.getElementById('admin-bar').classList.remove('hidden');
+        }
+      } catch {}
+    }
+
+    function adminSearch(e) {
+      e.preventDefault();
+      const input = document.getElementById('admin-email-input');
+      const email = input.value.trim().toLowerCase();
+      if (!email || !email.includes('@')) return false;
+
+      viewingAsEmail = email;
+      document.getElementById('admin-viewing').classList.remove('hidden');
+      document.getElementById('admin-viewing-email').textContent = email;
+      document.getElementById('admin-reset-btn').classList.remove('hidden');
+
+      // Reset UCampus loaded state
+      ucampusLoaded = false;
+      ucampusData = null;
+      historialLoaded = false;
+
+      // Reload with target email
+      fetchCoursesAs(email);
+      if (activeMainTab === 'ucampus') fetchUCampusAs(email);
+      return false;
+    }
+
+    function adminReset() {
+      viewingAsEmail = null;
+      document.getElementById('admin-viewing').classList.add('hidden');
+      document.getElementById('admin-reset-btn').classList.add('hidden');
+      document.getElementById('admin-email-input').value = '';
+
+      ucampusLoaded = false;
+      ucampusData = null;
+      historialLoaded = false;
+
+      fetchCourses();
+      if (activeMainTab === 'ucampus') fetchUCampus();
+    }
+
+    async function fetchCoursesAs(targetEmail) {
+      loadingState.classList.remove('hidden');
+      coursesContainer.classList.add('hidden');
+      platformTabs.classList.add('hidden');
+      noCourses.classList.add('hidden');
+
+      try {
+        const url = targetEmail ? `/api/mis-cursos?email=${encodeURIComponent(targetEmail)}` : '/api/mis-cursos';
+        const res = await fetch(url);
+        if (res.status === 401) return window.location.href = '/auth/login';
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        document.getElementById('user-name').textContent = data.userName || targetEmail.split('@')[0];
+        document.getElementById('user-avatar').textContent = (data.userName || targetEmail)[0].toUpperCase();
+        document.getElementById('user-email').textContent = data.email;
+
+        renderCourses(data);
+      } catch (err) {
+        loadingState.classList.add('hidden');
+        coursesContainer.classList.remove('hidden');
+        coursesContainer.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-red-500 text-sm mb-2">${err.message}</p></div>`;
+      }
+    }
+
+    async function fetchUCampusAs(targetEmail) {
+      const loading = document.getElementById('ucampus-loading');
+      const content = document.getElementById('ucampus-content');
+      const empty = document.getElementById('ucampus-empty');
+      const errorDiv = document.getElementById('ucampus-error');
+
+      loading.classList.remove('hidden');
+      content.classList.add('hidden');
+      empty.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+
+      try {
+        const url = targetEmail ? `/api/ucampus?email=${encodeURIComponent(targetEmail)}` : '/api/ucampus';
+        const res = await fetch(url);
+        if (res.status === 401) return window.location.href = '/auth/login';
+        const data = await res.json();
+
+        ucampusLoaded = true;
+        ucampusData = data;
+        loading.classList.add('hidden');
+
+        if (!data.found) {
+          empty.classList.remove('hidden');
+          document.getElementById('tab-count-ucampus').textContent = '(0)';
+          return;
+        }
+        renderUCampus(data);
+      } catch (err) {
+        loading.classList.add('hidden');
+        document.getElementById('ucampus-error-msg').textContent = err.message;
+        errorDiv.classList.remove('hidden');
       }
     }
 
