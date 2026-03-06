@@ -269,12 +269,15 @@
 
           <!-- Docente section -->
           <div id="ucampus-docente" class="hidden mb-8">
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center gap-2 mb-3">
               <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
                 <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
               </div>
               <h3 class="font-heading font-bold text-base text-gray-800">Como Docente</h3>
               <span id="ucampus-docente-count" class="text-xs text-teal-600 font-semibold bg-teal-50 px-2 py-0.5 rounded-full"></span>
+            </div>
+            <!-- Summary stats -->
+            <div id="ucampus-docente-stats" class="grid grid-cols-3 gap-3 mb-5">
             </div>
             <div id="ucampus-docente-list" class="space-y-3"></div>
           </div>
@@ -744,29 +747,77 @@
         docenteDiv.classList.remove('hidden');
         document.getElementById('ucampus-docente-count').textContent = `${data.asDocente.total} secci${data.asDocente.total !== 1 ? 'ones' : '\u00f3n'}`;
 
+        // Summary stats
+        const totalEst = data.asDocente.totalEstudiantes || 0;
+        const uniqueRamos = [...new Set(data.asDocente.secciones.map(s => s.codigoRamo))].length;
+        const statsDiv = document.getElementById('ucampus-docente-stats');
+        statsDiv.innerHTML = `
+          <div class="bg-teal-50/50 border border-teal-100 rounded-xl p-3 text-center">
+            <div class="font-heading font-extrabold text-xl text-teal-700">${data.asDocente.total}</div>
+            <div class="text-[11px] text-teal-600 font-medium">Secciones</div>
+          </div>
+          <div class="bg-teal-50/50 border border-teal-100 rounded-xl p-3 text-center">
+            <div class="font-heading font-extrabold text-xl text-teal-700">${uniqueRamos}</div>
+            <div class="text-[11px] text-teal-600 font-medium">Asignaturas</div>
+          </div>
+          <div class="bg-teal-50/50 border border-teal-100 rounded-xl p-3 text-center">
+            <div class="font-heading font-extrabold text-xl text-teal-700">${totalEst}</div>
+            <div class="text-[11px] text-teal-600 font-medium">Estudiantes</div>
+          </div>
+        `;
+
         const list = document.getElementById('ucampus-docente-list');
-        list.innerHTML = data.asDocente.secciones.map(s => `
-          <div class="bg-white border border-gray-100 rounded-xl p-4 hover:border-teal-200 transition-colors">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-teal-600 font-heading font-bold text-xs bg-teal-50 px-2 py-0.5 rounded">${escapeHtml(s.codigoRamo)}</span>
-                  ${s.rol && s.rol !== 'Docente' ? `<span class="text-gray-400 text-[10px] font-medium">${escapeHtml(s.rol)}</span>` : ''}
+        list.innerHTML = data.asDocente.secciones.map(s => {
+          const ocupacion = (s.inscritos != null && s.cupos) ? Math.round(s.inscritos / s.cupos * 100) : null;
+          const ocupColor = ocupacion != null ? (ocupacion >= 90 ? 'text-red-500' : ocupacion >= 70 ? 'text-amber-500' : 'text-emerald-500') : '';
+          const metaBadges = [
+            s.departamento ? `<span class="bg-gray-50 text-gray-500 px-2 py-0.5 rounded text-[10px]">${escapeHtml(s.departamento)}</span>` : '',
+            s.modalidad ? `<span class="bg-gray-50 text-gray-500 px-2 py-0.5 rounded text-[10px]">${escapeHtml(s.modalidad)}</span>` : '',
+            s.creditos && s.creditos.sct ? `<span class="bg-gray-50 text-gray-500 px-2 py-0.5 rounded text-[10px]">${s.creditos.sct} SCT</span>` : ''
+          ].filter(Boolean).join(' ');
+
+          return `
+          <div class="bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-teal-200 transition-colors" id="seccion-card-${s.idCurso}">
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="text-teal-600 font-heading font-bold text-xs bg-teal-50 px-2 py-0.5 rounded">${escapeHtml(s.codigoRamo)}</span>
+                    <span class="text-gray-400 text-[10px] font-medium">${escapeHtml(s.rol)}</span>
+                  </div>
+                  <h4 class="font-heading font-bold text-sm text-gray-900 leading-snug">${escapeHtml(s.nombreRamo)}</h4>
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
+                    ${s.seccion != null ? `<span class="font-medium">Secci&oacute;n ${s.seccion}</span>` : ''}
+                    ${s.inscritos != null ? `<span class="flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                      <strong>${s.inscritos}</strong>${s.cupos ? `/${s.cupos}` : ''} estudiantes
+                      ${ocupacion != null ? `<span class="${ocupColor} font-semibold">(${ocupacion}%)</span>` : ''}
+                    </span>` : ''}
+                    ${s.horario ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${escapeHtml(s.horario)}</span>` : ''}
+                  </div>
+                  ${metaBadges ? `<div class="flex flex-wrap gap-1 mt-2">${metaBadges}</div>` : ''}
                 </div>
-                <h4 class="font-heading font-bold text-sm text-gray-900 leading-snug">${escapeHtml(s.nombreRamo)}</h4>
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
-                  ${s.seccion != null ? `<span>Secci\u00f3n ${s.seccion}</span>` : ''}
-                  ${s.inscritos != null ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>${s.inscritos} estudiantes</span>` : ''}
-                  ${s.horario ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${escapeHtml(s.horario)}</span>` : ''}
+                <div class="shrink-0 flex flex-col items-end gap-2">
+                  <a href="${escapeHtml(s.ucampusUrl)}" target="_blank" rel="noopener" class="text-teal-500 hover:text-teal-700 transition-colors flex items-center gap-1 text-xs font-medium">
+                    UCampus
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                  </a>
+                  ${s.inscritos > 0 ? `<button onclick="toggleStudentList('${s.idCurso}')" class="text-teal-500 hover:text-teal-700 transition-colors flex items-center gap-1 text-xs font-medium cursor-pointer">
+                    <svg class="w-3.5 h-3.5 transition-transform" id="chevron-${s.idCurso}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    Ver estudiantes
+                  </button>` : ''}
                 </div>
               </div>
-              <a href="${escapeHtml(s.ucampusUrl)}" target="_blank" rel="noopener" class="shrink-0 text-teal-500 hover:text-teal-700 transition-colors flex items-center gap-1 text-xs font-medium mt-1">
-                Ver
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
-              </a>
+            </div>
+            <!-- Expandable student list -->
+            <div id="students-${s.idCurso}" class="hidden border-t border-gray-100">
+              <div class="p-4 text-center text-xs text-gray-400" id="students-loading-${s.idCurso}">
+                <svg class="w-4 h-4 animate-spin text-teal-400 mx-auto mb-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Cargando estudiantes...
+              </div>
             </div>
           </div>
-        `).join('');
+        `}).join('');
       }
 
       // Estudiante section
@@ -814,6 +865,103 @@
       }
     }
 
+    // ===== UCampus: Toggle student list =====
+    const studentCache = {};
+
+    async function toggleStudentList(idCurso) {
+      const container = document.getElementById('students-' + idCurso);
+      const chevron = document.getElementById('chevron-' + idCurso);
+      if (!container) return;
+
+      // Toggle visibility
+      if (!container.classList.contains('hidden')) {
+        container.classList.add('hidden');
+        if (chevron) chevron.style.transform = '';
+        return;
+      }
+
+      container.classList.remove('hidden');
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
+
+      // Already loaded?
+      if (studentCache[idCurso]) {
+        renderStudentList(idCurso, studentCache[idCurso]);
+        return;
+      }
+
+      // Fetch student list
+      try {
+        const emailParam = viewingAsEmail ? `?email=${encodeURIComponent(viewingAsEmail)}` : '';
+        const res = await fetch(`/api/ucampus/seccion/${idCurso}${emailParam}`);
+        if (!res.ok) throw new Error('Error al cargar');
+        const data = await res.json();
+        studentCache[idCurso] = data;
+        renderStudentList(idCurso, data);
+      } catch (err) {
+        document.getElementById('students-loading-' + idCurso).innerHTML =
+          `<p class="text-red-400 text-xs">Error al cargar estudiantes</p>`;
+      }
+    }
+
+    function renderStudentList(idCurso, data) {
+      const container = document.getElementById('students-' + idCurso);
+      if (!container || !data.estudiantes) return;
+
+      if (data.estudiantes.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">Sin estudiantes inscritos</div>`;
+        return;
+      }
+
+      const rows = data.estudiantes.map((e, i) => {
+        const notaHtml = e.notaFinal
+          ? `<span class="font-bold ${e.notaFinal >= 4.0 ? 'text-emerald-600' : 'text-red-500'}">${e.notaFinal.toFixed(1)}</span>`
+          : `<span class="text-gray-300">---</span>`;
+        const initials = (e.nombre || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        return `
+          <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">
+            <td class="py-2 px-3 text-xs text-gray-400 text-center">${i + 1}</td>
+            <td class="py-2 px-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[10px] font-bold shrink-0">${escapeHtml(initials)}</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-medium text-gray-800 truncate">${escapeHtml(e.nombre || 'Sin nombre')}</div>
+                  ${e.email ? `<div class="text-[10px] text-gray-400 truncate">${escapeHtml(e.email)}</div>` : ''}
+                </div>
+              </div>
+            </td>
+            <td class="py-2 px-3 text-xs text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                e.estado === 'Inscrito' ? 'bg-blue-50 text-blue-600' :
+                e.estado === 'Aprobado' ? 'bg-emerald-50 text-emerald-600' :
+                e.estado === 'Reprobado' ? 'bg-red-50 text-red-500' :
+                'bg-gray-100 text-gray-500'
+              }">${escapeHtml(e.estado || 'Inscrito')}</span>
+            </td>
+            <td class="py-2 px-3 text-xs text-center">${notaHtml}</td>
+          </tr>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="max-h-[400px] overflow-y-auto">
+          <table class="w-full text-left">
+            <thead class="sticky top-0 bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="py-2 px-3 text-[10px] text-gray-400 font-medium text-center w-8">#</th>
+                <th class="py-2 px-3 text-[10px] text-gray-400 font-medium">Estudiante</th>
+                <th class="py-2 px-3 text-[10px] text-gray-400 font-medium text-center w-20">Estado</th>
+                <th class="py-2 px-3 text-[10px] text-gray-400 font-medium text-center w-16">Nota</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="px-4 py-2 bg-gray-50 text-[10px] text-gray-400 flex justify-between border-t border-gray-100">
+          <span>${data.totalInscritos} estudiante${data.totalInscritos !== 1 ? 's' : ''} inscrito${data.totalInscritos !== 1 ? 's' : ''}</span>
+          ${data.cupos ? `<span>Cupos: ${data.cupos}</span>` : ''}
+        </div>
+      `;
+    }
+
     // ===== ADMIN: View As =====
     async function checkAdmin() {
       try {
@@ -858,6 +1006,7 @@
       ucampusLoaded = false;
       ucampusData = null;
       historialLoaded = false;
+      Object.keys(studentCache).forEach(k => delete studentCache[k]);
 
       fetchCourses();
       if (activeMainTab === 'ucampus') fetchUCampus();

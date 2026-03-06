@@ -473,8 +473,8 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
       ...inscritos.map(i => i.raw_data?.codigo).filter(Boolean)
     ])];
 
-    // Step 4: Batch fetch ramos, cursos, horarios
-    const [ramos, cursos, horarios, carrAlumnos] = await Promise.all([
+    // Step 4: Batch fetch ramos, cursos, horarios, inscritos count
+    const [ramos, cursos, horarios, carrAlumnos, allInscritos] = await Promise.all([
       ramoCodes.length > 0
         ? supabaseQuery('ramos', `codigo=in.(${ramoCodes.map(c => `"${c}"`).join(',')})`)
         : [],
@@ -486,6 +486,11 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
         : [],
       inscritos.length > 0
         ? supabaseQuery('carreras_alumnos', `rut=eq.${encodeURIComponent(rut)}`).catch(() => [])
+        : [],
+      // Count real inscritos per course for docente view
+      dictados.length > 0
+        ? supabaseQuery('cursos_inscritos', `id_curso=in.(${dictados.map(d => d.id_curso).filter(Boolean).join(',')})&select=id_curso,rut`)
+            .catch(() => [])
         : []
     ]);
 
@@ -498,6 +503,11 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     horarios.forEach(h => {
       if (!horarioMap[h.id_curso]) horarioMap[h.id_curso] = [];
       horarioMap[h.id_curso].push(h);
+    });
+    // Count real inscritos per course
+    const inscritosCountMap = {};
+    allInscritos.forEach(i => {
+      inscritosCountMap[i.id_curso] = (inscritosCountMap[i.id_curso] || 0) + 1;
     });
 
     // Step 5: Get carrera name
@@ -518,19 +528,26 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
     // Step 6: Build response — fields are in raw_data, not top-level columns
     const asDocente = {
       total: dictados.length,
+      totalEstudiantes: Object.values(inscritosCountMap).reduce((s, n) => s + n, 0),
       secciones: dictados.map(d => {
         const rd = d.raw_data || {};
         const codigo = rd.codigo || '';
         const ramo = ramoMap[codigo] || {};
         const curso = cursoMap[d.id_curso] || {};
+        const crd = curso.raw_data || {};
+        const realInscritos = inscritosCountMap[d.id_curso] || 0;
         return {
           idCurso: d.id_curso,
           codigoRamo: codigo,
           nombreRamo: ramo.nombre || rd.nombre || '',
           seccion: rd.seccion || curso.seccion || null,
-          inscritos: curso.inscritos || curso.cupos || null,
+          inscritos: realInscritos,
+          cupos: curso.cupos || parseInt(crd.cupo) || null,
           rol: d.rol || rd.cargo || 'Docente',
           horario: formatHorario(horarioMap[d.id_curso]),
+          departamento: crd.departamento || null,
+          modalidad: crd.modalidad || null,
+          creditos: { ud: parseInt(rd.ud) || null, sct: parseInt(rd.sct) || null },
           ucampusUrl: `https://ucampus.umce.cl`
         };
       })
@@ -548,7 +565,7 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
           nombreRamo: ramo.nombre || rd.nombre || '',
           seccion: rd.seccion || null,
           notaFinal: rd.nota_final != null ? parseFloat(rd.nota_final) : null,
-          estado: rd.estado_texto || null,
+          estado: rd.estado_texto || i.estado || null,
           ucampusUrl: `https://ucampus.umce.cl`
         };
       })
@@ -566,6 +583,77 @@ app.get('/api/ucampus', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('UCampus API error:', err.message);
     res.json({ found: false, error: err.message });
+  }
+});
+
+// --- API: UCampus section detail — student list (authenticated, admin only) ---
+app.get('/api/ucampus/seccion/:idCurso', authMiddleware, async (req, res) => {
+  if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'UCampus no configurado' });
+
+  const { email } = resolveTargetEmail(req);
+  const idCurso = req.params.idCurso;
+
+  try {
+    // Verify the requesting user (or impersonated user) is a docente of this section
+    const persona = await supabaseQuery('personas', `email=eq.${encodeURIComponent(email)}&limit=1`);
+    if (!persona || persona.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const rut = persona[0].rut;
+    const isDocente = await supabaseQuery('cursos_dictados', `rut=eq.${encodeURIComponent(rut)}&id_curso=eq.${idCurso}&limit=1`);
+
+    // Allow admin or docente of this section
+    if (!isAdmin(req.userEmail) && (!isDocente || isDocente.length === 0)) {
+      return res.status(403).json({ error: 'No autorizado para ver esta sección' });
+    }
+
+    // Get course info
+    const cursoArr = await supabaseQuery('cursos', `id_curso=eq.${idCurso}&limit=1`);
+    const curso = cursoArr[0] || {};
+    const crd = curso.raw_data || {};
+
+    // Get all inscritos for this section
+    const estudiantesRaw = await supabaseQuery('cursos_inscritos', `id_curso=eq.${idCurso}&select=rut,estado,nota_final,raw_data`);
+
+    // Batch fetch persona data for all student RUTs
+    const studentRuts = [...new Set(estudiantesRaw.map(e => e.rut).filter(Boolean))];
+    let personasMap = {};
+    if (studentRuts.length > 0) {
+      // PostgREST has URL length limits, batch in groups of 50
+      for (let i = 0; i < studentRuts.length; i += 50) {
+        const batch = studentRuts.slice(i, i + 50);
+        const personas = await supabaseQuery('personas', `rut=in.(${batch.join(',')})&select=rut,nombres,apellido1,apellido2,email`);
+        personas.forEach(p => { personasMap[p.rut] = p; });
+      }
+    }
+
+    // Build student list
+    const estudiantes = estudiantesRaw.map(e => {
+      const p = personasMap[e.rut] || {};
+      const rd = e.raw_data || {};
+      return {
+        rut: e.rut,
+        nombre: p.nombres ? `${p.nombres} ${p.apellido1 || ''} ${p.apellido2 || ''}`.trim() : null,
+        email: p.email || null,
+        estado: rd.estado_final || e.estado || 'Inscrito',
+        notaFinal: rd.nota_final && parseFloat(rd.nota_final) > 0 ? parseFloat(rd.nota_final) : null
+      };
+    }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+
+    res.json({
+      idCurso,
+      codigoRamo: crd.codigo || '',
+      nombreRamo: crd.nombre || '',
+      seccion: crd.seccion || curso.seccion || null,
+      departamento: crd.departamento || null,
+      modalidad: crd.modalidad || null,
+      cupos: curso.cupos || parseInt(crd.cupo) || null,
+      totalInscritos: estudiantes.length,
+      estudiantes
+    });
+
+  } catch (err) {
+    console.error('UCampus seccion error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
