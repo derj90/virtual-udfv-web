@@ -265,6 +265,8 @@
       width: 40px;
       height: 22px;
       flex-shrink: 0;
+      display: block;
+      cursor: pointer;
     }
     .a11y-toggle input {
       opacity: 0;
@@ -417,17 +419,17 @@
       </div>
       <div class="a11y-row">
         <label for="a11y-dyslexia">Fuente para dislexia</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-dyslexia">
           <input type="checkbox" id="a11y-dyslexia">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
       <div class="a11y-row">
         <label for="a11y-spacing">Espaciado amplio</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-spacing">
           <input type="checkbox" id="a11y-spacing">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
     </div>
 
@@ -438,24 +440,24 @@
       </div>
       <div class="a11y-row">
         <label for="a11y-links">Resaltar enlaces</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-links">
           <input type="checkbox" id="a11y-links">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
       <div class="a11y-row">
         <label for="a11y-cursor">Cursor grande</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-cursor">
           <input type="checkbox" id="a11y-cursor">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
       <div class="a11y-row">
         <label for="a11y-ruler">Gu&iacute;a de lectura</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-ruler">
           <input type="checkbox" id="a11y-ruler">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
     </div>
 
@@ -466,10 +468,10 @@
       </div>
       <div class="a11y-row">
         <label for="a11y-animations">Pausar animaciones</label>
-        <div class="a11y-toggle">
+        <label class="a11y-toggle" for="a11y-animations">
           <input type="checkbox" id="a11y-animations">
           <span class="slider"></span>
-        </div>
+        </label>
       </div>
     </div>
 
