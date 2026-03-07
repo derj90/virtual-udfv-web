@@ -24,10 +24,14 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif
 .stagger > .fade-up:nth-child(5) { transition-delay: 0.4s; }
 .stagger > .fade-up:nth-child(6) { transition-delay: 0.5s; }
 
-/* Hero gradient */
+/* Hero gradient (fallback for pages without generative art) */
 .hero-gradient {
   background: linear-gradient(to bottom, rgba(0,51,161,0.92) 0%, rgba(0,34,128,0.96) 60%, #002280 100%);
 }
+
+/* Generative art hero canvas */
+#p5-hero { position: absolute; inset: 0; z-index: 0; }
+#p5-hero canvas { display: block; width: 100% !important; height: 100% !important; }
 
 /* Card hover */
 .card-hover {
