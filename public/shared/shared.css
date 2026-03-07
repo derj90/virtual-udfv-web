@@ -33,6 +33,10 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif
 #p5-hero { position: absolute; inset: 0; z-index: 0; }
 #p5-hero canvas { display: block; width: 100% !important; height: 100% !important; }
 
+/* Generative art header canvas (interior pages — static render) */
+#p5-header { position: absolute; inset: 0; z-index: 0; }
+#p5-header canvas { display: block; width: 100% !important; height: 100% !important; }
+
 /* Card hover */
 .card-hover {
   transition: transform 0.2s ease, box-shadow 0.2s ease;

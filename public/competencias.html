@@ -40,7 +40,7 @@
 
   <!-- Hero -->
   <section class="hero-gradient pt-28 pb-16 text-white relative overflow-hidden">
-    <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+    <div id="p5-header" data-variant="3"></div>
     <div class="max-w-7xl mx-auto px-6 relative z-10">
       <nav class="breadcrumb text-sm mb-6">
         <a href="/" class="text-white/60 hover:text-white">Inicio</a>
@@ -238,6 +238,8 @@
 
   <script src="/shared/shared.js"></script>
   <script src="/shared/chatbot.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js" defer></script>
+  <script src="/shared/generative-header.js" defer></script>
   <script>
     // Load resources from API
     async function loadResources() {

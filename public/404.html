@@ -18,12 +18,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/shared/tailwind-config.js"></script>
   <link rel="stylesheet" href="/shared/shared.css">
+  <style>
+    /* 404 full-page generative canvas */
+    #p5-404 { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    #p5-404 canvas { display: block; width: 100% !important; height: 100% !important; }
+  </style>
 </head>
 <body class="bg-white text-gray-900 antialiased">
+  <!-- Generative background — full page, very subtle -->
+  <div id="p5-404"></div>
 
-  <div id="nav-placeholder"></div>
+  <div id="nav-placeholder" style="position:relative;z-index:10;"></div>
 
-  <main class="min-h-[80vh] flex items-center justify-center pt-24 pb-16">
+  <main class="min-h-[80vh] flex items-center justify-center pt-24 pb-16" style="position:relative;z-index:10;">
     <div class="max-w-lg mx-auto px-6 text-center">
       <div class="text-8xl font-heading font-extrabold text-umce-azul/10 mb-4">404</div>
       <h1 class="font-heading text-3xl font-bold text-gray-900 mb-4">P&aacute;gina no encontrada</h1>
@@ -58,11 +65,99 @@
     </div>
   </main>
 
-  <div id="footer-placeholder"></div>
-  <div id="chatbot-placeholder"></div>
+  <div id="footer-placeholder" style="position:relative;z-index:10;"></div>
+  <div id="chatbot-placeholder" style="position:relative;z-index:10;"></div>
 
   <script src="/shared/shared.js"></script>
   <script src="/shared/chatbot.js" defer></script>
   <script src="/accesibilidad-dua.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js" defer></script>
+  <!-- Generative background for 404 — variant 3 (Sinapsis/nodes) on white bg -->
+  <script defer>
+    (function() {
+      function boot404() {
+        if (typeof p5 === 'undefined') {
+          if (boot404.attempts < 20) { boot404.attempts++; setTimeout(boot404, 200); }
+          return;
+        }
+        let el = document.getElementById('p5-404');
+        if (!el) return;
+
+        const AZUL       = [0, 51, 161];
+        const AZUL_LIGHT = [80, 120, 210];
+        const AMARILLO   = [255, 158, 24];
+
+        new p5(function(p) {
+          p.setup = function() {
+            let canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+            canvas.parent('p5-404');
+            p.pixelDensity(1);
+            drawBackground();
+            p.noLoop();
+          };
+
+          function drawBackground() {
+            p.clear();
+            let nodes = [];
+            let clusterCenters = [];
+            for (let c = 0; c < 7; c++) {
+              clusterCenters.push({ x: p.random(p.width), y: p.random(p.height) });
+            }
+            for (let i = 0; i < 90; i++) {
+              let cluster = clusterCenters[p.floor(p.random(clusterCenters.length))];
+              let inCluster = p.random() < 0.6;
+              nodes.push({
+                x: inCluster ? cluster.x + p.randomGaussian() * p.width * 0.10 : p.random(p.width),
+                y: inCluster ? cluster.y + p.randomGaussian() * p.height * 0.10 : p.random(p.height),
+                r: p.random(1.0, 2.8),
+                isGold: p.random() < 0.10
+              });
+            }
+            // Draw connections
+            let cd = 130;
+            for (let i = 0; i < nodes.length; i++) {
+              for (let j = i + 1; j < nodes.length; j++) {
+                let d = p.dist(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
+                if (d < cd) {
+                  let alpha = p.map(d, 0, cd, 9, 0);
+                  let col = (nodes[i].isGold || nodes[j].isGold) ? AMARILLO : AZUL;
+                  p.stroke(col[0], col[1], col[2], alpha);
+                  p.strokeWeight(0.4);
+                  p.line(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
+                }
+              }
+            }
+            // Draw nodes
+            p.noStroke();
+            for (let nd of nodes) {
+              let col = nd.isGold ? AMARILLO : AZUL;
+              p.fill(col[0], col[1], col[2], 5);
+              p.circle(nd.x, nd.y, nd.r * 10);
+              p.fill(col[0], col[1], col[2], nd.isGold ? 18 : 10);
+              p.circle(nd.x, nd.y, nd.r * 2);
+            }
+          }
+
+          p.windowResized = function() {
+            p.resizeCanvas(window.innerWidth, window.innerHeight);
+            drawBackground();
+            p.noLoop();
+          };
+        });
+      }
+      boot404.attempts = 0;
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot404);
+      } else {
+        boot404();
+      }
+    })();
+  </script>
+  <script>
+    setTimeout(function() {
+      document.getElementById('chat-fab')?.click();
+    }, 3000);
+  </script>
 </body>
 </html>
