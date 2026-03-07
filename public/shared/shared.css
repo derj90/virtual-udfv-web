@@ -2,9 +2,8 @@
    UMCE Virtual — Shared Styles
    ============================================== */
 
-body { font-family: 'DM Sans', system-ui, sans-serif; }
-h1, h2 { font-family: 'DM Serif Display', Georgia, serif; }
-h3, h4, h5, h6 { font-family: 'DM Sans', system-ui, sans-serif; font-weight: 700; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+h1, h2, h3, h4, h5, h6 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 
 /* Scroll animations */
 .fade-up {

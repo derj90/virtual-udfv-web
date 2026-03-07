@@ -14,9 +14,8 @@ tailwind.config = {
         'umce-rojo': '#90120D',
       },
       fontFamily: {
-        'heading': ['"DM Serif Display"', 'Georgia', 'serif'],
-        'heading-sans': ['"DM Sans"', 'system-ui', 'sans-serif'],
-        'body': ['"DM Sans"', 'system-ui', 'sans-serif'],
+        'heading': ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        'body': ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },
