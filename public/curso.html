@@ -3,7 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Curso — UMCE Virtual</title>
+  <!-- === SEO base — curso.html === -->
+  <!-- Nota: title, og:title, og:description y canonical se actualizan dinamicamente via JS -->
+  <title>Curso Online para Docentes — UMCE Virtual</title>
+  <meta name="description" content="Cursos online en competencias digitales, inteligencia artificial y pedagogia para docentes. Formacion continua con certificacion. Universidad Metropolitana de Ciencias de la Educacion.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://virtual.udfv.cloud/curso/">
+  <!-- Open Graph base (actualizar con JS) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://virtual.udfv.cloud/curso/">
+  <meta property="og:title" content="Curso Online para Docentes — UMCE Virtual">
+  <meta property="og:description" content="Cursos en competencias digitales, IA y pedagogia para docentes. Formacion continua con certificacion UMCE.">
+  <meta property="og:image" content="https://virtual.udfv.cloud/assets/og-default.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="UMCE Virtual">
+  <meta property="og:locale" content="es_CL">
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Curso Online para Docentes — UMCE Virtual">
+  <meta name="twitter:description" content="Cursos en competencias digitales e IA para docentes. UMCE.">
+  <meta name="twitter:image" content="https://virtual.udfv.cloud/assets/og-default.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -52,6 +72,28 @@
         const c = await resp.json();
 
         document.title = `${c.title} — UMCE Virtual`;
+        // Actualizar meta tags SEO dinamicamente
+        document.querySelector('meta[name="description"]')?.setAttribute('content',
+          `${UMCE.truncate(UMCE.stripHtml(c.description || ''), 150)} — Curso online UMCE Virtual.`
+        );
+        document.querySelector('link[rel="canonical"]')?.setAttribute('href',
+          `https://virtual.udfv.cloud/curso/${c.slug}`
+        );
+        document.querySelector('meta[property="og:url"]')?.setAttribute('content',
+          `https://virtual.udfv.cloud/curso/${c.slug}`
+        );
+        document.querySelector('meta[property="og:title"]')?.setAttribute('content',
+          `${c.title} — UMCE Virtual`
+        );
+        document.querySelector('meta[property="og:description"]')?.setAttribute('content',
+          UMCE.truncate(UMCE.stripHtml(c.description || ''), 150)
+        );
+        document.querySelector('meta[name="twitter:title"]')?.setAttribute('content',
+          `${c.title} — UMCE Virtual`
+        );
+        document.querySelector('meta[name="twitter:description"]')?.setAttribute('content',
+          UMCE.truncate(UMCE.stripHtml(c.description || ''), 150)
+        );
         document.getElementById('breadcrumb-title').textContent = UMCE.truncate(c.title, 50);
 
         const moodleUrl = c.moodle_course_id && c.moodle_platform

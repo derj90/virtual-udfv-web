@@ -3,7 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- === SEO base — programa.html === -->
+  <!-- Nota: title, og:title, og:description y canonical se actualizan dinamicamente via JS -->
   <title>Programa — UMCE Virtual</title>
+  <meta name="description" content="Diplomado y rutas formativas en competencias digitales, pedagogia e inteligencia artificial para docentes. Universidad Metropolitana de Ciencias de la Educacion.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://virtual.udfv.cloud/programa/">
+  <!-- Open Graph base (actualizar con JS) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://virtual.udfv.cloud/programa/">
+  <meta property="og:title" content="Programa — UMCE Virtual">
+  <meta property="og:description" content="Diplomados y rutas formativas para docentes UMCE. Formacion online en competencias digitales e inteligencia artificial.">
+  <meta property="og:image" content="https://virtual.udfv.cloud/assets/og-default.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="UMCE Virtual">
+  <meta property="og:locale" content="es_CL">
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Programa — UMCE Virtual">
+  <meta name="twitter:description" content="Diplomados y rutas formativas para docentes UMCE.">
+  <meta name="twitter:image" content="https://virtual.udfv.cloud/assets/og-default.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -66,6 +86,28 @@
         const p = await resp.json();
 
         document.title = `${p.title} — UMCE Virtual`;
+        // Actualizar meta tags SEO dinamicamente
+        document.querySelector('meta[name="description"]')?.setAttribute('content',
+          `${UMCE.truncate(UMCE.stripHtml(p.description || ''), 150)} — ${UMCE.typeLabel(p.type)} UMCE Virtual.`
+        );
+        document.querySelector('link[rel="canonical"]')?.setAttribute('href',
+          `https://virtual.udfv.cloud/programa/${p.slug}`
+        );
+        document.querySelector('meta[property="og:url"]')?.setAttribute('content',
+          `https://virtual.udfv.cloud/programa/${p.slug}`
+        );
+        document.querySelector('meta[property="og:title"]')?.setAttribute('content',
+          `${p.title} — UMCE Virtual`
+        );
+        document.querySelector('meta[property="og:description"]')?.setAttribute('content',
+          UMCE.truncate(UMCE.stripHtml(p.description || ''), 150)
+        );
+        document.querySelector('meta[name="twitter:title"]')?.setAttribute('content',
+          `${p.title} — UMCE Virtual`
+        );
+        document.querySelector('meta[name="twitter:description"]')?.setAttribute('content',
+          UMCE.truncate(UMCE.stripHtml(p.description || ''), 150)
+        );
         document.getElementById('breadcrumb-title').textContent = UMCE.truncate(p.title, 40);
 
         // Hero
@@ -221,7 +263,17 @@
                   Inscribirme
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-              ` : ''}
+              ` : `
+                <div class="mt-6 bg-umce-azul-light/20 border border-umce-azul/20 rounded-xl p-5 text-center">
+                  <p class="text-umce-azul-dark font-semibold text-sm mb-1">¿Te interesa este programa?</p>
+                  <p class="text-gray-600 text-xs mb-4">Escríbenos para recibir información sobre próximas cohortes e inscripción.</p>
+                  <a href="mailto:udfv@umce.cl?subject=Consulta%20sobre%20${encodeURIComponent(p.title)}"
+                     class="inline-flex items-center justify-center gap-2 bg-umce-amarillo text-umce-azul-dark font-heading font-bold text-sm px-6 py-3 rounded-lg hover:bg-yellow-400 transition-colors w-full">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Consultar por este programa
+                  </a>
+                </div>
+              `}
 
               <a href="/catalogo" class="mt-3 w-full inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-600 font-heading font-semibold text-sm px-6 py-3 rounded-lg hover:border-umce-azul hover:text-umce-azul transition-colors">
                 Ver m&aacute;s programas

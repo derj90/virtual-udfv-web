@@ -3,7 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo — UMCE Virtual</title>
+  <!-- === SEO — catalogo.html === -->
+  <title>Catalogo de Cursos y Diplomados para Docentes — UMCE Virtual</title>
+  <meta name="description" content="Explora diplomados, cursos abiertos y rutas formativas en competencias digitales, inteligencia artificial y pedagogia. Formacion continua para docentes UMCE en modalidad online.">
+  <meta name="keywords" content="catalogo cursos docentes online, diplomado pedagogia digital, cursos IA educacion, formacion continua docentes Chile, rutas formativas UMCE">
+  <meta name="author" content="Unidad de Desarrollo y Formacion Virtual — UMCE">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://virtual.udfv.cloud/catalogo">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://virtual.udfv.cloud/catalogo">
+  <meta property="og:title" content="Catalogo de Cursos y Diplomados para Docentes — UMCE Virtual">
+  <meta property="og:description" content="Diplomados, cursos abiertos y rutas formativas en competencias digitales, IA y pedagogia. Formacion continua para docentes en modalidad online.">
+  <meta property="og:image" content="https://virtual.udfv.cloud/assets/og-catalogo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Catalogo UMCE Virtual — Cursos y Diplomados para Docentes">
+  <meta property="og:site_name" content="UMCE Virtual">
+  <meta property="og:locale" content="es_CL">
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Catalogo de Cursos y Diplomados para Docentes — UMCE Virtual">
+  <meta name="twitter:description" content="Diplomados, cursos y rutas formativas en competencias digitales e IA para docentes UMCE.">
+  <meta name="twitter:image" content="https://virtual.udfv.cloud/assets/og-catalogo.png">
+  <meta name="twitter:image:alt" content="Catalogo UMCE Virtual">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -131,6 +154,13 @@
         class="mt-6 px-6 py-2.5 bg-umce-azul text-white text-sm font-semibold rounded-xl hover:bg-umce-azul-dark transition-colors"
       >
         Ver todos los cursos
+      </button>
+      <p class="mt-4 text-gray-400 text-sm">¿No encuentras lo que buscas?</p>
+      <button
+        onclick="document.getElementById('chat-fab') && document.getElementById('chat-fab').click()"
+        class="mt-2 inline-flex items-center gap-2 text-umce-azul font-medium text-sm hover:underline"
+      >
+        Pregúntale al asistente IA →
       </button>
     </div>
   </main>
