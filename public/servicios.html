@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- === SEO — servicios.html === -->
   <title>Servicios UDFV | Plataformas Educativas y Asesoria Pedagogica UMCE</title>
-  <meta name="description" content="Conoce los servicios de la Unidad de Desarrollo y Formacion Virtual UMCE: 5 plataformas Moodle, Dashboard Docente LTI, Asistente IA, Learning Record Store xAPI y asesoria pedagogica.">
+  <meta name="description" content="Conoce los servicios de la Unidad de Desarrollo y Formacion Virtual UMCE: plataformas de aprendizaje en linea, dashboard docente, asistente virtual, seguimiento de progreso y asesoria pedagogica personalizada para docentes y estudiantes.">
   <meta name="keywords" content="servicios UDFV, plataformas Moodle UMCE, dashboard docente LTI, asistente IA Telegram, xAPI LRS educacion, asesoria pedagogica virtual">
   <meta name="author" content="Unidad de Desarrollo y Formacion Virtual — UMCE">
   <meta name="robots" content="index, follow">
@@ -14,7 +14,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://virtual.udfv.cloud/servicios">
   <meta property="og:title" content="Servicios UDFV | Plataformas Educativas y Asesoria Pedagogica UMCE">
-  <meta property="og:description" content="5 plataformas Moodle, Dashboard Docente LTI, Asistente IA 24/7, LRS xAPI y asesoria pedagogica personalizada para la comunidad academica UMCE.">
+  <meta property="og:description" content="Plataformas de aprendizaje en linea, dashboard docente, asistente virtual 24/7, seguimiento de progreso y asesoria pedagogica personalizada para la comunidad academica UMCE.">
   <meta property="og:image" content="https://virtual.udfv.cloud/assets/og-servicios.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -24,12 +24,12 @@
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Servicios UDFV — Plataformas Educativas UMCE">
-  <meta name="twitter:description" content="5 plataformas Moodle, Dashboard LTI, Asistente IA y asesoria pedagogica para docentes UMCE.">
+  <meta name="twitter:description" content="Plataformas de aprendizaje, dashboard docente, asistente virtual y asesoria pedagogica para docentes UMCE.">
   <meta name="twitter:image" content="https://virtual.udfv.cloud/assets/og-servicios.png">
   <meta name="twitter:image:alt" content="Servicios UDFV UMCE">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/shared/tailwind-config.js"></script>
   <link rel="stylesheet" href="/shared/shared.css">
@@ -232,15 +232,23 @@
     }
 
     function renderFallbackTeam() {
-      return `
+      const members = [
+        { name: 'David Reyes Jofr\u00e9', role: 'Coordinador UDFV' },
+        { name: 'Salom\u00e9 Cubillos', role: 'Formaci\u00f3n TIC' },
+        { name: 'Patricia Toro', role: 'Dise\u00f1o de cursos virtuales' },
+        { name: 'Rodrigo Zamorano', role: 'Dise\u00f1o de cursos virtuales' },
+        { name: 'Ismael Hidalgo', role: 'Analista metodol\u00f3gico' },
+        { name: 'Carlos P\u00e9rez', role: 'Salas tecnol\u00f3gicas' },
+      ];
+      return members.map(m => `
         <div class="fade-up bg-white rounded-xl p-6 text-center border border-gray-100">
           <div class="w-20 h-20 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
-            <span class="text-2xl font-heading font-bold text-gray-300">D</span>
+            <span class="text-2xl font-heading font-bold text-gray-300">${m.name.charAt(0)}</span>
           </div>
-          <h3 class="font-heading font-bold text-base">David Reyes</h3>
-          <p class="text-umce-azul text-sm font-medium">Coordinador UDFV</p>
+          <h3 class="font-heading font-bold text-base">${m.name}</h3>
+          <p class="text-umce-azul text-sm font-medium">${m.role}</p>
         </div>
-      `;
+      `).join('');
     }
 
     loadTeam();
