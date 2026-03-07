@@ -423,10 +423,34 @@
     };
   };
 
-  // Iniciar cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { new p5(heroSketch); });
-  } else {
-    new p5(heroSketch);
+  // Instancia activa de p5
+  let instance = null;
+
+  function boot() {
+    if (typeof p5 === 'undefined') {
+      if (boot.attempts < 25) { boot.attempts++; setTimeout(boot, 200); }
+      return;
+    }
+    // Evitar instancias duplicadas
+    if (instance) { instance.remove(); instance = null; }
+    // Asegurarse de que el contenedor tenga dimensiones
+    let el = document.getElementById('p5-hero');
+    if (!el || el.offsetWidth === 0) {
+      if (boot.attempts < 25) { boot.attempts++; setTimeout(boot, 200); }
+      return;
+    }
+    instance = new p5(heroSketch);
   }
+  boot.attempts = 0;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  // Re-iniciar al volver desde bfcache (navegación atrás/adelante)
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) { boot.attempts = 0; boot(); }
+  });
 })();
