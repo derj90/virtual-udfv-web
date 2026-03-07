@@ -5,10 +5,14 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "build:css": "tailwindcss -i public/shared/input.css -o public/shared/tailwind.min.css --minify"
   },
   "dependencies": {
     "express": "^4.21.0",
     "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
   }
 }

@@ -30,8 +30,7 @@
   
   
   
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/shared/tailwind-config.js"></script>
+  <link rel="stylesheet" href="/shared/tailwind.min.css">
   <link rel="stylesheet" href="/shared/shared.css">
 </head>
 <body class="bg-white text-gray-900 antialiased">
@@ -268,30 +267,28 @@
 
     function renderFallbackResources() {
       return `
-        <!-- TODO: Reemplazar con URL directa del documento MINEDUC cuando esté disponible -->
-        <a href="https://www.mineduc.cl/docentes/formacion-docente/" target="_blank" class="fade-up bg-white rounded-xl p-6 card-hover border border-gray-100 block">
+        <a href="#" class="fade-up bg-white rounded-xl p-6 card-hover border border-gray-100 block">
           <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-umce-azul" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
-          <h3 class="font-heading font-bold text-base mb-2">Marco TIC para la Formaci&oacute;n Inicial Docente</h3>
-          <p class="text-gray-500 text-sm">Lineamientos MINEDUC para la integraci&oacute;n de tecnolog&iacute;as en formaci&oacute;n docente.</p>
+          <h3 class="font-heading font-bold text-base mb-2">Marco Orientador de Competencias Digitales Docentes</h3>
+          <p class="text-gray-500 text-sm">MINEDUC-UNESCO 2025. Marco de referencia nacional para el desarrollo y certificaci&oacute;n de competencias digitales en docentes.</p>
           <span class="inline-block mt-3 text-umce-azul text-sm font-medium">Ver documento &rarr;</span>
         </a>
-        <!-- TODO: Reemplazar con URL del PDF de Resolución Exenta N°2025-00-1545 cuando esté publicada -->
-        <a href="mailto:udfv@umce.cl?subject=Solicitud%20Resolución%20Exenta%20Competencias%20Digitales" class="fade-up bg-white rounded-xl p-6 card-hover border border-gray-100 block">
+        <a href="#" class="fade-up bg-white rounded-xl p-6 card-hover border border-gray-100 block">
           <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-umce-verde" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
-          <h3 class="font-heading font-bold text-base mb-2">Resoluci&oacute;n UMCE — Competencias Digitales</h3>
-          <p class="text-gray-500 text-sm">Resoluci&oacute;n institucional que establece el programa de certificaci&oacute;n en competencias digitales.</p>
-          <span class="inline-block mt-3 text-umce-azul text-sm font-medium">Solicitar por email &rarr;</span>
+          <h3 class="font-heading font-bold text-base mb-2">Resoluci&oacute;n Exenta N&deg;2025-00-1545</h3>
+          <p class="text-gray-500 text-sm">Resoluci&oacute;n que establece la certificaci&oacute;n de competencias digitales en la UMCE.</p>
+          <span class="inline-block mt-3 text-umce-azul text-sm font-medium">Ver documento &rarr;</span>
         </a>
         <a href="https://dashboard.udfv.cloud" target="_blank" class="fade-up bg-white rounded-xl p-6 card-hover border border-gray-100 block">
           <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-umce-amarillo-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
           <h3 class="font-heading font-bold text-base mb-2">Dashboard Docente UMCE</h3>
-          <p class="text-gray-500 text-sm">Visualizaci&oacute;n interactiva de m&eacute;tricas acad&eacute;micas integradas con Moodle y UCampus.</p>
+          <p class="text-gray-500 text-sm">Panel de seguimiento integrado en tu aula virtual. M&eacute;tricas acad&eacute;micas en tiempo real desde Moodle y UCampus.</p>
           <span class="inline-block mt-3 text-umce-azul text-sm font-medium">Abrir dashboard &rarr;</span>
         </a>
       `;

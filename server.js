@@ -866,7 +866,16 @@ app.get('/api/news', async (req, res) => {
     params.push('order=published_at.desc');
     params.push(`limit=${parseInt(limit)}`);
     params.push(`offset=${parseInt(offset)}`);
-    const data = await portalQuery('news', params.join('&'));
+    let data = await portalQuery('news', params.join('&'));
+    // Filter out test/fake content that should not appear in production
+    data = data.filter(item => {
+      const title = (item.title || '').toLowerCase();
+      const body = (item.body || item.content || item.excerpt || '').toLowerCase();
+      if (title.includes('[prueba]') || title.includes('[test]')) return false;
+      if (body.includes('noticia ficticia') || body.includes('noticia de prueba')) return false;
+      if (title.includes('ji') && title.trim().length <= 20) return false; // catches "empezamos el año ji"
+      return true;
+    });
     res.json(data);
   } catch (err) {
     console.error('News error:', err.message);

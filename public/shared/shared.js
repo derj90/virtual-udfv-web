@@ -6,6 +6,9 @@
 (function () {
   'use strict';
 
+  // Enable fade-up animations (content visible by default for crawlers/print)
+  document.documentElement.classList.add('js-loaded');
+
   // ==========================================
   // Partial Loader
   // ==========================================
