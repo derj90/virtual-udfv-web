@@ -173,6 +173,7 @@ function enrichCourse(c, platform) {
     id: c.id,
     fullname: c.fullname,
     shortname: c.shortname,
+    format: c.format || null,
     summary: (c.summary || '').replace(/<[^>]*>/g, '').substring(0, 200),
     startdate: c.startdate ? new Date(c.startdate * 1000).toISOString().split('T')[0] : null,
     enddate: c.enddate && c.enddate > 0 ? new Date(c.enddate * 1000).toISOString().split('T')[0] : null,
@@ -182,6 +183,34 @@ function enrichCourse(c, platform) {
     courseUrl: `${platform.url}/course/view.php?id=${c.id}`,
     platform: { id: platform.id, name: platform.name, color: platform.color, url: platform.url }
   };
+}
+
+// --- Detect singleactivity URL courses that redirect to another platform ---
+async function resolveRedirects(courses, sourcePlatform) {
+  const redirectCourses = courses.filter(c => c.format === 'singleactivity');
+  if (redirectCourses.length === 0) return courses;
+
+  await Promise.all(redirectCourses.map(async (course) => {
+    try {
+      const contents = await moodleCall(sourcePlatform, 'core_course_get_contents', { courseid: course.id });
+      // Find URL module in first section
+      const firstSection = contents && contents[0];
+      if (!firstSection || !firstSection.modules) return;
+      const urlMod = firstSection.modules.find(m => m.modname === 'url' && m.contents && m.contents[0]);
+      if (!urlMod) return;
+      const targetUrl = urlMod.contents[0].fileurl;
+      if (!targetUrl) return;
+      // Check if target URL matches another platform
+      const targetPlatform = PLATFORMS.find(p => p.url && targetUrl.startsWith(p.url) && p.id !== sourcePlatform.id);
+      if (targetPlatform) {
+        course.courseUrl = targetUrl;
+        course.platform = { id: targetPlatform.id, name: targetPlatform.name, color: targetPlatform.color, url: targetPlatform.url };
+      }
+    } catch (e) {
+      // Silently ignore — keep original platform
+    }
+  }));
+  return courses;
 }
 
 function isActive2026(c) {
@@ -219,6 +248,8 @@ async function queryAllPlatforms(email, filterFn) {
 
         const courses = await getUserCourses(platform, user.id);
         const filtered = filterFn(courses, platform);
+        // Detect singleactivity URL courses redirecting to another platform
+        await resolveRedirects(filtered, platform);
 
         return {
           platform: platform.id,
