@@ -175,9 +175,9 @@
               '<div class="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center text-xs font-bold" style="color: #001D5C;">' + initial + '</div>' +
               firstName +
             '</a>' +
-            '<a href="/auth/logout" class="hidden sm:inline-flex items-center text-white/60 hover:text-white text-xs transition-colors" title="Cerrar sesión">' +
-              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>' +
-            '</a>';
+            '<button onclick="if(confirm(\'¿Cerrar sesión?\'))window.location=\'/auth/logout\'" class="hidden sm:inline-flex items-center text-white/50 hover:text-white/90 text-[11px] transition-colors cursor-pointer bg-transparent border-0 px-2 py-1">' +
+              'Salir' +
+            '</button>';
         }
       }
 
@@ -190,11 +190,11 @@
             '<div class="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center text-xs font-bold" style="color: #001D5C;">' + initial + '</div> ' +
             'Mis cursos';
         }
-        // Add logout link
-        const logoutLink = document.createElement('a');
-        logoutLink.href = '/auth/logout';
-        logoutLink.className = 'py-2 text-white/60 hover:text-white text-sm';
+        // Add logout link with confirmation
+        const logoutLink = document.createElement('button');
+        logoutLink.className = 'py-2 text-white/50 hover:text-white text-sm text-left bg-transparent border-0 cursor-pointer';
         logoutLink.textContent = 'Cerrar sesión';
+        logoutLink.onclick = function() { if (confirm('¿Cerrar sesión?')) window.location = '/auth/logout'; };
         mobileMenu.appendChild(logoutLink);
       }
     } catch { /* not logged in — keep default nav */ }
