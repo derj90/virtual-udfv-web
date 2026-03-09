@@ -58,18 +58,27 @@
       }
     });
 
-    // Nav shrink + glass-to-solid on scroll
+    // Nav: glass over dark hero, solid on other pages or after scroll
+    const hasHero = !!document.querySelector('[data-hero-bg]');
+    const solidBg = 'rgba(17,24,39,0.97)';
+    const glassBg = 'rgba(0,0,0,0.15)';
+
+    function setNavBg(bg) {
+      navbar.style.background = bg;
+      navbar.style.backdropFilter = 'blur(12px)';
+      navbar.style.webkitBackdropFilter = 'blur(12px)';
+    }
+
+    // Pages without hero: always solid dark
+    if (!hasHero) setNavBg(solidBg);
+
     function onScroll() {
       if (window.scrollY > 80) {
         navbar.classList.add('nav-scrolled');
-        navbar.style.background = 'rgba(17,24,39,0.95)';
-        navbar.style.backdropFilter = 'blur(12px)';
-        navbar.style.webkitBackdropFilter = 'blur(12px)';
+        setNavBg(solidBg);
       } else {
         navbar.classList.remove('nav-scrolled');
-        navbar.style.background = 'rgba(0,0,0,0.15)';
-        navbar.style.backdropFilter = 'blur(12px)';
-        navbar.style.webkitBackdropFilter = 'blur(12px)';
+        setNavBg(hasHero ? glassBg : solidBg);
       }
     }
     window.addEventListener('scroll', onScroll, { passive: true });
