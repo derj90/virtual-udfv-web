@@ -171,11 +171,11 @@
   // Rotación por día
   const DAY_MAP = [3, 1, 2, 3, 4, 5, 2];
   const NAMES = {
-    1: { title: 'Deriva', medium: 'Arte generativo \u00b7 Campo de flujo Perlin \u00b7 p5.js' },
-    2: { title: 'Aurora', medium: 'Arte generativo \u00b7 Gradientes radiales en movimiento \u00b7 p5.js' },
-    3: { title: 'Sinapsis', medium: 'Arte generativo interactivo \u00b7 Red de nodos \u00b7 p5.js' },
-    4: { title: 'Resonancia', medium: 'Arte generativo \u00b7 Superposici\u00f3n arm\u00f3nica sinusoidal \u00b7 p5.js' },
-    5: { title: 'Trama', medium: 'Arte generativo \u00b7 Tesela hexagonal isom\u00e9trica \u00b7 p5.js' },
+    1: { title: 'Deriva', medium: 'Gr\u00e1fica generativa \u00b7 p5.js' },
+    2: { title: 'Aurora', medium: 'Gr\u00e1fica generativa \u00b7 p5.js' },
+    3: { title: 'Sinapsis', medium: 'Gr\u00e1fica generativa \u00b7 p5.js' },
+    4: { title: 'Resonancia', medium: 'Gr\u00e1fica generativa \u00b7 p5.js' },
+    5: { title: 'Trama', medium: 'Gr\u00e1fica generativa \u00b7 p5.js' },
   };
 
   let variant = DAY_MAP[new Date().getDay()];
