@@ -1,9 +1,6 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://virtual.udfv.cloud/sitemap.xml
-
-# Excluir rutas internas
 Disallow: /api/
 Disallow: /admin
-Disallow: /mis-cursos
+
+Sitemap: https://virtual.udfv.cloud/sitemap.xml

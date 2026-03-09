@@ -39,6 +39,11 @@
     // Update hero background
     let heroSection = document.querySelector('[data-hero-bg]');
     if (heroSection) heroSection.style.background = PAL.bg;
+    // Propagate palette to full page via CSS custom properties
+    document.documentElement.style.setProperty('--palette-primary', 'rgb(' + PAL.primary.join(',') + ')');
+    document.documentElement.style.setProperty('--palette-accent', 'rgb(' + PAL.accent.join(',') + ')');
+    document.documentElement.style.setProperty('--palette-dark', PAL.bg);
+    document.documentElement.style.setProperty('--palette-secondary', 'rgb(' + PAL.secondary.join(',') + ')');
     // Update picker active state
     updatePickerUI();
   }

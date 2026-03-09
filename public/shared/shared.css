@@ -2,6 +2,14 @@
    UMCE Virtual — Shared Styles
    ============================================== */
 
+/* Palette CSS custom properties — defaults match UMCE palette */
+:root {
+  --palette-primary: #0033A1;
+  --palette-accent: #FF9E18;
+  --palette-dark: #001D5C;
+  --palette-secondary: #E8F0FE;
+}
+
 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 h1, h2, h3, h4, h5, h6 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 
@@ -69,7 +77,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-s
   left: 0;
   width: 0;
   height: 2px;
-  background: #FF9E18;
+  background: var(--palette-accent);
   transition: width 0.2s;
 }
 .nav-link:hover::after,
@@ -88,7 +96,7 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-s
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, #0033A1, #FF9E18);
+  background: linear-gradient(to bottom, var(--palette-primary), var(--palette-accent));
 }
 
 /* Platform icon */
