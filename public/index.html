@@ -40,7 +40,7 @@
   <!-- ============================================ -->
   <!-- HERO -->
   <!-- ============================================ -->
-  <section class="min-h-screen flex items-center relative overflow-hidden" style="background: #001D5C;">
+  <section class="min-h-screen flex items-center relative overflow-hidden" data-hero-bg style="background: #001D5C;">
     <!-- Generative art canvas -->
     <div id="p5-hero" class="absolute inset-0 z-0"></div>
 
@@ -50,6 +50,9 @@
       <div class="ac-medium text-white/25 text-[10px] mt-0.5">Arte generativo &middot; Campo de flujo Perlin &middot; p5.js</div>
       <div class="text-white/20 text-[9px] mt-0.5 tracking-wider uppercase">Unidad de Desarrollo y Formaci&oacute;n Virtual &mdash; UMCE &middot; 2026</div>
     </div>
+
+    <!-- Palette picker -->
+    <div id="palette-picker" class="absolute bottom-16 right-6 z-20 flex items-center gap-2"></div>
 
     <div class="max-w-7xl mx-auto px-6 pt-32 pb-28 relative z-10">
       <div class="grid lg:grid-cols-2 gap-16 items-center">

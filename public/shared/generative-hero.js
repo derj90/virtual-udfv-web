@@ -1,31 +1,99 @@
 // =============================================
 // UMCE VIRTUAL — Arte Generativo Hero
 // 5 variantes que rotan por día de la semana
+// 6 paletas seleccionables por el usuario
 // p5.js instance mode (no contamina global scope)
 // =============================================
 
 (function() {
   'use strict';
 
-  const AZUL       = [0, 51, 161];
-  const AZUL_DARK  = [0, 29, 92];
-  const AZUL_LIGHT = [232, 240, 254];
-  const AMARILLO   = [255, 158, 24];
-  const BLANCO     = [255, 255, 255];
+  // ---- PALETAS ----
+  // Cada paleta: bg (fondo hero+canvas), dark, primary, secondary, accent, white
+  const PALETTES = {
+    umce:      { name: 'UMCE',      bg: '#001D5C', dark: [0,29,92],   primary: [0,51,161],   secondary: [232,240,254], accent: [255,158,24],  white: [255,255,255], dot: '#0033A1' },
+    oceano:    { name: 'Oc\u00e9ano',    bg: '#0A1628', dark: [10,22,40],  primary: [33,150,243], secondary: [168,230,207], accent: [78,205,196],  white: [255,255,255], dot: '#4ECDC4' },
+    atardecer: { name: 'Atardecer', bg: '#1A0A2E', dark: [26,10,46],  primary: [168,85,247], secondary: [255,230,109], accent: [255,107,107], white: [255,255,255], dot: '#FF6B6B' },
+    bosque:    { name: 'Bosque',    bg: '#0D1B0E', dark: [13,27,14],  primary: [52,211,153], secondary: [110,231,183], accent: [252,211,77],  white: [255,255,255], dot: '#34D399' },
+    editorial: { name: 'Editorial', bg: '#111827', dark: [17,24,39],  primary: [129,140,248], secondary: [229,231,235], accent: [244,114,182], white: [255,255,255], dot: '#818CF8' },
+    coral:     { name: 'Coral',     bg: '#1C1017', dark: [28,16,23],  primary: [251,146,60],  secondary: [254,215,170], accent: [56,189,248],  white: [255,255,255], dot: '#FB923C' },
+  };
 
-  // Rotación por día: Lun=Deriva, Mar=Aurora, Mié=Sinapsis, Jue=Resonancia, Vie=Trama, Sáb=Aurora, Dom=Sinapsis
-  const DAY_MAP = [3, 1, 2, 3, 4, 5, 2]; // [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
+  const PALETTE_KEYS = Object.keys(PALETTES);
+  let currentPaletteKey = localStorage.getItem('udfv-palette') || 'umce';
+  if (!PALETTES[currentPaletteKey]) currentPaletteKey = 'umce';
+
+  // Active color references (mutable)
+  let PAL = PALETTES[currentPaletteKey];
+  let AZUL, AZUL_DARK, AZUL_LIGHT, AMARILLO, BLANCO;
+
+  function applyPalette(key) {
+    currentPaletteKey = key;
+    PAL = PALETTES[key];
+    AZUL_DARK  = PAL.dark;
+    AZUL       = PAL.primary;
+    AZUL_LIGHT = PAL.secondary;
+    AMARILLO   = PAL.accent;
+    BLANCO     = PAL.white;
+    localStorage.setItem('udfv-palette', key);
+    // Update hero background
+    let heroSection = document.querySelector('[data-hero-bg]');
+    if (heroSection) heroSection.style.background = PAL.bg;
+    // Update picker active state
+    updatePickerUI();
+  }
+
+  applyPalette(currentPaletteKey);
+
+  // ---- PALETTE PICKER UI ----
+  function buildPicker() {
+    let container = document.getElementById('palette-picker');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let key of PALETTE_KEYS) {
+      let pal = PALETTES[key];
+      let btn = document.createElement('button');
+      btn.className = 'palette-dot';
+      btn.dataset.palette = key;
+      btn.title = pal.name;
+      btn.style.cssText = 'width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;background:' + pal.dot + ';padding:0;flex-shrink:0;';
+      btn.addEventListener('click', function() {
+        applyPalette(key);
+        // Restart generative art with new colors
+        if (restartSketch) restartSketch();
+      });
+      container.appendChild(btn);
+    }
+    updatePickerUI();
+  }
+
+  function updatePickerUI() {
+    let dots = document.querySelectorAll('.palette-dot');
+    dots.forEach(function(d) {
+      if (d.dataset.palette === currentPaletteKey) {
+        d.style.borderColor = 'rgba(255,255,255,0.9)';
+        d.style.transform = 'scale(1.25)';
+        d.style.boxShadow = '0 0 8px ' + PALETTES[d.dataset.palette].dot;
+      } else {
+        d.style.borderColor = 'rgba(255,255,255,0.2)';
+        d.style.transform = 'scale(1)';
+        d.style.boxShadow = 'none';
+      }
+    });
+  }
+
+  // Rotación por día
+  const DAY_MAP = [3, 1, 2, 3, 4, 5, 2];
   const NAMES = {
-    1: { title: 'Deriva', medium: 'Arte generativo · Campo de flujo Perlin · p5.js' },
-    2: { title: 'Aurora', medium: 'Arte generativo · Gradientes radiales en movimiento · p5.js' },
-    3: { title: 'Sinapsis', medium: 'Arte generativo interactivo · Red de nodos · p5.js' },
-    4: { title: 'Resonancia', medium: 'Arte generativo · Superposición armónica sinusoidal · p5.js' },
-    5: { title: 'Trama', medium: 'Arte generativo · Tesela hexagonal isométrica · p5.js' },
+    1: { title: 'Deriva', medium: 'Arte generativo \u00b7 Campo de flujo Perlin \u00b7 p5.js' },
+    2: { title: 'Aurora', medium: 'Arte generativo \u00b7 Gradientes radiales en movimiento \u00b7 p5.js' },
+    3: { title: 'Sinapsis', medium: 'Arte generativo interactivo \u00b7 Red de nodos \u00b7 p5.js' },
+    4: { title: 'Resonancia', medium: 'Arte generativo \u00b7 Superposici\u00f3n arm\u00f3nica sinusoidal \u00b7 p5.js' },
+    5: { title: 'Trama', medium: 'Arte generativo \u00b7 Tesela hexagonal isom\u00e9trica \u00b7 p5.js' },
   };
 
   let variant = DAY_MAP[new Date().getDay()];
 
-  // Actualizar cartela
   function updateCaption() {
     let cap = NAMES[variant];
     let el = document.getElementById('art-caption');
@@ -35,7 +103,10 @@
     }
   }
 
-  // p5 instance mode — se limita al container del hero
+  // ---- P5 SKETCH ----
+  let restartSketch = null;
+  let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   let heroSketch = function(p) {
     let particles = [];
     let flowField = [];
@@ -46,6 +117,13 @@
     let t = 0;
     let heroEl, isVisible = true;
 
+    // Expose restart for palette changes
+    restartSketch = function() {
+      particles = []; hexGrid = [];
+      t = 0; zoff = 0;
+      setupVariant();
+    };
+
     p.setup = function() {
       heroEl = document.getElementById('p5-hero');
       if (!heroEl) return;
@@ -55,7 +133,6 @@
       setupVariant();
       updateCaption();
 
-      // Pausar cuando no es visible (performance)
       let observer = new IntersectionObserver(function(entries) {
         isVisible = entries[0].isIntersecting;
         if (isVisible) p.loop(); else p.noLoop();
@@ -129,7 +206,6 @@
       }
     }
 
-    // ---- DRAW ----
     p.draw = function() {
       if (!isVisible) return;
       t += 0.005;
@@ -241,7 +317,7 @@
         p.fill(pt.color[0], pt.color[1], pt.color[2], pt.alpha);
         p.circle(pt.x, pt.y, pt.radius * pulse);
       }
-      if (p.mouseX > 0 && p.mouseY > 50) {
+      if (!isTouchDevice && p.mouseX > 0 && p.mouseY > 50) {
         for (let pt of particles) {
           let d = p.dist(p.mouseX, p.mouseY, pt.x, pt.y);
           if (d < 200) {
@@ -309,10 +385,10 @@
       let ctx = p.drawingContext;
       ctx.globalCompositeOperation = 'multiply';
       let edgeGrd = ctx.createLinearGradient(0, 0, 0, p.height);
-      edgeGrd.addColorStop(0, 'rgba(0,15,60,0.6)');
-      edgeGrd.addColorStop(0.3, 'rgba(0,29,92,0)');
-      edgeGrd.addColorStop(0.7, 'rgba(0,29,92,0)');
-      edgeGrd.addColorStop(1, 'rgba(0,15,60,0.5)');
+      edgeGrd.addColorStop(0, `rgba(${AZUL_DARK[0]},${AZUL_DARK[1]},${AZUL_DARK[2]},0.6)`);
+      edgeGrd.addColorStop(0.3, `rgba(${AZUL_DARK[0]},${AZUL_DARK[1]},${AZUL_DARK[2]},0)`);
+      edgeGrd.addColorStop(0.7, `rgba(${AZUL_DARK[0]},${AZUL_DARK[1]},${AZUL_DARK[2]},0)`);
+      edgeGrd.addColorStop(1, `rgba(${AZUL_DARK[0]},${AZUL_DARK[1]},${AZUL_DARK[2]},0.5)`);
       ctx.fillStyle = edgeGrd; ctx.fillRect(0,0,p.width,p.height);
       ctx.globalCompositeOperation = 'source-over';
     }
@@ -375,7 +451,7 @@
         let pulse = p.sin(t * hex.speed + hex.phase);
         let r = hex.baseR * (0.85 + pulse * 0.15);
         let a = hex.alpha;
-        if (p.mouseX > 0 && p.mouseY > 50) {
+        if (!isTouchDevice && p.mouseX > 0 && p.mouseY > 50) {
           let md = p.dist(p.mouseX, p.mouseY, hex.x, hex.y);
           if (md < 200) a *= p.map(md, 0, 200, 2.5, 1);
         }
@@ -398,7 +474,6 @@
         p.circle(hex.x, hex.y, hex.isGold ? 3 : 1.5);
       }
 
-      // Conexiones entre acentuados
       let accented = hexGrid.filter(h => h.isAccent || h.isGold);
       for (let i = 0; i < accented.length; i++) {
         for (let j = i+1; j < accented.length; j++) {
@@ -423,7 +498,7 @@
     };
   };
 
-  // Instancia activa de p5
+  // ---- BOOT ----
   let instance = null;
 
   function boot() {
@@ -431,15 +506,14 @@
       if (boot.attempts < 25) { boot.attempts++; setTimeout(boot, 200); }
       return;
     }
-    // Evitar instancias duplicadas
     if (instance) { instance.remove(); instance = null; }
-    // Asegurarse de que el contenedor tenga dimensiones
     let el = document.getElementById('p5-hero');
     if (!el || el.offsetWidth === 0) {
       if (boot.attempts < 25) { boot.attempts++; setTimeout(boot, 200); }
       return;
     }
     instance = new p5(heroSketch);
+    buildPicker();
   }
   boot.attempts = 0;
 
@@ -449,7 +523,6 @@
     boot();
   }
 
-  // Re-iniciar al volver desde bfcache (navegación atrás/adelante)
   window.addEventListener('pageshow', function(e) {
     if (e.persisted) { boot.attempts = 0; boot(); }
   });
