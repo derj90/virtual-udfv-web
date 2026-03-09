@@ -45,6 +45,87 @@
 
   applyPalette(currentPaletteKey);
 
+  // ---- FONT SYSTEM ----
+  const FONTS = {
+    system:   { name: 'Helvetica', family: "'Helvetica Neue', Helvetica, Arial, sans-serif", google: null },
+    space:    { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", google: 'Space+Grotesk:wght@400;500;600;700' },
+    jakarta:  { name: 'Jakarta', family: "'Plus Jakarta Sans', sans-serif", google: 'Plus+Jakarta+Sans:wght@400;500;600;700;800' },
+    outfit:   { name: 'Outfit', family: "'Outfit', sans-serif", google: 'Outfit:wght@400;500;600;700;800' },
+    sora:     { name: 'Sora', family: "'Sora', sans-serif", google: 'Sora:wght@400;500;600;700;800' },
+    inter:    { name: 'Inter', family: "'Inter', sans-serif", google: 'Inter:wght@400;500;600;700;800' },
+  };
+
+  const FONT_KEYS = Object.keys(FONTS);
+  let currentFontKey = localStorage.getItem('udfv-font') || 'system';
+  if (!FONTS[currentFontKey]) currentFontKey = 'system';
+
+  // Load Google Font stylesheet
+  let loadedFonts = {};
+  function loadGoogleFont(key) {
+    let font = FONTS[key];
+    if (!font.google || loadedFonts[key]) return;
+    let link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + font.google + '&display=swap';
+    document.head.appendChild(link);
+    loadedFonts[key] = true;
+  }
+
+  function applyFont(key) {
+    currentFontKey = key;
+    let font = FONTS[key];
+    loadGoogleFont(key);
+    localStorage.setItem('udfv-font', key);
+    // Apply to body and headings
+    document.body.style.fontFamily = font.family;
+    let headings = document.querySelectorAll('h1,h2,h3,h4,h5,h6,.font-heading');
+    headings.forEach(function(h) { h.style.fontFamily = font.family; });
+    updateFontPickerUI();
+  }
+
+  // Preload saved font
+  if (currentFontKey !== 'system') loadGoogleFont(currentFontKey);
+
+  function buildFontPicker() {
+    let container = document.getElementById('font-picker');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let key of FONT_KEYS) {
+      let font = FONTS[key];
+      let btn = document.createElement('button');
+      btn.className = 'font-dot';
+      btn.dataset.font = key;
+      btn.title = font.name;
+      btn.textContent = 'Aa';
+      btn.style.cssText = 'width:28px;height:20px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:9px;padding:0;flex-shrink:0;line-height:20px;text-align:center;';
+      btn.addEventListener('click', function() {
+        applyFont(key);
+      });
+      container.appendChild(btn);
+    }
+    updateFontPickerUI();
+  }
+
+  function updateFontPickerUI() {
+    let dots = document.querySelectorAll('.font-dot');
+    dots.forEach(function(d) {
+      let font = FONTS[d.dataset.font];
+      if (font && font.google) {
+        loadGoogleFont(d.dataset.font);
+        d.style.fontFamily = font.family;
+      }
+      if (d.dataset.font === currentFontKey) {
+        d.style.borderColor = 'rgba(255,255,255,0.9)';
+        d.style.color = 'rgba(255,255,255,0.95)';
+        d.style.background = 'rgba(255,255,255,0.15)';
+      } else {
+        d.style.borderColor = 'rgba(255,255,255,0.15)';
+        d.style.color = 'rgba(255,255,255,0.5)';
+        d.style.background = 'rgba(255,255,255,0.05)';
+      }
+    });
+  }
+
   // ---- PALETTE PICKER UI ----
   function buildPicker() {
     let container = document.getElementById('palette-picker');
@@ -514,6 +595,8 @@
     }
     instance = new p5(heroSketch);
     buildPicker();
+    buildFontPicker();
+    applyFont(currentFontKey);
   }
   boot.attempts = 0;
 
