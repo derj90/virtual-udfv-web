@@ -37,6 +37,8 @@
     initScrollObserver();
     // Check admin role and show admin button
     checkAdminAccess();
+    // Update nav for logged-in users
+    checkAuthState();
   }
 
   // ==========================================
@@ -148,6 +150,54 @@
         mobileMenu.appendChild(mobileBtn);
       }
     } catch { /* not logged in or no role — silently ignore */ }
+  }
+
+  // ==========================================
+  // Auth State — update nav when logged in
+  // ==========================================
+  async function checkAuthState() {
+    try {
+      const res = await fetch('/auth/me');
+      if (!res.ok) return;
+      const user = await res.json();
+      if (!user || !user.email) return;
+
+      const initial = (user.name || user.email)[0].toUpperCase();
+      const firstName = (user.name || user.email.split('@')[0]).split(' ')[0];
+
+      // Desktop: replace "Mis cursos" CTA with user menu
+      const cta = document.querySelector('#navbar .flex.items-center.gap-3:last-child');
+      if (cta) {
+        const misCursosBtn = cta.querySelector('a[href="/mis-cursos"]');
+        if (misCursosBtn) {
+          misCursosBtn.outerHTML =
+            '<a href="/mis-cursos" class="hidden sm:inline-flex items-center gap-2 font-heading font-bold text-sm px-4 py-2.5 rounded-lg transition-colors" style="background: var(--palette-accent); color: #001D5C;">' +
+              '<div class="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center text-xs font-bold" style="color: #001D5C;">' + initial + '</div>' +
+              firstName +
+            '</a>' +
+            '<a href="/auth/logout" class="hidden sm:inline-flex items-center text-white/60 hover:text-white text-xs transition-colors" title="Cerrar sesión">' +
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>' +
+            '</a>';
+        }
+      }
+
+      // Mobile: update mis-cursos link
+      const mobileMenu = document.querySelector('#mobile-menu .flex.flex-col');
+      if (mobileMenu) {
+        const mobileBtn = mobileMenu.querySelector('a[href="/mis-cursos"]');
+        if (mobileBtn) {
+          mobileBtn.innerHTML =
+            '<div class="w-6 h-6 rounded-full bg-black/20 flex items-center justify-center text-xs font-bold" style="color: #001D5C;">' + initial + '</div> ' +
+            'Mis cursos';
+        }
+        // Add logout link
+        const logoutLink = document.createElement('a');
+        logoutLink.href = '/auth/logout';
+        logoutLink.className = 'py-2 text-white/60 hover:text-white text-sm';
+        logoutLink.textContent = 'Cerrar sesión';
+        mobileMenu.appendChild(logoutLink);
+      }
+    } catch { /* not logged in — keep default nav */ }
   }
 
   // ==========================================
