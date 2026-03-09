@@ -58,12 +58,18 @@
       }
     });
 
-    // Nav shrink on scroll
+    // Nav shrink + glass-to-solid on scroll
     function onScroll() {
       if (window.scrollY > 80) {
         navbar.classList.add('nav-scrolled');
+        navbar.style.background = 'rgba(17,24,39,0.95)';
+        navbar.style.backdropFilter = 'blur(12px)';
+        navbar.style.webkitBackdropFilter = 'blur(12px)';
       } else {
         navbar.classList.remove('nav-scrolled');
+        navbar.style.background = 'rgba(0,0,0,0.15)';
+        navbar.style.backdropFilter = 'blur(12px)';
+        navbar.style.webkitBackdropFilter = 'blur(12px)';
       }
     }
     window.addEventListener('scroll', onScroll, { passive: true });
