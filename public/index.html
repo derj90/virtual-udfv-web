@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="/shared/tailwind.min.css">
   <link rel="stylesheet" href="/shared/shared.css">
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js" defer></script>
-  <script src="/shared/generative-hero.js?v=2" defer></script>
+  <script src="/shared/generative-hero.js?v=3" defer></script>
 </head>
 <body class="bg-white text-gray-900 antialiased">
 
@@ -51,10 +51,16 @@
       <div class="text-white/20 text-[9px] mt-0.5 tracking-wider uppercase">Unidad de Desarrollo y Formaci&oacute;n Virtual &mdash; UMCE &middot; 2026</div>
     </div>
 
-    <!-- Palette picker -->
-    <div class="absolute bottom-16 right-6 z-20 flex items-center gap-2.5">
-      <span class="text-white/20 text-[9px] tracking-wider uppercase hidden sm:inline">Paleta</span>
-      <div id="palette-picker" class="flex items-center gap-2"></div>
+    <!-- Style pickers -->
+    <div class="absolute bottom-16 right-6 z-20 flex flex-col items-end gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="text-white/20 text-[9px] tracking-wider uppercase hidden sm:inline">Tipo</span>
+        <div id="font-picker" class="flex items-center gap-1.5"></div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span class="text-white/20 text-[9px] tracking-wider uppercase hidden sm:inline">Paleta</span>
+        <div id="palette-picker" class="flex items-center gap-2"></div>
+      </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-6 pt-32 pb-28 relative z-10">
