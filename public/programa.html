@@ -109,15 +109,23 @@
         );
         document.getElementById('breadcrumb-title').textContent = UMCE.truncate(p.title, 40);
 
+        // Hero background image (overlay gradient keeps SVG text hidden)
+        if (p.image_url) {
+          const hero = document.getElementById('program-hero');
+          hero.style.backgroundImage = `linear-gradient(to bottom, rgba(0,34,128,0.95) 0%, rgba(0,29,92,1) 45%, rgba(0,29,92,1) 100%), url(${p.image_url})`;
+          hero.style.backgroundSize = 'cover, cover';
+          hero.style.backgroundPosition = 'center, center';
+        }
+
         // Hero
         document.getElementById('hero-content').innerHTML = `
           <span class="inline-block badge ${UMCE.typeBadgeClass(p.type)} mb-4">${UMCE.typeLabel(p.type)}</span>
           <h1 class="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4">${p.title}</h1>
-          <p class="text-white/80 text-lg max-w-2xl">${p.description || ''}</p>
+          <p class="text-white/80 text-lg max-w-2xl">${(p.description || '').split('\n')[0]}</p>
           <div class="flex flex-wrap gap-6 mt-8 text-sm text-white/70">
-            ${p.duration_hours ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${p.duration_hours} horas</span>` : ''}
-            ${p.modality ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>${p.modality}</span>` : ''}
-            ${p.level ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>${p.level}</span>` : ''}
+            ${p.stats && p.stats.semesters ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${p.stats.semesters}</span>` : p.duration_hours ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${p.duration_hours} horas</span>` : ''}
+            ${p.modality ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>${p.modality === 'virtual' ? '100% Virtual' : p.modality === 'b-learning' ? 'B-Learning' : p.modality}</span>` : ''}
+            ${p.level ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>${p.level.charAt(0).toUpperCase() + p.level.slice(1)}</span>` : ''}
           </div>
         `;
 
@@ -131,6 +139,15 @@
         document.getElementById('program-content').innerHTML = `
           <!-- Left column -->
           <div class="lg:col-span-2 space-y-12">
+            ${p.description && p.description.includes('\n') ? `
+              <section>
+                <h2 class="font-heading text-2xl font-bold mb-6">Acerca del programa</h2>
+                <div class="prose prose-gray max-w-none text-gray-600 leading-relaxed space-y-4">
+                  ${p.description.split('\n').filter(para => para.trim()).map(para => '<p>' + para.trim() + '</p>').join('')}
+                </div>
+              </section>
+            ` : ''}
+
             ${objectives.length ? `
               <section>
                 <h2 class="font-heading text-2xl font-bold mb-6">Objetivos del programa</h2>
@@ -149,16 +166,24 @@
               <section>
                 <h2 class="font-heading text-2xl font-bold mb-6">Malla curricular</h2>
                 <div class="space-y-4">
-                  ${curriculum.map((mod, i) => `
+                  ${curriculum.map((mod, i) => {
+                    const title = mod.title || mod.titulo || (typeof mod === 'string' ? mod : '');
+                    const hours = mod.horas || null;
+                    const subjects = mod.asignaturas || mod.cursos || [];
+                    const desc = mod.description || mod.modulo || '';
+                    return `
                     <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
                       <div class="flex items-center gap-3 mb-2">
-                        <span class="w-8 h-8 rounded-lg bg-umce-azul text-white flex items-center justify-center text-sm font-bold">${i + 1}</span>
-                        <h3 class="font-heading font-semibold">${mod.title || mod.titulo || mod}</h3>
-                        ${mod.horas ? `<span class="text-xs text-gray-400 ml-auto">${mod.horas}h</span>` : ''}
+                        <span class="w-8 h-8 rounded-lg bg-umce-azul text-white flex items-center justify-center text-sm font-bold">${mod.semestre || mod.nivel || (i + 1)}</span>
+                        <h3 class="font-heading font-semibold">${title}</h3>
+                        ${hours ? '<span class="text-xs text-gray-400 ml-auto">' + hours + 'h</span>' : ''}
                       </div>
-                      ${(mod.description || mod.modulo) ? `<p class="text-gray-500 text-sm ml-11">${mod.description || mod.modulo}</p>` : ''}
-                    </div>
-                  `).join('')}
+                      ${desc ? '<p class="text-gray-500 text-sm ml-11 mb-2">' + desc + '</p>' : ''}
+                      ${subjects.length ? '<ul class="ml-11 space-y-1.5">' + subjects.map(s =>
+                        '<li class="flex items-start gap-2 text-sm text-gray-600"><svg class="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>' + s + '</li>'
+                      ).join('') + '</ul>' : ''}
+                    </div>`;
+                  }).join('')}
                 </div>
               </section>
             ` : ''}
@@ -226,7 +251,12 @@
                   <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Tipo</dt>
                   <dd class="font-medium">${UMCE.typeLabel(p.type)}</dd>
                 </div>
-                ${p.duration_hours ? `
+                ${p.stats && p.stats.semesters ? `
+                  <div>
+                    <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Duraci&oacute;n</dt>
+                    <dd class="font-medium">${p.stats.semesters}</dd>
+                  </div>
+                ` : p.duration_hours ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Duraci&oacute;n</dt>
                     <dd class="font-medium">${p.duration_hours} horas</dd>
@@ -235,13 +265,31 @@
                 ${p.modality ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Modalidad</dt>
-                    <dd class="font-medium">${p.modality}</dd>
+                    <dd class="font-medium">${p.modality === 'virtual' ? '100% Virtual' : p.modality === 'b-learning' ? 'B-Learning (virtual + presencial)' : p.modality}</dd>
+                  </div>
+                ` : ''}
+                ${p.stats && p.stats.department ? `
+                  <div>
+                    <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Departamento</dt>
+                    <dd class="font-medium">${p.stats.department}</dd>
+                  </div>
+                ` : ''}
+                ${p.stats && p.stats.training_lines ? `
+                  <div>
+                    <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">L&iacute;neas de formaci&oacute;n</dt>
+                    <dd class="font-medium text-xs leading-relaxed">${p.stats.training_lines}</dd>
+                  </div>
+                ` : ''}
+                ${p.stats && p.stats.schedule ? `
+                  <div>
+                    <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Horario</dt>
+                    <dd class="font-medium text-xs">${p.stats.schedule}</dd>
                   </div>
                 ` : ''}
                 ${p.level ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Nivel</dt>
-                    <dd class="font-medium">${p.level}</dd>
+                    <dd class="font-medium">${p.level.charAt(0).toUpperCase() + p.level.slice(1)}</dd>
                   </div>
                 ` : ''}
                 ${courses.length ? `
@@ -258,7 +306,12 @@
                 ` : ''}
               </dl>
 
-              ${p.moodle_url ? `
+              ${p.stats && p.stats.enrollment_url ? `
+                <a href="${p.stats.enrollment_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
+                  Postular al programa
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              ` : p.moodle_url ? `
                 <a href="${p.moodle_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
                   Ir al programa
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>

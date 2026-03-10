@@ -378,20 +378,22 @@
 
     function renderProgramCard(p) {
       var meta = [];
-      if (p.duration_hours) {
+      if (p.stats && p.stats.semesters) {
+        meta.push('<span class="flex items-center gap-1">' + ICON_CLOCK + escapeHtml(p.stats.semesters) + '</span>');
+      } else if (p.duration_hours) {
         meta.push('<span class="flex items-center gap-1">' + ICON_CLOCK + p.duration_hours + 'h</span>');
       }
-      if (p.level) {
-        meta.push('<span class="flex items-center gap-1">' + ICON_LEVEL + escapeHtml(levelLabel(p.level)) + '</span>');
-      }
       if (p.modality) {
-        meta.push('<span class="flex items-center gap-1">' + ICON_PLACE + escapeHtml(p.modality) + '</span>');
+        var modalityLabel = p.modality === 'virtual' ? '100% Virtual' : p.modality === 'b-learning' ? 'B-Learning' : p.modality;
+        meta.push('<span class="flex items-center gap-1">' + ICON_PLACE + escapeHtml(modalityLabel) + '</span>');
       }
 
       return '<a href="/programa/' + escapeHtml(p.slug) + '" class="catalog-card bg-white border border-gray-100 block fade-up">' +
-        '<div class="h-36 bg-gradient-to-br from-umce-azul to-umce-azul-dark flex items-center justify-center relative">' +
-          iconForType(p.type) +
-          '<span class="absolute top-3 left-3 badge ' + UMCE.typeBadgeClass(p.type) + '">' + escapeHtml(UMCE.typeLabel(p.type)) + '</span>' +
+        '<div class="h-36 bg-gradient-to-br from-umce-azul to-umce-azul-dark flex items-center justify-center relative overflow-hidden">' +
+          (p.image_url
+            ? '<img src="' + escapeHtml(p.image_url) + '" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">'
+            : iconForType(p.type)) +
+          '<span class="absolute top-3 left-3 badge ' + UMCE.typeBadgeClass(p.type) + '" style="z-index:1">' + escapeHtml(UMCE.typeLabel(p.type)) + '</span>' +
         '</div>' +
         '<div class="p-5">' +
           '<h3 class="font-heading font-bold text-base text-gray-900 mb-2 line-clamp-2">' + escapeHtml(p.title) + '</h3>' +

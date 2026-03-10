@@ -310,8 +310,13 @@
 
   /** Observe new elements for fade-up animation */
   function observeNewElements(container) {
-    if (window._umceObserver && container) {
-      container.querySelectorAll('.fade-up').forEach(el => window._umceObserver.observe(el));
+    if (!container) return;
+    const elements = container.querySelectorAll('.fade-up');
+    if (window._umceObserver) {
+      elements.forEach(el => window._umceObserver.observe(el));
+    } else {
+      // Observer not ready yet — make elements visible immediately
+      elements.forEach(el => el.classList.add('visible'));
     }
   }
 
