@@ -153,9 +153,10 @@
                     <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
                       <div class="flex items-center gap-3 mb-2">
                         <span class="w-8 h-8 rounded-lg bg-umce-azul text-white flex items-center justify-center text-sm font-bold">${i + 1}</span>
-                        <h3 class="font-heading font-semibold">${mod.title || mod}</h3>
+                        <h3 class="font-heading font-semibold">${mod.title || mod.titulo || mod}</h3>
+                        ${mod.horas ? `<span class="text-xs text-gray-400 ml-auto">${mod.horas}h</span>` : ''}
                       </div>
-                      ${mod.description ? `<p class="text-gray-500 text-sm ml-11">${mod.description}</p>` : ''}
+                      ${(mod.description || mod.modulo) ? `<p class="text-gray-500 text-sm ml-11">${mod.description || mod.modulo}</p>` : ''}
                     </div>
                   `).join('')}
                 </div>
@@ -258,8 +259,8 @@
               </dl>
 
               ${p.moodle_url ? `
-                <a href="${p.moodle_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 bg-umce-azul text-white font-heading font-bold text-sm px-6 py-3 rounded-lg hover:bg-umce-azul-light transition-colors">
-                  Inscribirme
+                <a href="${p.moodle_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
+                  Ir al programa
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
               ` : `
