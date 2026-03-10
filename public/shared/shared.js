@@ -248,6 +248,10 @@
       diplomado: 'badge-diplomado',
       curso_abierto: 'badge-curso',
       ruta_formativa: 'badge-ruta',
+      magister: 'badge-magister',
+      prosecucion: 'badge-prosecucion',
+      certificacion: 'badge-certificacion',
+      postitulo: 'badge-diplomado',
     };
     return map[type] || 'badge-curso';
   }
@@ -258,6 +262,8 @@
       diplomado: 'Diplomado',
       curso_abierto: 'Curso',
       ruta_formativa: 'Ruta Formativa',
+      magister: 'Magíster',
+      prosecucion: 'Prosecución',
       postitulo: 'Postítulo',
       certificacion: 'Certificación',
     };
@@ -270,6 +276,7 @@
       active: 'badge-active',
       upcoming: 'badge-upcoming',
       closed: 'badge-closed',
+      informativo: 'badge-closed',
     };
     return map[status] || 'badge-closed';
   }
@@ -280,6 +287,7 @@
       active: 'Inscripciones abiertas',
       upcoming: 'Próximamente',
       closed: 'Finalizado',
+      informativo: 'Informativo',
       in_progress: 'En curso',
     };
     return map[status] || status;

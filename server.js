@@ -790,7 +790,12 @@ app.get('/api/catalog/programs', async (req, res) => {
   try {
     const { type, featured, search, status, limit = '20', offset = '0' } = req.query;
     let params = [];
-    params.push(`status=eq.${status || 'active'}`);
+    // Show all non-hidden programs. If a specific status is requested, filter by it.
+    if (status) {
+      params.push(`status=eq.${status}`);
+    } else {
+      params.push('status=neq.inactive');
+    }
     if (type) params.push(`type=eq.${type}`);
     if (featured === 'true') params.push('featured=eq.true');
     if (search) params.push(`or=(title.ilike.*${search}*,description.ilike.*${search}*)`);
@@ -876,7 +881,7 @@ app.get('/api/catalog/search', async (req, res) => {
     if (!q) return res.json({ programs: [], courses: [] });
     const searchParam = `or=(title.ilike.*${q}*,description.ilike.*${q}*)&limit=10`;
     const [programs, courses] = await Promise.all([
-      portalQuery('programs', `${searchParam}&status=eq.active`),
+      portalQuery('programs', `${searchParam}&status=neq.inactive`),
       portalQuery('courses', searchParam)
     ]);
     res.json({ programs, courses });
@@ -980,7 +985,7 @@ let chatSystemPrompt = '';
 async function buildChatSystemPrompt() {
   try {
     const [programs, courses, team] = await Promise.all([
-      portalQuery('programs', 'status=eq.active'),
+      portalQuery('programs', 'status=neq.inactive'),
       portalQuery('courses', 'select=title,category,duration_hours,moodle_platform,level'),
       portalQuery('team_members', 'order=display_order.asc&select=name,role,subunit')
     ]);
@@ -1233,7 +1238,7 @@ ${resources.map(r => `- [id:${r.id}] ${r.title} (tipo: ${r.type || '-'}, categor
 
 SCHEMAS DE ENTIDADES (campos válidos para crear/actualizar):
 
-programs: { title*, type* (diplomado|curso_abierto|ruta_formativa|postitulo|certificacion), description, objectives (JSON array), curriculum (JSON array), duration_hours, modality, moodle_url, stats (JSON), tags (array), level, featured (bool), status (active|inactive), image_url, source }
+programs: { title*, type* (diplomado|magister|prosecucion|curso_abierto|ruta_formativa|postitulo|certificacion), description, objectives (JSON array), curriculum (JSON array), duration_hours, modality, moodle_url, stats (JSON), tags (array), level, featured (bool), status (active|inactive), image_url, source }
 courses: { title*, program_id, category, duration_hours, description, moodle_course_id, moodle_platform, enrollment_status (active|upcoming|closed), start_date, end_date, tags (array), level, source, image_url }
 news: { title*, excerpt, content, category, image_url, source, source_url, published_at, featured (bool), status (published|hidden) }
 team_members: { name*, role, subunit, bio, email, photo_url, display_order }

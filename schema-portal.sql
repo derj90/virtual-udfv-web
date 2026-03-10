@@ -12,7 +12,7 @@ CREATE SCHEMA IF NOT EXISTS portal;
 CREATE TABLE IF NOT EXISTS portal.programs (
     id              SERIAL PRIMARY KEY,
     slug            VARCHAR UNIQUE NOT NULL,
-    type            VARCHAR NOT NULL CHECK (type IN ('diplomado', 'curso_abierto', 'ruta_formativa', 'postitulo', 'certificacion')),
+    type            VARCHAR NOT NULL CHECK (type IN ('diplomado', 'magister', 'prosecucion', 'curso_abierto', 'ruta_formativa', 'postitulo', 'certificacion')),
     title           VARCHAR NOT NULL,
     description     TEXT,
     objectives      JSONB,
