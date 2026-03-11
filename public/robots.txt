@@ -2,5 +2,11 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin
+Disallow: /admin/
+Disallow: /admin.html
+Disallow: /auth/
+Disallow: /lti/
+Disallow: /mis-cursos
+Disallow: /uploads/
 
 Sitemap: https://virtual.udfv.cloud/sitemap.xml

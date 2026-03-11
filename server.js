@@ -16,7 +16,47 @@ try {
 } catch (e) { /* .env optional if vars set externally */ }
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// Simple in-memory rate limiter for API routes
+const rateLimitMap = new Map();
+function rateLimit(windowMs, max) {
+  return (req, res, next) => {
+    const key = req.ip + req.path;
+    const now = Date.now();
+    const entry = rateLimitMap.get(key);
+    if (!entry || now - entry.start > windowMs) {
+      rateLimitMap.set(key, { start: now, count: 1 });
+      return next();
+    }
+    entry.count++;
+    if (entry.count > max) {
+      return res.status(429).json({ error: 'Demasiadas peticiones. Intenta en unos minutos.' });
+    }
+    next();
+  };
+}
+// Cleanup stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitMap) {
+    if (now - entry.start > 600000) rateLimitMap.delete(key);
+  }
+}, 300000);
+
+// Rate limit auth routes (10 per minute) and API routes (60 per minute)
+app.use('/auth', rateLimit(60000, 10));
+app.use('/api', rateLimit(60000, 60));
+
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -360,7 +400,7 @@ app.get('/auth/login', (req, res) => {
 
 app.get('/auth/callback', async (req, res) => {
   const { code, error, state: stateParam } = req.query;
-  if (error || !code) return res.redirect('/mis-cursos.html?error=auth_denied');
+  if (error || !code) return res.redirect('/mis-cursos?error=auth_denied');
 
   let remember = false;
   try { remember = JSON.parse(stateParam).remember === true; } catch {}
@@ -390,18 +430,18 @@ app.get('/auth/callback', async (req, res) => {
 
     const email = (userInfo.email || '').toLowerCase();
     if (!email.endsWith('@umce.cl')) {
-      return res.redirect('/mis-cursos.html?error=domain');
+      return res.redirect('/mis-cursos?error=domain');
     }
 
     const name = userInfo.name || email.split('@')[0];
     const maxAge = remember ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
     const token = createToken(name, email, maxAge);
     setSessionCookie(res, token, maxAge);
-    res.redirect('/mis-cursos.html');
+    res.redirect('/mis-cursos');
 
   } catch (err) {
     console.error('OAuth callback error:', err.message);
-    res.redirect('/mis-cursos.html?error=auth_failed');
+    res.redirect('/mis-cursos?error=auth_failed');
   }
 });
 
@@ -422,7 +462,7 @@ app.get('/auth/me', (req, res) => {
 });
 
 // --- Static files ---
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
 
 // --- Uploads config ---
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
@@ -717,7 +757,8 @@ app.get('/api/ucampus/seccion/:idCurso', authMiddleware, async (req, res) => {
   if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'UCampus no configurado' });
 
   const { email } = resolveTargetEmail(req);
-  const idCurso = req.params.idCurso;
+  const idCurso = parseInt(req.params.idCurso);
+  if (isNaN(idCurso)) return res.status(400).json({ error: 'ID de curso inválido' });
 
   try {
     // Verify the requesting user (or impersonated user) is a docente of this section
@@ -785,23 +826,36 @@ app.get('/api/ucampus/seccion/:idCurso', authMiddleware, async (req, res) => {
 
 // === Portal Catalog API ===
 
+// Sanitize PostgREST filter values — only allow alphanumeric, hyphens, underscores
+function sanitizeFilter(val) {
+  if (!val) return '';
+  return String(val).replace(/[^a-zA-Z0-9_\-]/g, '');
+}
+// Sanitize free-text search — strip PostgREST operators
+function sanitizeSearch(val) {
+  if (!val) return '';
+  return String(val).replace(/[()&|,=*!<>]/g, '').substring(0, 100);
+}
+
 // GET /api/catalog/programs
 app.get('/api/catalog/programs', async (req, res) => {
   try {
     const { type, featured, search, status, limit = '20', offset = '0' } = req.query;
     let params = [];
-    // Show all non-hidden programs. If a specific status is requested, filter by it.
-    if (status) {
-      params.push(`status=eq.${status}`);
+    const sStatus = sanitizeFilter(status);
+    const sType = sanitizeFilter(type);
+    const sSearch = sanitizeSearch(search);
+    if (sStatus) {
+      params.push(`status=eq.${sStatus}`);
     } else {
       params.push('status=neq.inactive');
     }
-    if (type) params.push(`type=eq.${type}`);
+    if (sType) params.push(`type=eq.${sType}`);
     if (featured === 'true') params.push('featured=eq.true');
-    if (search) params.push(`or=(title.ilike.*${search}*,description.ilike.*${search}*)`);
+    if (sSearch) params.push(`or=(title.ilike.*${sSearch}*,description.ilike.*${sSearch}*)`);
     params.push('order=featured.desc,created_at.desc');
-    params.push(`limit=${parseInt(limit)}`);
-    params.push(`offset=${parseInt(offset)}`);
+    params.push(`limit=${Math.min(parseInt(limit) || 20, 50)}`);
+    params.push(`offset=${parseInt(offset) || 0}`);
     const data = await portalQuery('programs', params.join('&'));
     res.json(data);
   } catch (err) {
@@ -845,15 +899,19 @@ app.get('/api/catalog/courses', async (req, res) => {
   try {
     const { category, status, program_id, level, search, limit = '20', offset = '0' } = req.query;
     let params = [];
+    const sCategory = sanitizeFilter(category);
+    const sStatus = sanitizeFilter(status);
+    const sLevel = sanitizeFilter(level);
+    const sSearch = sanitizeSearch(search);
     params.push('enrollment_status=neq.hidden');
-    if (status) params.push(`enrollment_status=eq.${status}`);
-    if (category) params.push(`category=eq.${category}`);
-    if (program_id) params.push(`program_id=eq.${program_id}`);
-    if (level) params.push(`level=eq.${level}`);
-    if (search) params.push(`or=(title.ilike.*${search}*,description.ilike.*${search}*)`);
+    if (sStatus) params.push(`enrollment_status=eq.${sStatus}`);
+    if (sCategory) params.push(`category=eq.${sCategory}`);
+    if (program_id) params.push(`program_id=eq.${parseInt(program_id)}`);
+    if (sLevel) params.push(`level=eq.${sLevel}`);
+    if (sSearch) params.push(`or=(title.ilike.*${sSearch}*,description.ilike.*${sSearch}*)`);
     params.push('order=created_at.desc');
-    params.push(`limit=${parseInt(limit)}`);
-    params.push(`offset=${parseInt(offset)}`);
+    params.push(`limit=${Math.min(parseInt(limit) || 20, 50)}`);
+    params.push(`offset=${parseInt(offset) || 0}`);
     const data = await portalQuery('courses', params.join('&'));
     res.json(data);
   } catch (err) {
@@ -877,12 +935,12 @@ app.get('/api/catalog/courses/:slug', async (req, res) => {
 // GET /api/catalog/search?q=...
 app.get('/api/catalog/search', async (req, res) => {
   try {
-    const q = req.query.q;
+    const q = sanitizeSearch(req.query.q);
     if (!q) return res.json({ programs: [], courses: [] });
     const searchParam = `or=(title.ilike.*${q}*,description.ilike.*${q}*)&limit=10`;
     const [programs, courses] = await Promise.all([
       portalQuery('programs', `${searchParam}&status=neq.inactive`),
-      portalQuery('courses', searchParam)
+      portalQuery('courses', `${searchParam}&enrollment_status=neq.hidden`)
     ]);
     res.json({ programs, courses });
   } catch (err) {
@@ -1783,6 +1841,12 @@ app.use((req, res) => {
     return res.status(404).json({ error: 'Not found' });
   }
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+// Global error handler — prevent stack trace leaks
+app.use((err, req, res, _next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 app.listen(PORT, () => {

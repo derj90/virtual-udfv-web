@@ -118,14 +118,15 @@
         }
 
         // Hero
+        const E = UMCE.esc;
         document.getElementById('hero-content').innerHTML = `
-          <span class="inline-block badge ${UMCE.typeBadgeClass(p.type)} mb-4">${UMCE.typeLabel(p.type)}</span>
-          <h1 class="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4">${p.title}</h1>
-          <p class="text-white/80 text-lg max-w-2xl">${(p.description || '').split('\n')[0]}</p>
+          <span class="inline-block badge ${UMCE.typeBadgeClass(p.type)} mb-4">${E(UMCE.typeLabel(p.type))}</span>
+          <h1 class="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 break-words">${E(p.title)}</h1>
+          <p class="text-white/80 text-lg max-w-2xl">${E((p.description || '').split('\n')[0])}</p>
           <div class="flex flex-wrap gap-6 mt-8 text-sm text-white/70">
-            ${p.stats && p.stats.semesters ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${p.stats.semesters}</span>` : p.duration_hours ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${p.duration_hours} horas</span>` : ''}
-            ${p.modality ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>${p.modality === 'virtual' ? '100% Virtual' : p.modality === 'b-learning' ? 'B-Learning' : p.modality}</span>` : ''}
-            ${p.level ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>${p.level.charAt(0).toUpperCase() + p.level.slice(1)}</span>` : ''}
+            ${p.stats && p.stats.semesters ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${E(p.stats.semesters)}</span>` : p.duration_hours ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${E(p.duration_hours)} horas</span>` : ''}
+            ${p.modality ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>${p.modality === 'virtual' ? '100% Virtual' : p.modality === 'b-learning' ? 'B-Learning' : E(p.modality)}</span>` : ''}
+            ${p.level ? `<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>${E(p.level.charAt(0).toUpperCase() + p.level.slice(1))}</span>` : ''}
           </div>
         `;
 
@@ -139,11 +140,11 @@
         document.getElementById('program-content').innerHTML = `
           <!-- Left column -->
           <div class="lg:col-span-2 space-y-12">
-            ${p.description && p.description.includes('\n') ? `
+            ${p.description ? `
               <section>
                 <h2 class="font-heading text-2xl font-bold mb-6">Acerca del programa</h2>
                 <div class="prose prose-gray max-w-none text-gray-600 leading-relaxed space-y-4">
-                  ${p.description.split('\n').filter(para => para.trim()).map(para => '<p>' + para.trim() + '</p>').join('')}
+                  ${p.description.split('\n').filter(para => para.trim()).map(para => '<p>' + E(para.trim()) + '</p>').join('')}
                 </div>
               </section>
             ` : ''}
@@ -155,7 +156,7 @@
                   ${objectives.map(o => `
                     <li class="flex items-start gap-3">
                       <svg class="w-5 h-5 text-umce-verde mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                      <span class="text-gray-600">${o}</span>
+                      <span class="text-gray-600">${E(o)}</span>
                     </li>
                   `).join('')}
                 </ul>
@@ -174,13 +175,13 @@
                     return `
                     <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
                       <div class="flex items-center gap-3 mb-2">
-                        <span class="w-8 h-8 rounded-lg bg-umce-azul text-white flex items-center justify-center text-sm font-bold">${mod.semestre || mod.nivel || (i + 1)}</span>
-                        <h3 class="font-heading font-semibold">${title}</h3>
-                        ${hours ? '<span class="text-xs text-gray-400 ml-auto">' + hours + 'h</span>' : ''}
+                        <span class="w-8 h-8 rounded-lg bg-umce-azul text-white flex items-center justify-center text-sm font-bold">${E(mod.semestre || mod.nivel || (i + 1))}</span>
+                        <h3 class="font-heading font-semibold">${E(title)}</h3>
+                        ${hours ? '<span class="text-xs text-gray-400 ml-auto">' + E(hours) + 'h</span>' : ''}
                       </div>
-                      ${desc ? '<p class="text-gray-500 text-sm ml-11 mb-2">' + desc + '</p>' : ''}
+                      ${desc ? '<p class="text-gray-500 text-sm ml-11 mb-2">' + E(desc) + '</p>' : ''}
                       ${subjects.length ? '<ul class="ml-11 space-y-1.5">' + subjects.map(s =>
-                        '<li class="flex items-start gap-2 text-sm text-gray-600"><svg class="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>' + s + '</li>'
+                        '<li class="flex items-start gap-2 text-sm text-gray-600"><svg class="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>' + E(s) + '</li>'
                       ).join('') + '</ul>' : ''}
                     </div>`;
                   }).join('')}
@@ -193,9 +194,9 @@
                 <h2 class="font-heading text-2xl font-bold mb-6">Cursos incluidos</h2>
                 <div class="grid sm:grid-cols-2 gap-4">
                   ${courses.map(c => `
-                    <a href="/curso/${c.slug}" class="bg-white rounded-xl p-5 border border-gray-100 card-hover block">
-                      <h3 class="font-heading font-semibold text-sm mb-1">${c.title}</h3>
-                      <p class="text-gray-400 text-xs">${c.duration_hours ? c.duration_hours + 'h' : ''} ${c.category ? '· ' + c.category : ''}</p>
+                    <a href="/curso/${E(c.slug)}" class="bg-white rounded-xl p-5 border border-gray-100 card-hover block">
+                      <h3 class="font-heading font-semibold text-sm mb-1">${E(c.title)}</h3>
+                      <p class="text-gray-400 text-xs">${c.duration_hours ? E(c.duration_hours) + 'h' : ''} ${c.category ? '· ' + E(c.category) : ''}</p>
                     </a>
                   `).join('')}
                 </div>
@@ -210,13 +211,13 @@
                     <div class="flex items-center gap-4 bg-gray-50 rounded-xl p-4">
                       <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                         ${m.photo_url
-                          ? `<img src="${m.photo_url}" alt="${m.name}" class="w-full h-full object-cover" loading="lazy">`
-                          : `<span class="font-heading font-bold text-gray-400">${m.name.charAt(0)}</span>`
+                          ? `<img src="${E(m.photo_url)}" alt="${E(m.name)}" class="w-full h-full object-cover" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\\'font-heading font-bold text-gray-400\\'>${E(m.name).charAt(0)}</span>'">`
+                          : `<span class="font-heading font-bold text-gray-400">${E(m.name).charAt(0)}</span>`
                         }
                       </div>
                       <div>
-                        <div class="font-heading font-semibold text-sm">${m.name}</div>
-                        <div class="text-gray-500 text-xs">${m.role_in_program || m.role || ''}</div>
+                        <div class="font-heading font-semibold text-sm">${E(m.name)}</div>
+                        <div class="text-gray-500 text-xs">${E(m.role_in_program || m.role || '')}</div>
                       </div>
                     </div>
                   `).join('')}
@@ -230,10 +231,10 @@
                 <div class="space-y-4">
                   ${testimonials.map(t => `
                     <blockquote class="bg-gray-50 rounded-xl p-6 border-l-4 border-umce-amarillo">
-                      <p class="text-gray-600 italic mb-3">"${t.content}"</p>
+                      <p class="text-gray-600 italic mb-3">"${E(t.content)}"</p>
                       <div class="text-sm">
-                        <span class="font-semibold text-gray-900">${t.author_name}</span>
-                        ${t.author_role ? `<span class="text-gray-400"> — ${t.author_role}</span>` : ''}
+                        <span class="font-semibold text-gray-900">${E(t.author_name)}</span>
+                        ${t.author_role ? `<span class="text-gray-400"> — ${E(t.author_role)}</span>` : ''}
                       </div>
                     </blockquote>
                   `).join('')}
@@ -254,7 +255,7 @@
                 ${p.stats && p.stats.semesters ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Duraci&oacute;n</dt>
-                    <dd class="font-medium">${p.stats.semesters}</dd>
+                    <dd class="font-medium">${E(p.stats.semesters)}</dd>
                   </div>
                 ` : p.duration_hours ? `
                   <div>
@@ -271,19 +272,19 @@
                 ${p.stats && p.stats.department ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Departamento</dt>
-                    <dd class="font-medium">${p.stats.department}</dd>
+                    <dd class="font-medium">${E(p.stats.department)}</dd>
                   </div>
                 ` : ''}
                 ${p.stats && p.stats.training_lines ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">L&iacute;neas de formaci&oacute;n</dt>
-                    <dd class="font-medium text-xs leading-relaxed">${p.stats.training_lines}</dd>
+                    <dd class="font-medium text-xs leading-relaxed">${E(p.stats.training_lines)}</dd>
                   </div>
                 ` : ''}
                 ${p.stats && p.stats.schedule ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Horario</dt>
-                    <dd class="font-medium text-xs">${p.stats.schedule}</dd>
+                    <dd class="font-medium text-xs">${E(p.stats.schedule)}</dd>
                   </div>
                 ` : ''}
                 ${p.level ? `
@@ -301,18 +302,18 @@
                 ${p.tags && p.tags.length ? `
                   <div>
                     <dt class="text-gray-400 text-xs uppercase tracking-wider mb-1">Temas</dt>
-                    <dd class="flex flex-wrap gap-1.5">${p.tags.map(t => `<span class="bg-white text-gray-600 text-xs px-2.5 py-1 rounded-full border border-gray-200">${t}</span>`).join('')}</dd>
+                    <dd class="flex flex-wrap gap-1.5">${p.tags.map(t => `<span class="bg-white text-gray-600 text-xs px-2.5 py-1 rounded-full border border-gray-200">${E(t)}</span>`).join('')}</dd>
                   </div>
                 ` : ''}
               </dl>
 
               ${p.stats && p.stats.enrollment_url ? `
-                <a href="${p.stats.enrollment_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
+                <a href="${E(p.stats.enrollment_url)}" target="_blank" rel="noopener noreferrer" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
                   Postular al programa
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
               ` : p.moodle_url ? `
-                <a href="${p.moodle_url}" target="_blank" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
+                <a href="${E(p.moodle_url)}" target="_blank" rel="noopener noreferrer" class="mt-6 w-full inline-flex items-center justify-center gap-2 text-white font-heading font-bold text-sm px-6 py-3 rounded-lg transition-colors" style="background: var(--palette-primary);">
                   Ir al programa
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>

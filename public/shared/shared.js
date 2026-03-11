@@ -6,6 +6,16 @@
 (function () {
   'use strict';
 
+  // ==========================================
+  // Analytics (GA4 + Clarity) — carga siempre
+  // ==========================================
+  (function loadAnalytics() {
+    var s = document.createElement('script');
+    s.src = '/shared/analytics.js';
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+
   // Enable fade-up animations (content visible by default for crawlers/print)
   document.documentElement.classList.add('js-loaded');
 
@@ -231,6 +241,17 @@
     return div.textContent || '';
   }
 
+  /** Escape HTML entities (XSS prevention) */
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   /** Get URL parameter */
   function getParam(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -338,6 +359,7 @@
     statusLabel,
     renderSkeletons,
     observeNewElements,
+    esc,
   };
 
   // Auto-load shared components on DOMContentLoaded
