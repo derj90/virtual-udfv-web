@@ -192,6 +192,7 @@
   // ---- P5 SKETCH ----
   let restartSketch = null;
   let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  let isMobile = isTouchDevice || window.innerWidth < 768;
 
   let heroSketch = function(p) {
     let particles = [];
@@ -216,6 +217,7 @@
       let canvas = p.createCanvas(heroEl.offsetWidth, heroEl.offsetHeight);
       canvas.parent('p5-hero');
       p.pixelDensity(1);
+      if (isMobile) p.frameRate(20);
       setupVariant();
       updateCaption();
 
@@ -235,7 +237,8 @@
         cols = p.floor(p.width / scl);
         rows = p.floor(p.height / scl);
         flowField = new Array(cols * rows);
-        for (let i = 0; i < 600; i++) {
+        let particleCount1 = isMobile ? 150 : 600;
+        for (let i = 0; i < particleCount1; i++) {
           particles.push({
             pos: p.createVector(p.random(p.width), p.random(p.height)),
             vel: p.createVector(0, 0),
@@ -250,7 +253,8 @@
       else if (variant === 2) {
         let colors2 = [AMARILLO, AMARILLO, AZUL, AZUL, AZUL_LIGHT, AZUL_LIGHT,
                        AMARILLO, AZUL, AZUL_LIGHT, AZUL, BLANCO, AZUL];
-        for (let i = 0; i < 12; i++) {
+        let blobCount = isMobile ? 6 : 12;
+        for (let i = 0; i < blobCount; i++) {
           particles.push({
             x: p.random(p.width), y: p.random(p.height),
             vx: p.random(-0.4, 0.4), vy: p.random(-0.4, 0.4),
@@ -262,10 +266,12 @@
       }
       else if (variant === 3) {
         let clusterCenters = [];
-        for (let c = 0; c < 8; c++) {
+        let clusterCount = isMobile ? 4 : 8;
+        for (let c = 0; c < clusterCount; c++) {
           clusterCenters.push({ x: p.random(p.width), y: p.random(p.height) });
         }
-        for (let i = 0; i < 150; i++) {
+        let particleCount3 = isMobile ? 50 : 150;
+        for (let i = 0; i < particleCount3; i++) {
           let cluster = clusterCenters[p.floor(p.random(clusterCenters.length))];
           let useCluster = p.random() < 0.6;
           particles.push({

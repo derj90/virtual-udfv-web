@@ -577,6 +577,132 @@ async function portalMutate(table, method, body, params = '') {
   return text ? JSON.parse(text) : [];
 }
 
+// === Firebase Admin / Push Notifications ===
+// Requires: FIREBASE_SERVICE_ACCOUNT_JSON (stringified JSON) or FIREBASE_SERVICE_ACCOUNT_PATH (file path)
+
+let _firebaseApp = null;
+let _firebaseMessaging = null;
+
+function getFirebaseMessaging() {
+  if (_firebaseMessaging) return _firebaseMessaging;
+
+  let serviceAccount;
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    try {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    } catch (e) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON contiene JSON inválido');
+    }
+  } else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    try {
+      serviceAccount = JSON.parse(fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT_PATH, 'utf8'));
+    } catch (e) {
+      throw new Error(`No se pudo leer FIREBASE_SERVICE_ACCOUNT_PATH: ${e.message}`);
+    }
+  } else {
+    throw new Error('Firebase no configurado (falta FIREBASE_SERVICE_ACCOUNT_JSON o FIREBASE_SERVICE_ACCOUNT_PATH)');
+  }
+
+  // Lazy require — firebase-admin is an optional dependency
+  const admin = require('firebase-admin');
+  if (!_firebaseApp) {
+    _firebaseApp = admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  }
+  _firebaseMessaging = admin.messaging(_firebaseApp);
+  return _firebaseMessaging;
+}
+
+// Helper: upsert a device token into portal.device_tokens
+// PostgREST UPSERT: POST with Prefer: resolution=merge-duplicates + on_conflict param
+async function upsertDeviceToken(token, platform, userEmail) {
+  if (!SUPABASE_SERVICE_KEY) throw new Error('SUPABASE_SERVICE_KEY no configurado');
+  const url = `${SUPABASE_URL}/rest/v1/device_tokens?on_conflict=token`;
+  const body = { token, platform, updated_at: new Date().toISOString() };
+  if (userEmail) body.user_email = userEmail;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'Content-Profile': 'portal',
+      'Accept-Profile': 'portal',
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates,return=representation'
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10000)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Upsert device_tokens: ${res.status} ${text}`);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+// Helper: remove a list of stale tokens from DB
+async function removeStaleTokens(tokens) {
+  if (!tokens.length || !SUPABASE_SERVICE_KEY) return;
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/device_tokens?token=in.(${tokens.map(t => `"${t.replace(/"/g, '')}""`).join(',')})`;
+    await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Profile': 'portal',
+        'Accept-Profile': 'portal'
+      },
+      signal: AbortSignal.timeout(10000)
+    });
+  } catch (e) {
+    console.error('removeStaleTokens error:', e.message);
+  }
+}
+
+// Main push send helper — call this from anywhere in server.js
+async function sendPushNotification({ title, body, data = {} }) {
+  try {
+    const messaging = getFirebaseMessaging();
+    const rows = await portalQuery('device_tokens', 'select=token');
+    if (!rows || rows.length === 0) return { sent: 0, failed: 0, cleaned: 0 };
+
+    const tokens = rows.map(r => r.token);
+    const message = {
+      notification: { title, body },
+      data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
+      tokens
+    };
+
+    const response = await messaging.sendEachForMulticast(message);
+    const staleTokens = [];
+    response.responses.forEach((r, i) => {
+      if (!r.success) {
+        const code = r.error && r.error.code;
+        // Remove tokens that are definitely invalid/unregistered
+        if (
+          code === 'messaging/registration-token-not-registered' ||
+          code === 'messaging/invalid-registration-token' ||
+          code === 'messaging/invalid-argument'
+        ) {
+          staleTokens.push(tokens[i]);
+        }
+      }
+    });
+
+    if (staleTokens.length) await removeStaleTokens(staleTokens);
+
+    const sent = response.successCount;
+    const failed = response.failureCount - staleTokens.length;
+    console.log(`Push notification sent: ${sent} ok, ${failed} failed, ${staleTokens.length} cleaned`);
+    return { sent, failed, cleaned: staleTokens.length };
+  } catch (err) {
+    // Non-fatal — log but don't throw (caller should not break on push failure)
+    console.error('sendPushNotification error:', err.message);
+    return { sent: 0, failed: 0, cleaned: 0, error: err.message };
+  }
+}
+
 // Helper: format UCampus horario from horarios rows
 function formatHorario(horarios) {
   if (!horarios || horarios.length === 0) return null;
@@ -1746,7 +1872,14 @@ app.post('/api/admin/news', adminMiddleware, async (req, res) => {
     if (!data.slug) data.slug = slugify(data.title);
     if (!data.published_at) data.published_at = new Date().toISOString();
     const result = await portalMutate('news', 'POST', data);
-    res.status(201).json(Array.isArray(result) ? result[0] : result);
+    const created = Array.isArray(result) ? result[0] : result;
+    // Fire-and-forget push notification — does not block the response
+    sendPushNotification({
+      title: data.title,
+      body: data.summary || 'Nueva noticia en UMCE Virtual',
+      data: { type: 'news', slug: data.slug || '' }
+    });
+    res.status(201).json(created);
   } catch (err) {
     console.error('Admin create news:', err.message);
     res.status(500).json({ error: err.message });
@@ -1834,6 +1967,53 @@ app.get('/noticia/:slug', (req, res) => res.sendFile(path.join(__dirname, 'publi
 app.get('/mis-cursos.html', (req, res) => res.redirect(301, '/mis-cursos'));
 app.get('/ayuda.html', (req, res) => res.redirect(301, '/ayuda'));
 app.get('/index.html', (req, res) => res.redirect(301, '/'));
+
+// === Push Notification Endpoints ===
+
+// POST /api/push/register — no auth required; app registers on first launch
+app.post('/api/push/register', async (req, res) => {
+  try {
+    const { token, platform, email } = req.body;
+    if (!token || typeof token !== 'string' || token.length > 4096) {
+      return res.status(400).json({ error: 'Token inválido o faltante' });
+    }
+    if (!platform || !['android', 'ios', 'web'].includes(platform)) {
+      return res.status(400).json({ error: 'Platform debe ser android, ios o web' });
+    }
+
+    // If the request comes with a session cookie, use that email
+    const cookies = parseCookies(req);
+    const sessionToken = cookies[COOKIE_NAME];
+    let resolvedEmail = null;
+    if (sessionToken) {
+      const user = verifyToken(sessionToken);
+      if (user) resolvedEmail = user.email;
+    }
+    // Body email as fallback (anonymous install providing email)
+    if (!resolvedEmail && email && typeof email === 'string' && email.includes('@')) {
+      resolvedEmail = email.toLowerCase();
+    }
+
+    await upsertDeviceToken(token, platform, resolvedEmail);
+    res.json({ registered: true });
+  } catch (err) {
+    console.error('Push register error:', err.message);
+    res.status(500).json({ error: 'Error registrando dispositivo' });
+  }
+});
+
+// POST /api/admin/push/send — admin only; manual push blast
+app.post('/api/admin/push/send', adminMiddleware, async (req, res) => {
+  try {
+    const { title, body, data } = req.body;
+    if (!title || !body) return res.status(400).json({ error: 'title y body son requeridos' });
+    const result = await sendPushNotification({ title, body, data: data || {} });
+    res.json(result);
+  } catch (err) {
+    console.error('Admin push send error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // 404 catch-all (must be last)
 app.use((req, res) => {
